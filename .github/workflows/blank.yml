@@ -47,19 +47,34 @@ jobs:
           zip -r ../db.zip db
           zip -r ../db_extra.zip db_extra
           cd ..
+          ls -la *.zip  # Verify the zip files were created
           
-      # Create a release and upload zip files
-      - name: Create Release and Upload Assets
+      # Get the current date for the update message
+      - name: Get current date
+        id: date
+        run: echo "DATE=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+          
+      # Update the "Current database" pre-release
+      - name: Update Database Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
             db.zip
             db_extra.zip
-          name: Database Release
-          tag_name: db-release-${{ github.run_number }}
+          name: "Current database"
+          tag_name: current-database
           body: |
-            Database files from Detect-It-Easy
+            # Detect-It-Easy Database Files
+            
+            Last updated: ${{ steps.date.outputs.DATE }}
+            
+            This pre-release contains the latest database files from Detect-It-Easy:
             - db.zip: Contains main database files
             - db_extra.zip: Contains extra database files
+            
+            These files are automatically updated from the [Detect-It-Easy repository](https://github.com/horsicq/Detect-It-Easy).
+          draft: false
+          prerelease: true
+          update_existing: true
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
