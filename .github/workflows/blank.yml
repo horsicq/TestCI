@@ -83,6 +83,5 @@ jobs:
             These files are automatically updated from the [Detect-It-Easy repository](https://github.com/horsicq/Detect-It-Easy).
           draft: false
           prerelease: true
-          update_existing: true
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
