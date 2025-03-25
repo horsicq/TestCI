@@ -62,4 +62,4 @@ jobs:
             - db.zip: Contains main database files
             - db_extra.zip: Contains extra database files
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
