@@ -1,0 +1,25 @@
+name: Build WinXP
+
+on:
+  workflow_dispatch:
+  release:
+    types: [created]
+  schedule:
+    - cron: '0 0 * * MON'
+
+# the jobs are based on these notes:
+# https://github.com/horsicq/Detect-It-Easy/blob/master/docs/BUILD.md
+jobs:
+  build-arch:
+    runs-on: windows-2019
+    steps:
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version:      ${{ env.QT_VERSION }}
+          host:         windows
+          target:       desktop
+          arch:         win32_msvc2013
+          dir:          ${{ runner.temp }}
+          modules:      qtcharts
+          setup-python: false
