@@ -4,20 +4,11 @@ on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: windows-2019
-    
+    name: Build VS 2017, Windows XP
+    runs-on: windows-2016
+
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Install Qt 5.6.3
-      uses: jurplel/install-qt-action@v3
-      with:
-        version: '5.6.3'
-        host: 'windows'
-        target: 'desktop'
-        arch: 'win64_msvc2015_64'  # For MSVC 2015 x64 build
-        # If you need MSVC 2013 use: 'win64_msvc2013_64' or 'win32_msvc2013'
-        modules: 'qtscript qtwebengine'  # Add any additional modules you need
-        
-    - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@v2
+    - uses: actions/checkout@v2
+
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v1.0.2
