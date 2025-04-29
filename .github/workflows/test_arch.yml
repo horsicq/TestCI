@@ -40,7 +40,7 @@ jobs:
           pwd
           cd /github/home/XPEViewer/
           pwd
-          sudo chown -R builduser /__w/TestCI/XPEViewer
+          sudo chown -R builduser /__w/TestCI/TestCI
           pwd
           sudo -u builduser bash -c 'bash -x build_archpkg.sh'
           rm -Rf /__w/TestCI/XPEViewer/release/*debug*
