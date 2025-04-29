@@ -1,0 +1,43 @@
+name: Build XPEViewer
+
+on:
+  workflow_dispatch:
+  release:
+    types: [created]
+  schedule:
+    - cron: '0 0 * * MON'
+
+env:
+  SRC_PATH: ${{ github.workspace }}/src
+  SRC_PATH_WIN: ${{ github.workspace }}\src
+  RELEASE_PATH: ${{ github.workspace }}/src/release
+
+
+jobs:
+  build-arch:
+    runs-on: ubuntu-latest
+    container: archlinux:base-devel
+    steps:
+      - name: Install dependencies
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm qt5-base qt5-script qt5-svg qt5-tools base-devel git
+          pacman -S --noconfirm imagemagick
+
+      - name: Create user
+        run: |
+          useradd builduser -m 
+          passwd -d builduser 
+          echo 'builduser ALL=(ALL) ALL' | tee -a /etc/sudoers 
+
+      - name: Clone XPEViewer
+        run: |
+          cd $HOME 
+          git clone --recursive https://github.com/horsicq/XPEViewer
+
+      - name: Build
+        run: |
+          sudo chown -R builduser /__w/XPEViewer/XPEViewer
+          pwd
+          sudo -u builduser bash -c 'bash -x build_archpkg.sh'
+          rm -Rf /__w/XPEViewer/XPEViewer/release/*debug*
