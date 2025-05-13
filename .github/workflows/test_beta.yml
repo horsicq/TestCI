@@ -53,6 +53,7 @@ jobs:
           pwd
           cd DIE
           cd scripts
+          $(python -V)
           $(python db.py '../db') > '../../db_stat.txt'
           $(python db.py '../db_extra') > '../../db_extra_stat.txt'
           
