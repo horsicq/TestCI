@@ -20,9 +20,6 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
-
       # Set git to use CRLF line endings
       - name: Configure git CRLF
         run: |
@@ -53,6 +50,7 @@ jobs:
       - name: Get signatures count
         id: scount
         run: |
+          pwd
           cd scripts
           SCOUNT_DB=$(python db.py '../db')
           SCOUNT_DB_EXTRA=$(python db.py '../db_extra')
