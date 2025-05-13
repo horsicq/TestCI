@@ -20,9 +20,10 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - uses: actions/setup-python@v5 
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          python-version: '3.13' 
+          python-version: '3.13'
       # Set git to use CRLF line endings
       - name: Configure git CRLF
         run: |
@@ -50,15 +51,13 @@ jobs:
           echo "DB_MD5=$DB_MD5" >> $GITHUB_OUTPUT
           echo "DB_EXTRA_MD5=$DB_EXTRA_MD5" >> $GITHUB_OUTPUT
           
-      - name: Get signatures count
-        id: scount
+      - name: Generate DB Stats
         run: |
-          pwd
           cd DIE
           cd scripts
-          $(python -V)
-          $(python db.py '../db') > '../../db_stat.txt'
-          $(python db.py '../db_extra') > '../../db_extra_stat.txt'
+          python --version
+          python db.py '../db' > '../../db_stat.txt'
+          python db.py '../db_extra' > '../../db_extra_stat.txt'
           
       # Get the current date for the update message
       - name: Get current date
