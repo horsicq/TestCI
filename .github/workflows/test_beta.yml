@@ -51,13 +51,10 @@ jobs:
         id: scount
         run: |
           pwd
+          cd DIE
           cd scripts
-          SCOUNT_DB=$(python db.py '../db')
-          SCOUNT_DB_EXTRA=$(python db.py '../db_extra')
-          escaped_value_DB=$(echo "$SCOUNT_DB" | sed 's/|/\\|/g')
-          escaped_value_DB_EXTRA=$(echo "$SCOUNT_DB_EXTRA" | sed 's/|/\\|/g')
-          echo "SCOUNT_DB=$escaped_value_DB" >> $GITHUB_ENV
-          echo "SCOUNT_DB_EXTRA=$escaped_value_DB_EXTRA" >> $GITHUB_ENV
+          $(python db.py '../db') > ../../db_stat.txt
+          $(python db.py '../db_extra') > ../../db_extra_stat.txt
           
       # Get the current date for the update message
       - name: Get current date
