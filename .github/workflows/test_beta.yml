@@ -53,8 +53,8 @@ jobs:
           pwd
           cd DIE
           cd scripts
-          $(python db.py '../db') > ../../db_stat.txt
-          $(python db.py '../db_extra') > ../../db_extra_stat.txt
+          $(python db.py '../db') > '../../db_stat.txt'
+          $(python db.py '../db_extra') > '../../db_extra_stat.txt'
           
       # Get the current date for the update message
       - name: Get current date
