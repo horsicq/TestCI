@@ -20,6 +20,7 @@ jobs:
 
       - name: Clone DiE's submodules with .git suffix
         run: |
+            git clone https://github.com/horsicq/DIE-engine.git
             git clone https://github.com/horsicq/Detect-It-Easy.git
             git clone https://github.com/horsicq/Formats.git
             git clone https://github.com/horsicq/SpecAbstract.git
@@ -76,9 +77,12 @@ jobs:
             git clone https://github.com/horsicq/XDisasmCore.git
             git clone https://github.com/horsicq/XRegionsWidget.git
             git clone https://github.com/horsicq/XStaticUnpacker.git
+            cd DIE-engine
 
       - name: Run configure
         run: |
           chmod a+x configure
           ./configure
+      - name: Build DiE
+        run: make -j8
        
