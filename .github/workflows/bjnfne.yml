@@ -16,7 +16,7 @@ jobs:
       - name: Install required libs
         run: |
           sudo apt-get update
-          sudo apt-get install qtbase5-dev qtscript5-dev qttools5-dev-tools libqt5svg5-dev git build-essential -y
+          sudo apt-get install qtbase5-dev qtscript5-dev qttools5-dev-tools libqt5svg5-dev git build-essential qtchooser qt5-qmake -y
 
       - name: Clone DiE's submodules with .git suffix
         run: |
@@ -78,13 +78,9 @@ jobs:
             git clone https://github.com/horsicq/XRegionsWidget.git
             git clone https://github.com/horsicq/XStaticUnpacker.git
 
-      - name: Run configure
+      - name: Build DiE
         run: |
           cd DIE-engine
           chmod a+x configure
           ./configure
-      - name: Build DiE  
-        run: |
-          cd DIE-engine
-          make -j4
-       
+          make
