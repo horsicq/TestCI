@@ -80,7 +80,7 @@ jobs:
 
       - name: Build DiE
         run: |
-          cp -r * DIE-engine/
+          rsync -av --exclude 'DIE-engine' ./ DIE-engine/
           cd DIE-engine
           chmod a+x configure
           ./configure
