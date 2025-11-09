@@ -21,7 +21,6 @@ jobs:
       - name: Clone DiE's submodules with .git suffix
         run: |
             git clone https://github.com/horsicq/DIE-engine.git
-            cd DIE-engine
             git clone https://github.com/horsicq/Detect-It-Easy.git
             git clone https://github.com/horsicq/Formats.git
             git clone https://github.com/horsicq/SpecAbstract.git
@@ -81,6 +80,8 @@ jobs:
 
       - name: Build DiE
         run: |
+          cp -r * DIE-engine/
+          cd DIE-engine
           chmod a+x configure
           ./configure
           make
