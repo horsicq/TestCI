@@ -84,4 +84,4 @@ jobs:
           cd DIE-engine
           chmod a+x configure
           ./configure
-          make
+          make -j8
