@@ -77,12 +77,14 @@ jobs:
             git clone https://github.com/horsicq/XDisasmCore.git
             git clone https://github.com/horsicq/XRegionsWidget.git
             git clone https://github.com/horsicq/XStaticUnpacker.git
-            cd DIE-engine
 
       - name: Run configure
         run: |
+          cd DIE-engine
           chmod a+x configure
           ./configure
-      - name: Build DiE
-        run: make -j8
+      - name: Build DiE  
+        run: |
+          cd DIE-engine
+          make -j4
        
