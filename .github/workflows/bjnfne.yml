@@ -27,7 +27,7 @@ jobs:
             git clone https://github.com/horsicq/StaticScan.git
             git clone https://github.com/horsicq/XArchive.git
             git clone https://github.com/horsicq/XQwt.git
-            git clone https://github.com/horsicq/XOptions.git
+            git clone https://github.com/DevX-Cipher/XOptions.git
             git clone https://github.com/horsicq/XStyles.git
             git clone https://github.com/horsicq/XTranslation.git
             git clone https://github.com/horsicq/XDEX.git
@@ -39,7 +39,7 @@ jobs:
             git clone https://github.com/horsicq/XCapstone.git
             git clone https://github.com/horsicq/XHashWidget.git
             git clone https://github.com/horsicq/die_script.git
-            git clone https://github.com/DevX-Cipher/die_widget.git
+            git clone https://github.com/horsicq/die_widget.git
             git clone https://github.com/horsicq/nfd_widget.git
             git clone https://github.com/horsicq/archive_widget.git
             git clone https://github.com/horsicq/XMIME.git
