@@ -67,7 +67,7 @@ jobs:
             git clone https://github.com/horsicq/hex_templates.git
             git clone https://github.com/horsicq/XExtractorWidget.git
             git clone https://github.com/horsicq/XExtractor.git
-            git clone https://github.com/DevX-Cipher/XUpdate.git
+            git clone https://github.com/horsicq/XUpdate.git
             git clone https://github.com/horsicq/XVisualizationWidget.git
             git clone https://github.com/horsicq/XDecompiler.git
             git clone https://github.com/horsicq/XYara.git
