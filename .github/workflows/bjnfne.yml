@@ -18,7 +18,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install qtbase5-dev qtscript5-dev qttools5-dev-tools libqt5svg5-dev git build-essential qtchooser qt5-qmake -y
 
-      - name: Clone DiE's submodules with .git suffix
+      - name: Clone DiE's submodules
         run: |
             git clone https://github.com/horsicq/DIE-engine.git
             git clone https://github.com/horsicq/Detect-It-Easy.git
@@ -67,7 +67,7 @@ jobs:
             git clone https://github.com/horsicq/hex_templates.git
             git clone https://github.com/horsicq/XExtractorWidget.git
             git clone https://github.com/horsicq/XExtractor.git
-            git clone https://github.com/horsicq/XUpdate.git
+            git clone https://github.com/DevX-Cipher/XUpdate.git
             git clone https://github.com/horsicq/XVisualizationWidget.git
             git clone https://github.com/horsicq/XDecompiler.git
             git clone https://github.com/horsicq/XYara.git
