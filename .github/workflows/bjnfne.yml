@@ -85,6 +85,16 @@ jobs:
         run: |
           rsync -av --exclude 'DIE-engine' ./ DIE-engine/
           cd DIE-engine
-          chmod a+x configure
-          ./configure
-          make -j8
+          bash -x build_dpkg.sh
+          pwd
+      - name: Upload Release as Download
+        if: github.event_name != 'pull_request'
+        uses: softprops/action-gh-release@v2
+        env:
+          RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        with:
+          tag_name: Beta
+          draft: false
+          prerelease: true
+          files: |
+            ${{ env.RELEASE_PATH }}/*.deb
