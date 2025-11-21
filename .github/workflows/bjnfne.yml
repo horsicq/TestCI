@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 jobs:
@@ -81,14 +79,80 @@ jobs:
             git clone https://github.com/horsicq/XRegionsWidget.git
             git clone https://github.com/horsicq/XStaticUnpacker.git
 
-      - name: Build DiE
+      # === DEBUGGING: Check Controls repo ===
+      - name: Debug - Check Controls for xlineedithex
+        run: |
+          echo "=== All files in Controls/ ==="
+          ls -la Controls/
+          echo ""
+          echo "=== Find xlineedithex files anywhere ==="
+          find . -name "xlineedithex*" -type f
+          echo ""
+          echo "=== Check if xlineedithex.h exists in Controls ==="
+          cat Controls/xlineedithex.h 2>/dev/null | head -20 || echo "xlineedithex.h NOT FOUND in Controls!"
+          echo ""
+          echo "=== Check if xlineedithex.pri exists ==="
+          cat Controls/xlineedithex.pri 2>/dev/null || echo "xlineedithex.pri NOT FOUND!"
+
+      # === DEBUGGING: Check XEntropyWidget dependencies ===
+      - name: Debug - Check XEntropyWidget include structure
+        run: |
+          echo "=== XEntropyWidget .pri files ==="
+          cat XEntropyWidget/*.pri 2>/dev/null || echo "No .pri files"
+          echo ""
+          echo "=== entropyprocess.h line 29 context ==="
+          sed -n '25,35p' XEntropyWidget/entropyprocess.h
+          echo ""
+          echo "=== All includes in entropyprocess.h ==="
+          grep -n "#include" XEntropyWidget/entropyprocess.h
+
+      - name: Rsync files into DIE-engine
         run: |
           rsync -av --exclude 'DIE-engine' ./ DIE-engine/
+
+      # === DEBUGGING: Verify structure after rsync ===
+      - name: Debug - Verify Controls in DIE-engine after rsync
+        run: |
           cd DIE-engine
-          bash -x build_dpkg.sh
-          pwd
+          echo "=== Top-level directories ==="
+          ls -d */ | head -40
+          echo ""
+          echo "=== Controls directory in DIE-engine? ==="
+          ls -la Controls/ 2>/dev/null || echo "Controls NOT FOUND in DIE-engine!"
+          echo ""
+          echo "=== xlineedithex files in DIE-engine ==="
+          find . -name "xlineedithex*" -type f
+          echo ""
+          echo "=== Test relative path from XEntropyWidget to Controls ==="
+          ls -la XEntropyWidget/../Controls/xlineedithex.h 2>/dev/null || echo "Relative path ../Controls/xlineedithex.h NOT WORKING"
+
+      - name: Debug - Show build script
+        run: |
+          cd DIE-engine
+          echo "=== build_dpkg.sh contents ==="
+          cat build_dpkg.sh
+
+      - name: Build DiE (verbose)
+        run: |
+          cd DIE-engine
+          bash -x build_dpkg.sh 2>&1 | tee build.log
+        continue-on-error: true
+
+      - name: Debug - Show build failure context
+        if: always()
+        run: |
+          cd DIE-engine
+          echo "=== Last 150 lines of build log ==="
+          tail -150 build.log 2>/dev/null || echo "No build log"
+          echo ""
+          echo "=== Grep for xlineedithex errors ==="
+          grep -i "xlineedithex" build.log 2>/dev/null || echo "No xlineedithex mentions in log"
+          echo ""
+          echo "=== Check INCPATH in any Makefile ==="
+          find . -name "Makefile" -exec grep -l "INCPATH" {} \; 2>/dev/null | head -3 | xargs -I{} sh -c 'echo "=== {} ===" && grep "INCPATH" {}'
+
       - name: Upload Release as Download
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && success()
         uses: softprops/action-gh-release@v2
         env:
           RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
