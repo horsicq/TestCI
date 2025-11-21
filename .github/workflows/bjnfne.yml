@@ -81,49 +81,12 @@ jobs:
             git clone https://github.com/horsicq/XRegionsWidget.git
             git clone https://github.com/horsicq/XStaticUnpacker.git
 
-      # === DEBUG: Check Controls for xlineedithex ===
-      - name: Debug - Check Controls for xlineedithex
-        run: |
-          echo "=== Files in Controls/ ==="
-          ls -la Controls/
-          echo ""
-          echo "=== Find xlineedithex files anywhere ==="
-          find . -name "xlineedithex*" -type f
-          echo ""
-          echo "=== Check xlineedithex.h exists ==="
-          cat Controls/xlineedithex.h 2>/dev/null | head -20 || echo "NOT FOUND!"
-
-      # === DEBUG: Check structure after rsync ===
-      - name: Debug - Rsync and verify structure
+      - name: Build DiE
         run: |
           rsync -av --exclude 'DIE-engine' ./ DIE-engine/
           cd DIE-engine
-          echo "=== Directories in DIE-engine ==="
-          ls -d */
-          echo ""
-          echo "=== Test relative path from XEntropyWidget ==="
-          ls -la XEntropyWidget/../Controls/xlineedithex.h 2>/dev/null || echo "Relative path FAILED!"
-          echo ""
-          echo "=== Find xlineedithex in DIE-engine ==="
-          find . -name "xlineedithex*" -type f
-
-      - name: Build DiE
-        run: |
-          cd DIE-engine
-          bash -x build_dpkg.sh 2>&1 | tee build.log
-        continue-on-error: true
-
-      # === DEBUG: Show failure info ===
-      - name: Debug - Build failure info
-        if: always()
-        run: |
-          cd DIE-engine
-          echo "=== Last 100 lines of build ==="
-          tail -100 build.log 2>/dev/null
-          echo ""
-          echo "=== INCPATH in Makefiles ==="
-          find . -name "Makefile" -exec grep "INCPATH" {} \; 2>/dev/null | head -10
-
+          bash -x build_dpkg.sh
+          pwd
       - name: Upload Release as Download
         if: github.event_name != 'pull_request'
         uses: softprops/action-gh-release@v2
