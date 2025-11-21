@@ -1,82 +1,100 @@
-name: Build DIE-engine
+name: BJNFNE's CI
 
 on:
   push:
     branches:
       - main
+
+  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 jobs:
-  build-ubuntu-24:
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install qtbase5-dev qtscript5-dev qttools5-dev-tools libqt5svg5-dev qtchooser qt5-qmake build-essential -y
-
-      - name: Build
-        run: |
-          bash -x build_dpkg.sh
-
-      - name: Upload Release
-        if: github.event_name != 'pull_request'
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: Beta
-          draft: false
-          prerelease: true
-          files: |
-            release/*.deb
-
-  build-ubuntu-22:
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install qtbase5-dev qtscript5-dev qttools5-dev-tools libqt5svg5-dev qtchooser qt5-qmake build-essential -y
-
-      - name: Build
-        run: |
-          bash -x build_dpkg.sh
-
-      - name: Upload Release
-        if: github.event_name != 'pull_request'
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: Beta
-          draft: false
-          prerelease: true
-          files: |
-            release/*.deb
-
-  build-arch:
+  build:
     runs-on: ubuntu-latest
-    container: archlinux:base-devel
+
     steps:
-      - name: Install dependencies
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install required libs
         run: |
-          pacman -Syu --noconfirm
-          pacman -S --noconfirm qt5-base qt5-script qt5-svg qt5-tools base-devel git imagemagick
+          sudo apt-get update
+          sudo apt-get install qtbase5-dev qtscript5-dev qttools5-dev-tools libqt5svg5-dev git build-essential qtchooser qt5-qmake -y
 
-      - uses: actions/checkout@v4
-
-      - name: Build
+      - name: Clone DiE's submodules
         run: |
-          bash -x build_archpkg.sh
-          rm -rf release/*debug*
+            git clone https://github.com/DevX-Cipher/DIE-engine.git
+            git clone https://github.com/horsicq/Detect-It-Easy.git
+            git clone https://github.com/horsicq/Formats.git
+            git clone https://github.com/horsicq/SpecAbstract.git
+            git clone https://github.com/horsicq/StaticScan.git
+            git clone https://github.com/horsicq/XArchive.git
+            git clone https://github.com/horsicq/XQwt.git
+            git clone https://github.com/DevX-Cipher/XOptions.git
+            git clone https://github.com/horsicq/XStyles.git
+            git clone https://github.com/horsicq/XTranslation.git
+            git clone https://github.com/horsicq/XDEX.git
+            git clone https://github.com/horsicq/FormatDialogs.git
+            git clone https://github.com/DevX-Cipher/FormatWidgets.git
+            git clone https://github.com/horsicq/Controls.git
+            git clone https://github.com/horsicq/XMemoryMapWidget.git
+            git clone https://github.com/horsicq/XEntropyWidget.git
+            git clone https://github.com/horsicq/XCapstone.git
+            git clone https://github.com/horsicq/XHashWidget.git
+            git clone https://github.com/horsicq/die_script.git
+            git clone https://github.com/horsicq/die_widget.git
+            git clone https://github.com/horsicq/nfd_widget.git
+            git clone https://github.com/horsicq/archive_widget.git
+            git clone https://github.com/horsicq/XMIME.git
+            git clone https://github.com/horsicq/XSingleApplication.git
+            git clone https://github.com/horsicq/XMIMEWidget.git
+            git clone https://github.com/horsicq/XHexView.git
+            git clone https://github.com/horsicq/XDisasmView.git
+            git clone https://github.com/horsicq/XGithub.git
+            git clone https://github.com/horsicq/XShortcuts.git
+            git clone https://github.com/horsicq/XHexEdit.git
+            git clone https://github.com/horsicq/signatures.git
+            git clone https://github.com/horsicq/XDemangle.git
+            git clone https://github.com/horsicq/XDemangleWidget.git
+            git clone https://github.com/horsicq/build_tools.git
+            git clone https://github.com/horsicq/XCppfilt.git
+            git clone https://github.com/horsicq/XDynStructs.git
+            git clone https://github.com/horsicq/XDynStructsEngine.git
+            git clone https://github.com/horsicq/XDynStructsWidget.git
+            git clone https://github.com/horsicq/XFileInfo.git
+            git clone https://github.com/horsicq/XPDF.git
+            git clone https://github.com/horsicq/XInfoDB.git
+            git clone https://github.com/horsicq/XSymbolsWidget.git
+            git clone https://github.com/horsicq/XOnlineTools.git
+            git clone https://github.com/horsicq/XAboutWidget.git
+            git clone https://github.com/horsicq/hex_templates.git
+            git clone https://github.com/horsicq/XExtractorWidget.git
+            git clone https://github.com/horsicq/XExtractor.git
+            git clone https://github.com/horsicq/XUpdate.git
+            git clone https://github.com/horsicq/XVisualizationWidget.git
+            git clone https://github.com/horsicq/XDecompiler.git
+            git clone https://github.com/horsicq/XYara.git
+            git clone https://github.com/horsicq/yara_widget.git
+            git clone https://github.com/horsicq/XDataConvertorWidget.git
+            git clone https://github.com/horsicq/XScanEngine.git
+            git clone https://github.com/horsicq/XDisasmCore.git
+            git clone https://github.com/horsicq/XRegionsWidget.git
+            git clone https://github.com/horsicq/XStaticUnpacker.git
 
-      - name: Upload Release
+      - name: Build DiE
+        run: |
+          rsync -av --exclude 'DIE-engine' ./ DIE-engine/
+          cd DIE-engine
+          bash -x build_dpkg.sh
+          pwd
+      - name: Upload Release as Download
         if: github.event_name != 'pull_request'
         uses: softprops/action-gh-release@v2
+        env:
+          RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         with:
           tag_name: Beta
           draft: false
           prerelease: true
           files: |
-            release/*.pkg.tar.zst
+            ${{ env.RELEASE_PATH }}/*.deb
