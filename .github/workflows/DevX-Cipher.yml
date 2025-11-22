@@ -17,10 +17,7 @@ jobs:
       - name: Install required libs
         run: |
           sudo apt-get update
-          sudo apt-get install -y \
-            git build-essential qtchooser qt5-qmake \
-            qtbase5-dev qtscript5-dev qttools5-dev-tools libqt5svg5-dev \
-            libqt5opengl5-dev libqt5scripttools5-dev
+                  sudo apt-get install qtbase5-dev qtscript5-dev qttools5-dev-tools libqt5svg5-dev git build-essential qtchooser qt5-qmake -y
             
       - name: Clone DiE's submodules
         run: |
