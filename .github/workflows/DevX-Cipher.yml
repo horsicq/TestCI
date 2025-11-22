@@ -1,11 +1,9 @@
-name: BJNFNE's CI
+name: DevX-Cipher's CI
 
 on:
   push:
     branches:
       - main
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 jobs:
@@ -19,8 +17,11 @@ jobs:
       - name: Install required libs
         run: |
           sudo apt-get update
-          sudo apt-get install qtbase5-dev qtscript5-dev qttools5-dev-tools libqt5svg5-dev git build-essential qtchooser qt5-qmake -y
-
+          sudo apt-get install -y \
+            git build-essential qtchooser qt5-qmake \
+            qtbase5-dev qtscript5-dev qttools5-dev-tools libqt5svg5-dev \
+            libqt5opengl5-dev libqt5scripttools5-dev
+            
       - name: Clone DiE's submodules
         run: |
             git clone https://github.com/DevX-Cipher/DIE-engine.git
@@ -83,8 +84,7 @@ jobs:
 
       - name: Build DiE
         run: |
-          rsync -av --exclude 'DIE-engine' ./ DIE-engine/
           cd DIE-engine
           chmod a+x configure
           ./configure
-          make -j8
+          make -j$(nproc) VERBOSE=1
