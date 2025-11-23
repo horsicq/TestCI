@@ -100,4 +100,4 @@ jobs:
           draft: false
           prerelease: true
           files: |
-            ${{ env.RELEASE_PATH }}/*.deb
+            /home/runner/work/TestCI/TestCI/DIE-engine/release/*.deb
