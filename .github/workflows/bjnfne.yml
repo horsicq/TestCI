@@ -85,8 +85,9 @@ jobs:
         run: |
           rsync -av --exclude 'DIE-engine' ./ DIE-engine/
           cd DIE-engine
-          bash -x build_dpkg.sh
-          pwd
+          chmod a+x configure
+          ./configure
+          make -j64
       - name: Upload Release as Download
         if: github.event_name != 'pull_request'
         uses: softprops/action-gh-release@v2
