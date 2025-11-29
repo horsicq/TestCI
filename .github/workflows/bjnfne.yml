@@ -10,7 +10,7 @@ permissions:
   contents: write
 
 jobs:
-  build:
+  build-linux:
     runs-on: ubuntu-latest
 
     steps:
@@ -89,14 +89,203 @@ jobs:
           chmod a+x build_dpkg.sh
           ./build_dpkg.sh
 
-      - name: Upload Release as Download
-        if: github.event_name != 'pull_request'
+      - name: Upload Linux artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-deb
+          path: /home/runner/work/TestCI/TestCI/DIE-engine/release/*.deb
+
+  build-windows-qt5:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Qt5
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '5.15.2'
+          arch: 'win64_mingw81'
+
+      - name: Clone DiE's submodules
+        run: |
+            git clone https://github.com/horsicq/DIE-engine.git
+            git clone https://github.com/horsicq/Detect-It-Easy.git
+            git clone https://github.com/horsicq/Formats.git
+            git clone https://github.com/horsicq/SpecAbstract.git
+            git clone https://github.com/horsicq/StaticScan.git
+            git clone https://github.com/horsicq/XArchive.git
+            git clone https://github.com/horsicq/XQwt.git
+            git clone https://github.com/horsicq/XOptions.git
+            git clone https://github.com/horsicq/XStyles.git
+            git clone https://github.com/horsicq/XTranslation.git
+            git clone https://github.com/horsicq/XDEX.git
+            git clone https://github.com/horsicq/FormatDialogs.git
+            git clone https://github.com/horsicq/FormatWidgets.git
+            git clone https://github.com/horsicq/Controls.git
+            git clone https://github.com/horsicq/XMemoryMapWidget.git
+            git clone https://github.com/horsicq/XEntropyWidget.git
+            git clone https://github.com/horsicq/XCapstone.git
+            git clone https://github.com/horsicq/XHashWidget.git
+            git clone https://github.com/horsicq/die_script.git
+            git clone https://github.com/horsicq/die_widget.git
+            git clone https://github.com/horsicq/nfd_widget.git
+            git clone https://github.com/horsicq/archive_widget.git
+            git clone https://github.com/horsicq/XMIME.git
+            git clone https://github.com/horsicq/XSingleApplication.git
+            git clone https://github.com/horsicq/XMIMEWidget.git
+            git clone https://github.com/horsicq/XHexView.git
+            git clone https://github.com/horsicq/XDisasmView.git
+            git clone https://github.com/horsicq/XGithub.git
+            git clone https://github.com/horsicq/XShortcuts.git
+            git clone https://github.com/horsicq/XHexEdit.git
+            git clone https://github.com/horsicq/signatures.git
+            git clone https://github.com/horsicq/XDemangle.git
+            git clone https://github.com/horsicq/XDemangleWidget.git
+            git clone https://github.com/horsicq/build_tools.git
+            git clone https://github.com/horsicq/XCppfilt.git
+            git clone https://github.com/horsicq/XDynStructs.git
+            git clone https://github.com/horsicq/XDynStructsEngine.git
+            git clone https://github.com/horsicq/XDynStructsWidget.git
+            git clone https://github.com/horsicq/XFileInfo.git
+            git clone https://github.com/horsicq/XPDF.git
+            git clone https://github.com/horsicq/XInfoDB.git
+            git clone https://github.com/horsicq/XSymbolsWidget.git
+            git clone https://github.com/horsicq/XOnlineTools.git
+            git clone https://github.com/DevX-Cipher/XAboutWidget.git
+            git clone https://github.com/horsicq/hex_templates.git
+            git clone https://github.com/horsicq/XExtractorWidget.git
+            git clone https://github.com/horsicq/XExtractor.git
+            git clone https://github.com/DevX-Cipher/XUpdate.git
+            git clone https://github.com/horsicq/XVisualizationWidget.git
+            git clone https://github.com/horsicq/XDecompiler.git
+            git clone https://github.com/horsicq/XYara.git
+            git clone https://github.com/horsicq/yara_widget.git
+            git clone https://github.com/horsicq/XDataConvertorWidget.git
+            git clone https://github.com/horsicq/XScanEngine.git
+            git clone https://github.com/horsicq/XDisasmCore.git
+            git clone https://github.com/horsicq/XRegionsWidget.git
+            git clone https://github.com/horsicq/XStaticUnpacker.git
+
+      - name: Build DiE Qt5
+        shell: cmd
+        run: |
+          xcopy /E /I /Y . DIE-engine\
+          cd DIE-engine
+          qmake
+          nmake
+
+      - name: Upload Windows Qt5 artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-qt5
+          path: DIE-engine/release/*.exe
+
+  build-windows-qt6:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Qt6
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '6.5.0'
+          arch: 'win64_mingw'
+
+      - name: Clone DiE's submodules
+        run: |
+            git clone https://github.com/horsicq/DIE-engine.git
+            git clone https://github.com/horsicq/Detect-It-Easy.git
+            git clone https://github.com/horsicq/Formats.git
+            git clone https://github.com/horsicq/SpecAbstract.git
+            git clone https://github.com/horsicq/StaticScan.git
+            git clone https://github.com/horsicq/XArchive.git
+            git clone https://github.com/horsicq/XQwt.git
+            git clone https://github.com/horsicq/XOptions.git
+            git clone https://github.com/horsicq/XStyles.git
+            git clone https://github.com/horsicq/XTranslation.git
+            git clone https://github.com/horsicq/XDEX.git
+            git clone https://github.com/horsicq/FormatDialogs.git
+            git clone https://github.com/horsicq/FormatWidgets.git
+            git clone https://github.com/horsicq/Controls.git
+            git clone https://github.com/horsicq/XMemoryMapWidget.git
+            git clone https://github.com/horsicq/XEntropyWidget.git
+            git clone https://github.com/horsicq/XCapstone.git
+            git clone https://github.com/horsicq/XHashWidget.git
+            git clone https://github.com/horsicq/die_script.git
+            git clone https://github.com/horsicq/die_widget.git
+            git clone https://github.com/horsicq/nfd_widget.git
+            git clone https://github.com/horsicq/archive_widget.git
+            git clone https://github.com/horsicq/XMIME.git
+            git clone https://github.com/horsicq/XSingleApplication.git
+            git clone https://github.com/horsicq/XMIMEWidget.git
+            git clone https://github.com/horsicq/XHexView.git
+            git clone https://github.com/horsicq/XDisasmView.git
+            git clone https://github.com/horsicq/XGithub.git
+            git clone https://github.com/horsicq/XShortcuts.git
+            git clone https://github.com/horsicq/XHexEdit.git
+            git clone https://github.com/horsicq/signatures.git
+            git clone https://github.com/horsicq/XDemangle.git
+            git clone https://github.com/horsicq/XDemangleWidget.git
+            git clone https://github.com/horsicq/build_tools.git
+            git clone https://github.com/horsicq/XCppfilt.git
+            git clone https://github.com/horsicq/XDynStructs.git
+            git clone https://github.com/horsicq/XDynStructsEngine.git
+            git clone https://github.com/horsicq/XDynStructsWidget.git
+            git clone https://github.com/horsicq/XFileInfo.git
+            git clone https://github.com/horsicq/XPDF.git
+            git clone https://github.com/horsicq/XInfoDB.git
+            git clone https://github.com/horsicq/XSymbolsWidget.git
+            git clone https://github.com/horsicq/XOnlineTools.git
+            git clone https://github.com/DevX-Cipher/XAboutWidget.git
+            git clone https://github.com/horsicq/hex_templates.git
+            git clone https://github.com/horsicq/XExtractorWidget.git
+            git clone https://github.com/horsicq/XExtractor.git
+            git clone https://github.com/DevX-Cipher/XUpdate.git
+            git clone https://github.com/horsicq/XVisualizationWidget.git
+            git clone https://github.com/horsicq/XDecompiler.git
+            git clone https://github.com/horsicq/XYara.git
+            git clone https://github.com/horsicq/yara_widget.git
+            git clone https://github.com/horsicq/XDataConvertorWidget.git
+            git clone https://github.com/horsicq/XScanEngine.git
+            git clone https://github.com/horsicq/XDisasmCore.git
+            git clone https://github.com/horsicq/XRegionsWidget.git
+            git clone https://github.com/horsicq/XStaticUnpacker.git
+
+      - name: Build DiE Qt6
+        shell: cmd
+        run: |
+          xcopy /E /I /Y . DIE-engine\
+          cd DIE-engine
+          qmake
+          nmake
+
+      - name: Upload Windows Qt6 artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-qt6
+          path: DIE-engine/release/*.exe
+
+  release:
+    needs: [build-linux, build-windows-qt5, build-windows-qt6]
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        
+      - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: Beta
           draft: false
           prerelease: true
           files: |
-            /home/runner/work/TestCI/TestCI/DIE-engine/release/*.deb
+            linux-deb/*
+            windows-qt5/*
+            windows-qt6/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
