@@ -4,9 +4,10 @@ on:
   push:
     branches:
       - main
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -87,17 +88,15 @@ jobs:
           cd DIE-engine
           chmod a+x build_dpkg.sh
           ./build_dpkg.sh
-          #chmod a+x configure
-          #./configure
-          #make -j64
+
       - name: Upload Release as Download
         if: github.event_name != 'pull_request'
         uses: softprops/action-gh-release@v2
-        env:
-          RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         with:
           tag_name: Beta
           draft: false
           prerelease: true
           files: |
             /home/runner/work/TestCI/TestCI/DIE-engine/release/*.deb
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
