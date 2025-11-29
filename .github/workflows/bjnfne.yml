@@ -23,19 +23,19 @@ jobs:
 
       - name: Clone DiE's submodules
         run: |
-            git clone https://github.com/DevX-Cipher/DIE-engine.git
+            git clone https://github.com/horsicq/DIE-engine.git
             git clone https://github.com/horsicq/Detect-It-Easy.git
             git clone https://github.com/horsicq/Formats.git
             git clone https://github.com/horsicq/SpecAbstract.git
             git clone https://github.com/horsicq/StaticScan.git
             git clone https://github.com/horsicq/XArchive.git
             git clone https://github.com/horsicq/XQwt.git
-            git clone https://github.com/DevX-Cipher/XOptions.git
+            git clone https://github.com/horsicq/XOptions.git
             git clone https://github.com/horsicq/XStyles.git
             git clone https://github.com/horsicq/XTranslation.git
             git clone https://github.com/horsicq/XDEX.git
             git clone https://github.com/horsicq/FormatDialogs.git
-            git clone https://github.com/DevX-Cipher/FormatWidgets.git
+            git clone https://github.com/horsicq/FormatWidgets.git
             git clone https://github.com/horsicq/Controls.git
             git clone https://github.com/horsicq/XMemoryMapWidget.git
             git clone https://github.com/horsicq/XEntropyWidget.git
@@ -66,11 +66,11 @@ jobs:
             git clone https://github.com/horsicq/XInfoDB.git
             git clone https://github.com/horsicq/XSymbolsWidget.git
             git clone https://github.com/horsicq/XOnlineTools.git
-            git clone https://github.com/horsicq/XAboutWidget.git
+            git clone https://github.com/DevX-Cipher/XAboutWidget.git
             git clone https://github.com/horsicq/hex_templates.git
             git clone https://github.com/horsicq/XExtractorWidget.git
             git clone https://github.com/horsicq/XExtractor.git
-            git clone https://github.com/horsicq/XUpdate.git
+            git clone https://github.com/DevX-Cipher/XUpdate.git
             git clone https://github.com/horsicq/XVisualizationWidget.git
             git clone https://github.com/horsicq/XDecompiler.git
             git clone https://github.com/horsicq/XYara.git
