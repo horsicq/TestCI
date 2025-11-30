@@ -131,8 +131,9 @@ jobs:
 
       - name: Clone DiE's submodules
         shell: cmd
+        working-directory: src
         run: |
-          cd src
+          echo Cloning submodules into: %CD%
           git clone https://github.com/horsicq/DIE-engine.git
           git clone https://github.com/horsicq/Detect-It-Easy.git
           git clone https://github.com/horsicq/Formats.git
@@ -190,6 +191,14 @@ jobs:
           git clone https://github.com/horsicq/XDisasmCore.git
           git clone https://github.com/horsicq/XRegionsWidget.git
           git clone https://github.com/horsicq/XStaticUnpacker.git
+          echo.
+          echo Checking for build script:
+          if exist build_win_generic_check.cmd (
+            echo Found: build_win_generic_check.cmd
+          ) else (
+            echo ERROR: build_win_generic_check.cmd not found!
+            dir /b
+          )
 
       - name: Build
         shell: cmd
