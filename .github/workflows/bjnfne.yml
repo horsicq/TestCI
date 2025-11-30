@@ -204,6 +204,11 @@ jobs:
         shell: cmd
         working-directory: src
         run: |
+          echo Copying files to DIE-engine directory...
+          xcopy /E /I /Y /EXCLUDE:DIE-engine * DIE-engine\
+          
+          cd DIE-engine
+          
           set VSVARS_PATH=C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars32.bat
           set QMAKE_PATH=D:\a\TestCI\TestCI\Qt\5.15.2\msvc2019\bin\qmake.exe
           set SEVENZIP_PATH=C:\Program Files\7-Zip\7z.exe
@@ -211,7 +216,7 @@ jobs:
 
           set X_BUILD_NAME=die
           set X_BUILD_PREFIX=win32
-          set X_SOURCE_PATH=D:\a\TestCI\TestCI\src
+          set X_SOURCE_PATH=%CD%
           for /f "delims=" %%x in ('type "release_version.txt"') do set X_RELEASE_VERSION=%%x
 
           call build_win_generic_check.cmd
@@ -322,6 +327,11 @@ jobs:
         shell: cmd
         working-directory: src
         run: |
+          echo Copying files to DIE-engine directory...
+          xcopy /E /I /Y /EXCLUDE:DIE-engine * DIE-engine\
+          
+          cd DIE-engine
+          
           set VSVARS_PATH=C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat
           set QMAKE_PATH=D:\a\TestCI\TestCI\Qt\5.15.2\msvc2019_64\bin\qmake.exe
           set SEVENZIP_PATH=C:\Program Files\7-Zip\7z.exe
@@ -329,7 +339,7 @@ jobs:
 
           set X_BUILD_NAME=die
           set X_BUILD_PREFIX=win64
-          set X_SOURCE_PATH=D:\a\TestCI\TestCI\src
+          set X_SOURCE_PATH=%CD%
           for /f "delims=" %%x in ('type "release_version.txt"') do set X_RELEASE_VERSION=%%x
 
           call build_win_generic_check.cmd
