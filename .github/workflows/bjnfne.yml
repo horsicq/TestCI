@@ -315,7 +315,7 @@ jobs:
           set X_BUILD_NAME=die
           set X_BUILD_PREFIX=win64_qt5
           set X_SOURCE_PATH=%CD%
-          call build_win_generic.cmd
+          call build_win_generic_check.cmd
           dir "%X_SOURCE_PATH%\release\*.zip" >nul 2>&1
           if %ERRORLEVEL% neq 0 (
             echo "ZIP file does not exist"
