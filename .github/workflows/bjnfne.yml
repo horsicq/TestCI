@@ -124,7 +124,6 @@ jobs:
           arch: x64
 
       - name: Clone DiE's submodules
-        shell: bash
         run: |
             git clone https://github.com/horsicq/DIE-engine.git
             git clone https://github.com/horsicq/Detect-It-Easy.git
@@ -187,7 +186,7 @@ jobs:
       - name: Build DiE for Windows
         shell: cmd
         run: |
-          xcopy /E /I /Y /EXCLUDE:DIE-engine DIE-engine
+          robocopy . DIE-engine /E /XD DIE-engine || exit 0
           cd DIE-engine
           build_win_generic_qt6.cmd
 
