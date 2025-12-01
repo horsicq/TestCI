@@ -238,6 +238,7 @@ jobs:
           target: 'desktop'
           arch: 'win64_msvc2019_64'
           dir: ${{ github.workspace }}
+          modules: qtscript
 
       - name: Clone DiE's submodules
         run: |
@@ -313,9 +314,16 @@ jobs:
           set QMAKE_PATH="${{ github.workspace }}\Qt\5.15.2\msvc2019_64\bin\qmake.exe"
           set SEVENZIP_PATH="C:\Program Files\7-Zip\7z.exe"
           set X_BUILD_NAME=die
-          set X_BUILD_PREFIX=win64_qt5
+          set X_BUILD_PREFIX=win64
           set X_SOURCE_PATH=%CD%
+          for /f "delims=" %%x in ('type "%X_SOURCE_PATH%\release_version.txt"') do set X_RELEASE_VERSION=%%x
+          echo on
           call build_win_generic_check.cmd
+          dir "%X_SOURCE_PATH%\release\*.zip" >nul 2>&1
+          if %ERRORLEVEL% neq 0 (
+            echo "ZIP file does not exist"
+            exit /b 1
+          )
           dir "%X_SOURCE_PATH%\release\*.zip" >nul 2>&1
           if %ERRORLEVEL% neq 0 (
             echo "ZIP file does not exist"
