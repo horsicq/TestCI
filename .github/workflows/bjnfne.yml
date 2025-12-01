@@ -186,7 +186,7 @@ jobs:
       - name: Build DiE for Windows
         shell: cmd
         run: |
-          robocopy . DIE-engine /E /XD DIE-engine || exit 0
+          xcopy /E /I /Y . DIE-engine\
           cd DIE-engine
           set VSVARS_PATH="C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
           set QMAKE_PATH="${{ github.workspace }}\Qt\6.8.3\msvc2022_64\bin\qmake.exe"
