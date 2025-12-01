@@ -186,7 +186,12 @@ jobs:
       - name: Build DiE for Windows
         shell: cmd
         run: |
-          xcopy /E /I /Y . DIE-engine\
+          for /d %%d in (*) do (
+            if /i not "%%d"=="DIE-engine" xcopy /E /I /Y "%%d" "DIE-engine\%%d\"
+          )
+          for %%f in (*) do (
+            if /i not "%%f"=="DIE-engine" xcopy /Y "%%f" "DIE-engine\"
+          )
           cd DIE-engine
           set VSVARS_PATH="C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
           set QMAKE_PATH="${{ github.workspace }}\Qt\6.8.3\msvc2022_64\bin\qmake.exe"
