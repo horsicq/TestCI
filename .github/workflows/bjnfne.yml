@@ -24,14 +24,14 @@ jobs:
 
       - name: Clone DiE's submodules
         run: |
-            git clone https://github.com/DevX-Cipher/DIE-engine.git
+            git clone https://github.com/horsicq/DIE-engine.git
             git clone https://github.com/horsicq/Detect-It-Easy.git
             git clone https://github.com/horsicq/Formats.git
             git clone https://github.com/horsicq/SpecAbstract.git
             git clone https://github.com/horsicq/StaticScan.git
             git clone https://github.com/horsicq/XArchive.git
             git clone https://github.com/horsicq/XQwt.git
-            git clone https://github.com/DevX-Cipher/XOptions.git
+            git clone https://github.com/horsicq/XOptions.git
             git clone https://github.com/horsicq/XStyles.git
             git clone https://github.com/horsicq/XTranslation.git
             git clone https://github.com/horsicq/XDEX.git
@@ -43,7 +43,7 @@ jobs:
             git clone https://github.com/horsicq/XCapstone.git
             git clone https://github.com/horsicq/XHashWidget.git
             git clone https://github.com/horsicq/die_script.git
-            git clone https://github.com/DevX-Cipher/die_widget.git
+            git clone https://github.com/horsicq/die_widget.git
             git clone https://github.com/horsicq/nfd_widget.git
             git clone https://github.com/horsicq/archive_widget.git
             git clone https://github.com/horsicq/XMIME.git
@@ -67,17 +67,17 @@ jobs:
             git clone https://github.com/horsicq/XInfoDB.git
             git clone https://github.com/horsicq/XSymbolsWidget.git
             git clone https://github.com/horsicq/XOnlineTools.git
-            git clone https://github.com/DevX-Cipher/XAboutWidget.git
+            git clone https://github.com/horsicq/XAboutWidget.git
             git clone https://github.com/horsicq/hex_templates.git
             git clone https://github.com/horsicq/XExtractorWidget.git
             git clone https://github.com/horsicq/XExtractor.git
-            git clone https://github.com/DevX-Cipher/XUpdate.git
+            git clone https://github.com/horsicq/XUpdate.git
             git clone https://github.com/horsicq/XVisualizationWidget.git
             git clone https://github.com/horsicq/XDecompiler.git
             git clone https://github.com/horsicq/XYara.git
             git clone https://github.com/horsicq/yara_widget.git
             git clone https://github.com/horsicq/XDataConvertorWidget.git
-            git clone https://github.com/DevX-Cipher/XScanEngine.git
+            git clone https://github.com/horsicq/XScanEngine.git
             git clone https://github.com/horsicq/XDisasmCore.git
             git clone https://github.com/horsicq/XRegionsWidget.git
             git clone https://github.com/horsicq/XStaticUnpacker.git
@@ -125,14 +125,14 @@ jobs:
 
       - name: Clone DiE's submodules
         run: |
-            git clone https://github.com/DevX-Cipher/DIE-engine.git
+            git clone https://github.com/horsicq/DIE-engine.git
             git clone https://github.com/horsicq/Detect-It-Easy.git
             git clone https://github.com/horsicq/Formats.git
             git clone https://github.com/horsicq/SpecAbstract.git
             git clone https://github.com/horsicq/StaticScan.git
             git clone https://github.com/horsicq/XArchive.git
             git clone https://github.com/horsicq/XQwt.git
-            git clone https://github.com/DevX-Cipher/XOptions.git
+            git clone https://github.com/horsicq/XOptions.git
             git clone https://github.com/horsicq/XStyles.git
             git clone https://github.com/horsicq/XTranslation.git
             git clone https://github.com/horsicq/XDEX.git
@@ -144,7 +144,7 @@ jobs:
             git clone https://github.com/horsicq/XCapstone.git
             git clone https://github.com/horsicq/XHashWidget.git
             git clone https://github.com/horsicq/die_script.git
-            git clone https://github.com/DevX-Cipher/die_widget.git
+            git clone https://github.com/horsicq/die_widget.git
             git clone https://github.com/horsicq/nfd_widget.git
             git clone https://github.com/horsicq/archive_widget.git
             git clone https://github.com/horsicq/XMIME.git
@@ -168,17 +168,17 @@ jobs:
             git clone https://github.com/horsicq/XInfoDB.git
             git clone https://github.com/horsicq/XSymbolsWidget.git
             git clone https://github.com/horsicq/XOnlineTools.git
-            git clone https://github.com/DevX-Cipher/XAboutWidget.git
+            git clone https://github.com/horsicq/XAboutWidget.git
             git clone https://github.com/horsicq/hex_templates.git
             git clone https://github.com/horsicq/XExtractorWidget.git
             git clone https://github.com/horsicq/XExtractor.git
-            git clone https://github.com/DevX-Cipher/XUpdate.git
+            git clone https://github.com/horsicq/XUpdate.git
             git clone https://github.com/horsicq/XVisualizationWidget.git
             git clone https://github.com/horsicq/XDecompiler.git
             git clone https://github.com/horsicq/XYara.git
             git clone https://github.com/horsicq/yara_widget.git
             git clone https://github.com/horsicq/XDataConvertorWidget.git
-            git clone https://github.com/DevX-Cipher/XScanEngine.git
+            git clone https://github.com/horsicq/XScanEngine.git
             git clone https://github.com/horsicq/XDisasmCore.git
             git clone https://github.com/horsicq/XRegionsWidget.git
             git clone https://github.com/horsicq/XStaticUnpacker.git
@@ -242,14 +242,14 @@ jobs:
 
       - name: Clone DiE's submodules
         run: |
-            git clone https://github.com/DevX-Cipher/DIE-engine.git
+            git clone https://github.com/horsicq/DIE-engine.git
             git clone https://github.com/horsicq/Detect-It-Easy.git
             git clone https://github.com/horsicq/Formats.git
             git clone https://github.com/horsicq/SpecAbstract.git
             git clone https://github.com/horsicq/StaticScan.git
             git clone https://github.com/horsicq/XArchive.git
             git clone https://github.com/horsicq/XQwt.git
-            git clone https://github.com/DevX-Cipher/XOptions.git
+            git clone https://github.com/horsicq/XOptions.git
             git clone https://github.com/horsicq/XStyles.git
             git clone https://github.com/horsicq/XTranslation.git
             git clone https://github.com/horsicq/XDEX.git
@@ -261,7 +261,7 @@ jobs:
             git clone https://github.com/horsicq/XCapstone.git
             git clone https://github.com/horsicq/XHashWidget.git
             git clone https://github.com/horsicq/die_script.git
-            git clone https://github.com/DevX-Cipher/die_widget.git
+            git clone https://github.com/horsicq/die_widget.git
             git clone https://github.com/horsicq/nfd_widget.git
             git clone https://github.com/horsicq/archive_widget.git
             git clone https://github.com/horsicq/XMIME.git
@@ -285,17 +285,17 @@ jobs:
             git clone https://github.com/horsicq/XInfoDB.git
             git clone https://github.com/horsicq/XSymbolsWidget.git
             git clone https://github.com/horsicq/XOnlineTools.git
-            git clone https://github.com/DevX-Cipher/XAboutWidget.git
+            git clone https://github.com/horsicq/XAboutWidget.git
             git clone https://github.com/horsicq/hex_templates.git
             git clone https://github.com/horsicq/XExtractorWidget.git
             git clone https://github.com/horsicq/XExtractor.git
-            git clone https://github.com/DevX-Cipher/XUpdate.git
+            git clone https://github.com/horsicq/XUpdate.git
             git clone https://github.com/horsicq/XVisualizationWidget.git
             git clone https://github.com/horsicq/XDecompiler.git
             git clone https://github.com/horsicq/XYara.git
             git clone https://github.com/horsicq/yara_widget.git
             git clone https://github.com/horsicq/XDataConvertorWidget.git
-            git clone https://github.com/DevX-Cipher/XScanEngine.git
+            git clone https://github.com/horsicq/XScanEngine.git
             git clone https://github.com/horsicq/XDisasmCore.git
             git clone https://github.com/horsicq/XRegionsWidget.git
             git clone https://github.com/horsicq/XStaticUnpacker.git
