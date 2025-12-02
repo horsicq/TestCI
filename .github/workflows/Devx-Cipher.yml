@@ -57,7 +57,7 @@ jobs:
             git clone https://github.com/horsicq/signatures.git
             git clone https://github.com/horsicq/XDemangle.git
             git clone https://github.com/horsicq/XDemangleWidget.git
-            git clone https://github.com/horsicq/build_tools.git
+            git clone https://github.com/DevX-Cipher/build_tools.git
             git clone https://github.com/horsicq/XCppfilt.git
             git clone https://github.com/horsicq/XDynStructs.git
             git clone https://github.com/horsicq/XDynStructsEngine.git
