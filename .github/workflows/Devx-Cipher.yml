@@ -137,7 +137,7 @@ jobs:
             git clone https://github.com/horsicq/XTranslation.git
             git clone https://github.com/horsicq/XDEX.git
             git clone https://github.com/horsicq/FormatDialogs.git
-            git clone https://github.com/horsicq/FormatWidgets.git
+            git clone https://github.com/DevX-Cipher/FormatWidgets.git
             git clone https://github.com/horsicq/Controls.git
             git clone https://github.com/horsicq/XMemoryMapWidget.git
             git clone https://github.com/horsicq/XEntropyWidget.git
@@ -254,7 +254,7 @@ jobs:
             git clone https://github.com/horsicq/XTranslation.git
             git clone https://github.com/horsicq/XDEX.git
             git clone https://github.com/horsicq/FormatDialogs.git
-            git clone https://github.com/horsicq/FormatWidgets.git
+            git clone https://github.com/DevX-Cipher/FormatWidgets.git
             git clone https://github.com/horsicq/Controls.git
             git clone https://github.com/horsicq/XMemoryMapWidget.git
             git clone https://github.com/horsicq/XEntropyWidget.git
