@@ -67,7 +67,7 @@ jobs:
             git clone https://github.com/horsicq/XInfoDB.git
             git clone https://github.com/horsicq/XSymbolsWidget.git
             git clone https://github.com/horsicq/XOnlineTools.git
-            git clone https://github.com/horsicq/XAboutWidget.git
+            git clone https://github.com/DevX-Cipher/XAboutWidget.git -b isNative
             git clone https://github.com/horsicq/hex_templates.git
             git clone https://github.com/horsicq/XExtractorWidget.git
             git clone https://github.com/horsicq/XExtractor.git
@@ -168,7 +168,7 @@ jobs:
             git clone https://github.com/horsicq/XInfoDB.git
             git clone https://github.com/horsicq/XSymbolsWidget.git
             git clone https://github.com/horsicq/XOnlineTools.git
-            git clone https://github.com/horsicq/XAboutWidget.git
+            git clone https://github.com/DevX-Cipher/XAboutWidget.git -b isNative
             git clone https://github.com/horsicq/hex_templates.git
             git clone https://github.com/horsicq/XExtractorWidget.git
             git clone https://github.com/horsicq/XExtractor.git
@@ -285,7 +285,7 @@ jobs:
             git clone https://github.com/horsicq/XInfoDB.git
             git clone https://github.com/horsicq/XSymbolsWidget.git
             git clone https://github.com/horsicq/XOnlineTools.git
-            git clone https://github.com/horsicq/XAboutWidget.git
+            git clone https://github.com/DevX-Cipher/XAboutWidget.git -b isNative
             git clone https://github.com/horsicq/hex_templates.git
             git clone https://github.com/horsicq/XExtractorWidget.git
             git clone https://github.com/horsicq/XExtractor.git
