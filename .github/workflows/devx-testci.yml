@@ -31,7 +31,7 @@ jobs:
             git clone https://github.com/horsicq/StaticScan.git
             git clone https://github.com/horsicq/XArchive.git
             git clone https://github.com/horsicq/XQwt.git
-            git clone https://github.com/DevX-Cipher/XOptions.git -b fixing-isNative
+            git clone https://github.com/DevX-Cipher/XOptions.git -b isNative
             git clone https://github.com/horsicq/XStyles.git
             git clone https://github.com/horsicq/XTranslation.git
             git clone https://github.com/horsicq/XDEX.git
@@ -132,7 +132,7 @@ jobs:
             git clone https://github.com/horsicq/StaticScan.git
             git clone https://github.com/horsicq/XArchive.git
             git clone https://github.com/horsicq/XQwt.git
-            git clone https://github.com/DevX-Cipher/XOptions.git -b fixing-isNative
+            git clone https://github.com/DevX-Cipher/XOptions.git -b isNative
             git clone https://github.com/horsicq/XStyles.git
             git clone https://github.com/horsicq/XTranslation.git
             git clone https://github.com/horsicq/XDEX.git
@@ -249,7 +249,7 @@ jobs:
             git clone https://github.com/horsicq/StaticScan.git
             git clone https://github.com/horsicq/XArchive.git
             git clone https://github.com/horsicq/XQwt.git
-            git clone https://github.com/DevX-Cipher/XOptions.git -b fixing-isNative
+            git clone https://github.com/DevX-Cipher/XOptions.git -b isNative
             git clone https://github.com/horsicq/XStyles.git
             git clone https://github.com/horsicq/XTranslation.git
             git clone https://github.com/horsicq/XDEX.git
