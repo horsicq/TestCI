@@ -24,7 +24,7 @@ jobs:
 
       - name: Clone DiE's submodules
         run: |
-            git clone https://github.com/horsicq/DIE-engine.git
+            git clone https://github.com/DevX-Cipher/DIE-engine.git -b isNative
             git clone https://github.com/horsicq/Detect-It-Easy.git
             git clone https://github.com/horsicq/Formats.git
             git clone https://github.com/horsicq/SpecAbstract.git
@@ -125,7 +125,7 @@ jobs:
 
       - name: Clone DiE's submodules
         run: |
-            git clone https://github.com/horsicq/DIE-engine.git
+            git clone https://github.com/DevX-Cipher/DIE-engine.git -b isNative
             git clone https://github.com/horsicq/Detect-It-Easy.git
             git clone https://github.com/horsicq/Formats.git
             git clone https://github.com/horsicq/SpecAbstract.git
@@ -242,7 +242,7 @@ jobs:
 
       - name: Clone DiE's submodules
         run: |
-            git clone https://github.com/horsicq/DIE-engine.git
+            git clone https://github.com/DevX-Cipher/DIE-engine.git -b isNative
             git clone https://github.com/horsicq/Detect-It-Easy.git
             git clone https://github.com/horsicq/Formats.git
             git clone https://github.com/horsicq/SpecAbstract.git
