@@ -24,7 +24,7 @@ jobs:
 
       - name: Clone DiE's submodules
         run: |
-            git clone https://github.com/DevX-Cipher/DIE-engine.git -b isNative
+            git clone https://github.com/horsicq/DIE-engine.git
             git clone https://github.com/horsicq/Detect-It-Easy.git
             git clone https://github.com/horsicq/Formats.git
             git clone https://github.com/horsicq/SpecAbstract.git
@@ -42,7 +42,7 @@ jobs:
             git clone https://github.com/horsicq/XEntropyWidget.git
             git clone https://github.com/horsicq/XCapstone.git
             git clone https://github.com/horsicq/XHashWidget.git
-            git clone https://github.com/DevX-Cipher/die_script.git -b isNative-DB
+            git clone https://github.com/horsicq/die_script.git
             git clone https://github.com/horsicq/die_widget.git
             git clone https://github.com/horsicq/nfd_widget.git
             git clone https://github.com/horsicq/archive_widget.git
@@ -67,7 +67,7 @@ jobs:
             git clone https://github.com/horsicq/XInfoDB.git
             git clone https://github.com/horsicq/XSymbolsWidget.git
             git clone https://github.com/horsicq/XOnlineTools.git
-            git clone https://github.com/DevX-Cipher/XAboutWidget.git -b isNative
+            git clone https://github.com/horsicq/XAboutWidget.git
             git clone https://github.com/horsicq/hex_templates.git
             git clone https://github.com/horsicq/XExtractorWidget.git
             git clone https://github.com/horsicq/XExtractor.git
@@ -125,7 +125,7 @@ jobs:
 
       - name: Clone DiE's submodules
         run: |
-            git clone https://github.com/DevX-Cipher/DIE-engine.git -b isNative
+            git clone https://github.com/horsicq/DIE-engine.git
             git clone https://github.com/horsicq/Detect-It-Easy.git
             git clone https://github.com/horsicq/Formats.git
             git clone https://github.com/horsicq/SpecAbstract.git
@@ -143,7 +143,7 @@ jobs:
             git clone https://github.com/horsicq/XEntropyWidget.git
             git clone https://github.com/horsicq/XCapstone.git
             git clone https://github.com/horsicq/XHashWidget.git
-            git clone https://github.com/DevX-Cipher/die_script.git -b isNative-DB
+            git clone https://github.com/horsicq/die_script.git
             git clone https://github.com/horsicq/die_widget.git
             git clone https://github.com/horsicq/nfd_widget.git
             git clone https://github.com/horsicq/archive_widget.git
@@ -168,7 +168,7 @@ jobs:
             git clone https://github.com/horsicq/XInfoDB.git
             git clone https://github.com/horsicq/XSymbolsWidget.git
             git clone https://github.com/horsicq/XOnlineTools.git
-            git clone https://github.com/DevX-Cipher/XAboutWidget.git -b isNative
+            git clone https://github.com/horsicq/XAboutWidget.git
             git clone https://github.com/horsicq/hex_templates.git
             git clone https://github.com/horsicq/XExtractorWidget.git
             git clone https://github.com/horsicq/XExtractor.git
@@ -242,7 +242,7 @@ jobs:
 
       - name: Clone DiE's submodules
         run: |
-            git clone https://github.com/DevX-Cipher/DIE-engine.git -b isNative
+            git clone https://github.com/horsicq/DIE-engine.git
             git clone https://github.com/horsicq/Detect-It-Easy.git
             git clone https://github.com/horsicq/Formats.git
             git clone https://github.com/horsicq/SpecAbstract.git
@@ -260,7 +260,7 @@ jobs:
             git clone https://github.com/horsicq/XEntropyWidget.git
             git clone https://github.com/horsicq/XCapstone.git
             git clone https://github.com/horsicq/XHashWidget.git
-            git clone https://github.com/DevX-Cipher/die_script.git -b isNative-DB
+            git clone https://github.com/horsicq/die_script.git
             git clone https://github.com/horsicq/die_widget.git
             git clone https://github.com/horsicq/nfd_widget.git
             git clone https://github.com/horsicq/archive_widget.git
@@ -285,7 +285,7 @@ jobs:
             git clone https://github.com/horsicq/XInfoDB.git
             git clone https://github.com/horsicq/XSymbolsWidget.git
             git clone https://github.com/horsicq/XOnlineTools.git
-            git clone https://github.com/DevX-Cipher/XAboutWidget.git -b isNative
+            git clone https://github.com/horsicq/XAboutWidget.git
             git clone https://github.com/horsicq/hex_templates.git
             git clone https://github.com/horsicq/XExtractorWidget.git
             git clone https://github.com/horsicq/XExtractor.git
@@ -366,7 +366,7 @@ jobs:
 
       - name: Clone DiE's submodules
         run: |
-            git clone https://github.com/DevX-Cipher/DIE-engine.git -b isNative
+            git clone https://github.com/horsicq/DIE-engine.git
             git clone https://github.com/horsicq/Detect-It-Easy.git
             git clone https://github.com/horsicq/Formats.git
             git clone https://github.com/horsicq/SpecAbstract.git
@@ -384,7 +384,7 @@ jobs:
             git clone https://github.com/horsicq/XEntropyWidget.git
             git clone https://github.com/horsicq/XCapstone.git
             git clone https://github.com/horsicq/XHashWidget.git
-            git clone https://github.com/DevX-Cipher/die_script.git -b isNative-DB
+            git clone https://github.com/horsicq/die_script.git
             git clone https://github.com/horsicq/die_widget.git
             git clone https://github.com/horsicq/nfd_widget.git
             git clone https://github.com/horsicq/archive_widget.git
@@ -409,7 +409,7 @@ jobs:
             git clone https://github.com/horsicq/XInfoDB.git
             git clone https://github.com/horsicq/XSymbolsWidget.git
             git clone https://github.com/horsicq/XOnlineTools.git
-            git clone https://github.com/DevX-Cipher/XAboutWidget.git -b isNative
+            git clone https://github.com/horsicq/XAboutWidget.git
             git clone https://github.com/horsicq/hex_templates.git
             git clone https://github.com/horsicq/XExtractorWidget.git
             git clone https://github.com/horsicq/XExtractor.git
