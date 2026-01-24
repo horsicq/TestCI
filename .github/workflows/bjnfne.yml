@@ -31,7 +31,7 @@ jobs:
             git clone https://github.com/horsicq/StaticScan.git
             git clone https://github.com/horsicq/XArchive.git
             git clone https://github.com/horsicq/XQwt.git
-            git clone https://github.com/DevX-Cipher/XOptions.git -b fixing-isNative
+            git clone https://github.com/horsicq/XOptions.git
             git clone https://github.com/horsicq/XStyles.git
             git clone https://github.com/horsicq/XTranslation.git
             git clone https://github.com/horsicq/XDEX.git
@@ -102,7 +102,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build-windows-qt5:
-    runs-on: windows-2022
+    runs-on: windows-latest
 
     steps:
       - name: Checkout repository
