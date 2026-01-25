@@ -31,7 +31,7 @@ jobs:
             git clone https://github.com/horsicq/StaticScan.git
             git clone https://github.com/horsicq/XArchive.git
             git clone https://github.com/horsicq/XQwt.git
-            git clone https://github.com/DevX-Cipher/XOptions.git -b isNative
+            git clone https://github.com/horsicq/XOptions.git
             git clone https://github.com/horsicq/XStyles.git
             git clone https://github.com/horsicq/XTranslation.git
             git clone https://github.com/horsicq/XDEX.git
@@ -71,7 +71,7 @@ jobs:
             git clone https://github.com/horsicq/hex_templates.git
             git clone https://github.com/horsicq/XExtractorWidget.git
             git clone https://github.com/horsicq/XExtractor.git
-            git clone https://github.com/horsicq/XUpdate.git
+            git clone https://github.com/horsicq/XUpdate.git -b isNative
             git clone https://github.com/horsicq/XVisualizationWidget.git
             git clone https://github.com/horsicq/XDecompiler.git
             git clone https://github.com/horsicq/XYara.git
@@ -132,7 +132,7 @@ jobs:
             git clone https://github.com/horsicq/StaticScan.git
             git clone https://github.com/horsicq/XArchive.git
             git clone https://github.com/horsicq/XQwt.git
-            git clone https://github.com/DevX-Cipher/XOptions.git -b isNative
+            git clone https://github.com/horsicq/XOptions.git
             git clone https://github.com/horsicq/XStyles.git
             git clone https://github.com/horsicq/XTranslation.git
             git clone https://github.com/horsicq/XDEX.git
@@ -172,7 +172,7 @@ jobs:
             git clone https://github.com/horsicq/hex_templates.git
             git clone https://github.com/horsicq/XExtractorWidget.git
             git clone https://github.com/horsicq/XExtractor.git
-            git clone https://github.com/horsicq/XUpdate.git
+            git clone https://github.com/horsicq/XUpdate.git -b isNative
             git clone https://github.com/horsicq/XVisualizationWidget.git
             git clone https://github.com/horsicq/XDecompiler.git
             git clone https://github.com/horsicq/XYara.git
@@ -249,7 +249,7 @@ jobs:
             git clone https://github.com/horsicq/StaticScan.git
             git clone https://github.com/horsicq/XArchive.git
             git clone https://github.com/horsicq/XQwt.git
-            git clone https://github.com/DevX-Cipher/XOptions.git -b isNative
+            git clone https://github.com/horsicq/XOptions.git
             git clone https://github.com/horsicq/XStyles.git
             git clone https://github.com/horsicq/XTranslation.git
             git clone https://github.com/horsicq/XDEX.git
@@ -289,7 +289,7 @@ jobs:
             git clone https://github.com/horsicq/hex_templates.git
             git clone https://github.com/horsicq/XExtractorWidget.git
             git clone https://github.com/horsicq/XExtractor.git
-            git clone https://github.com/horsicq/XUpdate.git
+            git clone https://github.com/horsicq/XUpdate.git -b isNative
             git clone https://github.com/horsicq/XVisualizationWidget.git
             git clone https://github.com/horsicq/XDecompiler.git
             git clone https://github.com/horsicq/XYara.git
@@ -373,7 +373,7 @@ jobs:
             git clone https://github.com/horsicq/StaticScan.git
             git clone https://github.com/horsicq/XArchive.git
             git clone https://github.com/horsicq/XQwt.git
-            git clone https://github.com/DevX-Cipher/XOptions.git -b isNative
+            git clone https://github.com/horsicq/XOptions.git
             git clone https://github.com/horsicq/XStyles.git
             git clone https://github.com/horsicq/XTranslation.git
             git clone https://github.com/horsicq/XDEX.git
@@ -413,7 +413,7 @@ jobs:
             git clone https://github.com/horsicq/hex_templates.git
             git clone https://github.com/horsicq/XExtractorWidget.git
             git clone https://github.com/horsicq/XExtractor.git
-            git clone https://github.com/horsicq/XUpdate.git
+            git clone https://github.com/horsicq/XUpdate.git -b isNative
             git clone https://github.com/horsicq/XVisualizationWidget.git
             git clone https://github.com/horsicq/XDecompiler.git
             git clone https://github.com/horsicq/XYara.git
