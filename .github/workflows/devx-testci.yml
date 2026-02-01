@@ -122,7 +122,12 @@ jobs:
           arch: 'win64_msvc2022_64'
           dir: ${{ github.workspace }}
           modules: qt5compat
-
+          
+      - name: Create Qt symlink for DiE script 
+        shell: cmd
+        run: | 
+          mklink /D C:\Qt "%GITHUB_WORKSPACE%\Qt"
+          
       - name: Clone DiE's submodules
         run: |
             git clone https://github.com/horsicq/DIE-engine.git
