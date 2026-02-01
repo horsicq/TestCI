@@ -195,7 +195,9 @@ jobs:
           robocopy . DIE-engine /E /XD DIE-engine .git
 
           cd DIE-engine
-
+          
+          set BUILD_JOBS=64
+          
           set PATH=C:\Windows\System32;C:\Windows;C:\Windows\System32\Wbem
           set INCLUDE=
           set LIB=
