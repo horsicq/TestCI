@@ -199,9 +199,6 @@ jobs:
           )
           cd DIE-engine
 
-          rem *** FIX: Tell the script where Qt is installed ***
-          set QT_BASE_PATH=%GITHUB_WORKSPACE%\Qt
-
           set VSVARS_PATH="C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
           set SEVENZIP_PATH="C:\Program Files\7-Zip\7z.exe"
           set X_BUILD_NAME=die
