@@ -42,7 +42,7 @@ jobs:
             git clone https://github.com/horsicq/XEntropyWidget.git
             git clone https://github.com/horsicq/XCapstone.git
             git clone https://github.com/horsicq/XHashWidget.git
-            git clone https://github.com/horsicq/die_script.git
+            git clone https://github.com/DevX-Cipher/die_script.git -b isNative-DB
             git clone https://github.com/horsicq/die_widget.git
             git clone https://github.com/horsicq/nfd_widget.git
             git clone https://github.com/horsicq/archive_widget.git
@@ -148,7 +148,7 @@ jobs:
             git clone https://github.com/horsicq/XEntropyWidget.git
             git clone https://github.com/horsicq/XCapstone.git
             git clone https://github.com/horsicq/XHashWidget.git
-            git clone https://github.com/horsicq/die_script.git
+            git clone https://github.com/DevX-Cipher/die_script.git -b isNative-DB
             git clone https://github.com/horsicq/die_widget.git
             git clone https://github.com/horsicq/nfd_widget.git
             git clone https://github.com/horsicq/archive_widget.git
@@ -271,7 +271,7 @@ jobs:
             git clone https://github.com/horsicq/XEntropyWidget.git
             git clone https://github.com/horsicq/XCapstone.git
             git clone https://github.com/horsicq/XHashWidget.git
-            git clone https://github.com/horsicq/die_script.git
+            git clone https://github.com/DevX-Cipher/die_script.git -b isNative-DB
             git clone https://github.com/horsicq/die_widget.git
             git clone https://github.com/horsicq/nfd_widget.git
             git clone https://github.com/horsicq/archive_widget.git
@@ -395,7 +395,7 @@ jobs:
             git clone https://github.com/horsicq/XEntropyWidget.git
             git clone https://github.com/horsicq/XCapstone.git
             git clone https://github.com/horsicq/XHashWidget.git
-            git clone https://github.com/horsicq/die_script.git
+            git clone https://github.com/DevX-Cipher/die_script.git -b isNative-DB
             git clone https://github.com/horsicq/die_widget.git
             git clone https://github.com/horsicq/nfd_widget.git
             git clone https://github.com/horsicq/archive_widget.git
