@@ -90,6 +90,7 @@ jobs:
           ./configure
           make
           chmod a+x create_appimage.sh
+          ./create_appimage.sh
 
       - name: Upload Linux Release
         if: github.event_name != 'pull_request'
