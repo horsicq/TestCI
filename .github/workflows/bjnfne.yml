@@ -86,8 +86,10 @@ jobs:
         run: |
           rsync -av --exclude 'DIE-engine' ./ DIE-engine/
           cd DIE-engine
-          chmod a+x build_dpkg.sh
-          ./build_dpkg.sh
+          chmod a+x configure
+          ./configure
+          make
+          chmod a+x create_appimage.sh
 
       - name: Upload Linux Release
         if: github.event_name != 'pull_request'
@@ -97,7 +99,7 @@ jobs:
           draft: false
           prerelease: true
           files: |
-            /home/runner/work/TestCI/TestCI/DIE-engine/release/*.deb
+            /home/runner/work/TestCI/TestCI/DIE-engine/release/*.appImage
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
