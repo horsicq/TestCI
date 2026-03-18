@@ -126,7 +126,7 @@ jobs:
       - name: Install Qt 5
         uses: jurplel/install-qt-action@v4
         with:
-          version: '5.15.2'
+          version: '5.15.17'
           host: 'windows'
           target: 'desktop'
           arch: 'win64_msvc2019_64'
