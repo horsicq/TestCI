@@ -16,14 +16,17 @@ jobs:
           emerge-webrsync
 
           emerge --ask=n \
-            dev-vcs/git \
-            dev-build/cmake \
-            sys-devel/gcc \
-            sys-devel/make \
-            dev-qt/qtcore:5 \
-            dev-qt/qtscript:5 \
-            dev-qt/qtsvg:5 \
-            dev-qt/qttools:5
+          dev-build/cmake \
+          sys-devel/gcc \
+          dev-build/ninja \
+          dev-vcs/git \
+          dev-qt/qtcore:5 \
+          dev-qt/qtgui:5 \
+          dev-qt/qtwidgets:5 \
+          dev-qt/qtscript:5 \
+          dev-qt/qttools:5 \
+          dev-qt/qtsvg:5
+
 
       - name: Create build user
         run: |
@@ -56,7 +59,7 @@ jobs:
           mkdir -p /home/builduser/DIE-engine/release
 
           tar czf \
-            /home/builduser/DIE-engine/release/DIE-engine-gentoo.tar.gz \
+            /home/builduser/DIE-engine/release/die-gentoo.tar.gz \
             -C /home/builduser/DIE-engine/build .
 
           ls -lah /home/builduser/DIE-engine/release
