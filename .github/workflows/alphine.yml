@@ -41,8 +41,8 @@ jobs:
           cd /home/builduser/DIE-engine
           pwd
           ls -l
-          sudo -u builduser bash -c 'chmod a+x build_alphinepkg.sh'
-          sudo -u builduser bash -c 'bash -x build_archpkg.sh'
+          sudo -u builduser bash -c 'chmod a+x build_alpinepkg.sh'
+          sudo -u builduser bash -c 'bash -x build_alpinepkg.sh'
           '
 
       - name: Verify APK
