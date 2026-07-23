@@ -58,4 +58,4 @@ jobs:
           draft: false
           prerelease: true
           files: |
-            /home/builduser/DIE-engine/release/*.apk
+            ${{ github.workspace }}\DIE-engine/release\*.apk
