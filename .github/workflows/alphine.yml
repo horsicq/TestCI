@@ -26,7 +26,7 @@ jobs:
 
       - name: Build
         run: |
-          sudo -u builduser bash -c '
+          sudo -u builduser sh -c '
             cd /home/builduser/DIE-engine
             mkdir build
             cd build
