@@ -34,21 +34,13 @@ jobs:
 
       - name: Download OpenWrt SDK
         run: |
-          apt update
-          apt install -y curl jq
+          wget https://downloads.openwrt.org/releases/25.12.5/targets/x86/64/openwrt-sdk-25.12.5-x86-64_gcc-14.3.0_musl.Linux-x86_64.tar.zst
 
-          SDK_URL=$(curl -s https://downloads.openwrt.org/releases/${OPENWRT_VERSION}/targets/x86/64/ \
-            | grep -o 'href="[^"]*sdk[^"]*tar\.xz"' \
-            | sed 's/href="//;s/"//' \
-            | head -n1)
-
-          echo "SDK: $SDK_URL"
-
-          wget https://downloads.openwrt.org/releases/${OPENWRT_VERSION}/targets/x86/64/${SDK_URL}
-
-          tar xf $(basename ${SDK_URL})
+          tar --use-compress-program=unzstd \
+          -xf openwrt-sdk-25.12.5-x86-64_gcc-14.3.0_musl.Linux-x86_64.tar.zst
 
           mv openwrt-sdk-* sdk
+
 
       - name: Update feeds
         working-directory: sdk
