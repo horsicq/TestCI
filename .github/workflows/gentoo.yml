@@ -1,0 +1,71 @@
+name: Build DIE-engine (Gentoo)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-gentoo:
+    runs-on: ubuntu-latest
+
+    container:
+      image: gentoo/stage3:latest
+
+    steps:
+      - name: Install dependencies
+        run: |
+          emerge-webrsync
+
+          emerge --ask=n \
+            dev-vcs/git \
+            dev-build/cmake \
+            sys-devel/gcc \
+            sys-devel/make \
+            dev-qt/qtcore:5 \
+            dev-qt/qtscript:5 \
+            dev-qt/qtsvg:5 \
+            dev-qt/qttools:5
+
+      - name: Create build user
+        run: |
+          useradd -m builduser
+
+      - name: Clone DIE-engine
+        run: |
+          git clone --recursive https://github.com/horsicq/DIE-engine.git /home/builduser/DIE-engine
+          chown -R builduser:builduser /home/builduser/DIE-engine
+
+      - name: Build Release
+        run: |
+          su - builduser -c "
+            set -ex
+
+            cd /home/builduser/DIE-engine
+
+            mkdir -p build
+
+            cmake \
+              -B build \
+              -DCMAKE_BUILD_TYPE=Release \
+              -DCMAKE_INSTALL_PREFIX=/usr
+
+            cmake --build build -j\$(nproc)
+          "
+
+      - name: Collect build output
+        run: |
+          mkdir -p /home/builduser/DIE-engine/release
+
+          tar czf \
+            /home/builduser/DIE-engine/release/DIE-engine-gentoo.tar.gz \
+            -C /home/builduser/DIE-engine/build .
+
+          ls -lah /home/builduser/DIE-engine/release
+
+      - name: Upload Gentoo Build
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: Beta
+          draft: false
+          prerelease: true
+          files: |
+            /home/builduser/DIE-engine/release/*.tar.gz
