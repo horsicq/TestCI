@@ -20,6 +20,7 @@ jobs:
           apt install -y \
             wget \
             tar \
+            zstd \
             xz-utils \
             git \
             rsync \
@@ -36,8 +37,7 @@ jobs:
         run: |
           wget https://downloads.openwrt.org/releases/25.12.5/targets/x86/64/openwrt-sdk-25.12.5-x86-64_gcc-14.3.0_musl.Linux-x86_64.tar.zst
 
-          tar --use-compress-program=unzstd \
-          -xf openwrt-sdk-25.12.5-x86-64_gcc-14.3.0_musl.Linux-x86_64.tar.zst
+          tar --zstd -xf openwrt-sdk-25.12.5-x86-64_gcc-14.3.0_musl.Linux-x86_64.tar.zst
 
           mv openwrt-sdk-* sdk
 
