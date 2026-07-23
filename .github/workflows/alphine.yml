@@ -40,7 +40,7 @@ jobs:
           cd /home/builduser/DIE-engine
           pwd
           ls -l
-          chmod +x build_alpinepkg.sh
+          chmod a+x build_alphinepkg.sh
           ./build_alpinepkg.sh
           '
 
