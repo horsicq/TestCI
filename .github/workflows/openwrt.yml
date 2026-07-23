@@ -34,9 +34,19 @@ jobs:
 
       - name: Download OpenWrt SDK
         run: |
-          wget https://downloads.openwrt.org/releases/${OPENWRT_VERSION}/targets/x86/64/openwrt-sdk-${OPENWrt_VERSION}-x86-64_gcc-13.3.0_musl.Linux-x86_64.tar.xz
+          apt update
+          apt install -y curl jq
 
-          tar xf openwrt-sdk-*.tar.xz
+          SDK_URL=$(curl -s https://downloads.openwrt.org/releases/${OPENWRT_VERSION}/targets/x86/64/ \
+            | grep -o 'href="[^"]*sdk[^"]*tar\.xz"' \
+            | sed 's/href="//;s/"//' \
+            | head -n1)
+
+          echo "SDK: $SDK_URL"
+
+          wget https://downloads.openwrt.org/releases/${OPENWRT_VERSION}/targets/x86/64/${SDK_URL}
+
+          tar xf $(basename ${SDK_URL})
 
           mv openwrt-sdk-* sdk
 
