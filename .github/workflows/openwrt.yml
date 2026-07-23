@@ -1,0 +1,135 @@
+name: Build DIE-engine (OpenWrt)
+
+on:
+  workflow_dispatch:
+
+env:
+  OPENWRT_VERSION: "24.10.0"
+
+jobs:
+  build-openwrt:
+    runs-on: ubuntu-latest
+
+    container:
+      image: ubuntu:24.04
+
+    steps:
+      - name: Install build tools
+        run: |
+          apt update
+          apt install -y \
+            wget \
+            tar \
+            xz-utils \
+            git \
+            rsync \
+            build-essential \
+            python3 \
+            unzip
+
+      - name: Checkout source
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - name: Download OpenWrt SDK
+        run: |
+          wget https://downloads.openwrt.org/releases/${OPENWRT_VERSION}/targets/x86/64/openwrt-sdk-${OPENWrt_VERSION}-x86-64_gcc-13.3.0_musl.Linux-x86_64.tar.xz
+
+          tar xf openwrt-sdk-*.tar.xz
+
+          mv openwrt-sdk-* sdk
+
+      - name: Update feeds
+        working-directory: sdk
+        run: |
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: Configure OpenWrt
+        working-directory: sdk
+        run: |
+          cat > .config <<'EOF'
+          CONFIG_PACKAGE_qt5-core=y
+          CONFIG_PACKAGE_qt5-gui=y
+          CONFIG_PACKAGE_qt5-widgets=y
+          CONFIG_PACKAGE_qt5-svg=y
+          CONFIG_PACKAGE_qt5-script=y
+          CONFIG_PACKAGE_qt5-network=y
+          CONFIG_PACKAGE_qt5-xml=y
+          EOF
+
+          make defconfig
+
+      - name: Generate OpenWrt package
+        working-directory: sdk
+        run: |
+          mkdir -p package/die-engine
+
+          cat > package/die-engine/Makefile <<'EOF'
+          include $(TOPDIR)/rules.mk
+
+          PKG_NAME:=die-engine
+          PKG_VERSION:=1.0.0
+          PKG_RELEASE:=1
+
+          include $(INCLUDE_DIR)/package.mk
+          include $(INCLUDE_DIR)/cmake.mk
+
+          define Package/die-engine
+            SECTION:=utils
+            CATEGORY:=Utilities
+            TITLE:=Detect It Easy
+            DEPENDS:=+qt5-core +qt5-gui +qt5-widgets +qt5-svg +qt5-script
+          endef
+
+          define Package/die-engine/description
+           Detect It Easy binary analysis tool.
+          endef
+
+          define Build/Prepare
+          	mkdir -p $(PKG_BUILD_DIR)
+          	cp -r $(CURDIR)/../../source/* $(PKG_BUILD_DIR)/
+          endef
+
+          define Package/die-engine/install
+          	$(INSTALL_DIR) $(1)/usr/bin
+          	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/die $(1)/usr/bin/
+          endef
+
+          $(eval $(call BuildPackage,die-engine))
+          EOF
+
+      - name: Copy source
+        run: |
+          mkdir -p sdk/source
+          cp -r ./* sdk/source/
+
+      - name: Build OpenWrt package
+        working-directory: sdk
+        run: |
+          make package/die-engine/compile V=s
+
+      - name: Collect IPK
+        run: |
+          mkdir release
+
+          find sdk/bin/packages \
+            -name "*.ipk" \
+            -exec cp {} release/ \;
+
+          ls -lah release
+
+      - name: Verify package
+        run: |
+          test -n "$(find release -name '*.ipk')"
+
+      - name: Upload OpenWrt package
+        if: github.event_name != 'pull_request'
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: Beta
+          draft: false
+          prerelease: true
+          files: |
+            release/*.ipk
