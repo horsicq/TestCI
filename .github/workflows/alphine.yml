@@ -28,7 +28,6 @@ jobs:
 
       - name: Create build user
         run: |
-          addgroup abuild
           adduser -D builduser
           adduser builduser abuild
           echo "builduser ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
