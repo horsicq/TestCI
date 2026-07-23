@@ -37,7 +37,9 @@ jobs:
       - name: Build
         run: |
           sudo -u builduser sh -c '
+          pwd
           cd /home/builduser/DIE-engine
+          pwd
           chmod +x build_alpinepkg.sh
           ./build_alpinepkg.sh
           '
