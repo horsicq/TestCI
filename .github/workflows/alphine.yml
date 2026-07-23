@@ -37,13 +37,13 @@ jobs:
 
       - name: Build
         run: |
-          sudo -u builduser sh -c '
+          sudo -u builduser bash -c "
           cd /home/builduser/DIE-engine
           pwd
-          ls -l
-          sudo -u builduser bash -c 'chmod a+x build_alpinepkg.sh'
-          sudo -u builduser bash -c 'bash -x build_alpinepkg.sh'
-          '
+          ls -la
+          chmod +x build_alpinepkg.sh
+          bash -x build_alpinepkg.sh
+          "
 
       - name: Verify APK
         run: |
@@ -61,4 +61,4 @@ jobs:
           draft: false
           prerelease: true
           files: |
-            ${{ github.workspace }}\DIE-engine/release\*.apk
+            /home/builduser/DIE-engine/release/*.apk
