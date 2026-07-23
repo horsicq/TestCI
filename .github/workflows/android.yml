@@ -1,0 +1,79 @@
+name: Build DIE-engine Android APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-android:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - name: Install Android tools
+        run: |
+          sudo apt update
+
+          sudo apt install -y \
+            openjdk-17-jdk \
+            cmake \
+            ninja-build
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install NDK
+        run: |
+          sdkmanager \
+            "platform-tools" \
+            "platforms;android-35" \
+            "build-tools;35.0.0" \
+            "ndk;27.0.12077973"
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: 6.8.*
+          host: linux
+          target: android
+          arch: android_arm64_v8a
+
+      - name: Configure
+        run: |
+          cmake \
+            -B build \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: |
+          cmake --build build
+
+      - name: Build APK
+        run: |
+          cd build
+
+          make apk
+
+      - name: Collect APK
+        run: |
+          mkdir release
+
+          find build \
+            -name "*.apk" \
+            -exec cp {} release/DIE-engine-android.apk \;
+
+          ls -lah release
+
+      - name: Upload APK
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: Beta
+          draft: false
+          prerelease: true
+          files: |
+            release/*.apk
