@@ -8,26 +8,19 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: vbatts/slackware:15.0
+      image: vbatts/slackware:15.0-full
 
     steps:
       - name: Install dependencies
         run: |
-          sed -i 's/^#PKGMAIN=/PKGMAIN=/' /etc/slackpkg/mirrors || true
-          
-          slackpkg update gpg
-          slackpkg update
-
-          slackpkg install-new
+          slackpkg update gpg || true
+          slackpkg update || true
 
           slackpkg install \
             git \
             cmake \
             gcc \
             gcc-g++ \
-            make \
-            pkg-config \
-            qt5
             make \
             pkg-config \
             qt5
