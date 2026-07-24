@@ -52,7 +52,7 @@ jobs:
       - name: Build Nix package
         working-directory: DIE-engine
         run: |
-            nix-build detect-it-easy-nixos.nix
+            nix-build -I nixpkgs=https://github.com/NixOS/nixpkgs/archive/refs/heads/nixos-unstable.tar.gz detect-it-easy-nixos.nix
 
       - name: Verify build result
         working-directory: DIE-engine
