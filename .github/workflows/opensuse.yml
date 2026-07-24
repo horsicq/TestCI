@@ -30,19 +30,15 @@ jobs:
         run: |
           useradd -m builduser
 
-      - name: Checkout source
-        uses: actions/checkout@v6
-        with:
-          submodules: recursive
-          path: DIE-engine
+      - name: Clone DIE-engine
+        run: |
+          cd $HOME 
+          git clone --recursive https://github.com/horsicq/DIE-engine
+          cd DIE-engine
 
       - name: Build RPM
         run: |
           pwd
-          ls -la
-          ls -la DIE-engine
-
-          cd DIE-engine
 
           mkdir -p build
 
