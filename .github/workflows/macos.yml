@@ -25,17 +25,6 @@ jobs:
             --recursive \
             https://github.com/horsicq/DIE-engine.git
 
-      - name: Disable macdeployqt
-        working-directory: DIE-engine
-        run: |
-          sed -i.bak \
-            '/macdeployqt\.cmake/s/^/# /' \
-            src/lite/CMakeLists.txt
-
-          rm -f src/lite/CMakeLists.txt.bak
-
-          grep -n "macdeployqt" src/lite/CMakeLists.txt || true
-
       - name: Configure
         working-directory: DIE-engine
         run: |
@@ -57,7 +46,7 @@ jobs:
       - name: Show build output
         working-directory: DIE-engine
         run: |
-          find build -maxdepth 3 -type f | head -100
+          find build -maxdepth 3 -type f
 
       - name: Create release archive
         working-directory: DIE-engine
