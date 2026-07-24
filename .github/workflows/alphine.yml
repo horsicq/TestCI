@@ -36,6 +36,13 @@ jobs:
         run: |
           cd /opt/DIE-engine
 
+          mkdir -p /github/home/.abuild
+
+          if [ ! -f /github/home/.abuild/abuild.conf ]; then
+            abuild-keygen -n
+            cp /github/home/.abuild/*.rsa.pub /etc/apk/keys/
+          fi
+
           chmod a+x build_alpinepkg.sh
 
           bash -x build_alpinepkg.sh
