@@ -1,0 +1,73 @@
+name: Build DIE-engine Nix Package
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-nix:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+
+      - name: Clone DIE-engine
+        run: |
+          git clone --recursive \
+            https://github.com/horsicq/DIE-engine.git
+
+      - name: Create detect-it-easy-nixos.nix
+        working-directory: DIE-engine
+        run: |
+          printf '%s\n' \
+          '{ pkgs ? import <nixpkgs> {} }:' \
+          '' \
+          'pkgs.stdenv.mkDerivation {' \
+          '  pname = "detect-it-easy";' \
+          '  version = "4.0.0";' \
+          '' \
+          '  src = ./.;' \
+          '' \
+          '  nativeBuildInputs = with pkgs; [' \
+          '    cmake' \
+          '    pkg-config' \
+          '  ];' \
+          '' \
+          '  buildInputs = with pkgs; [' \
+          '    qt5.qtbase' \
+          '    qt5.qtsvg' \
+          '    qt5.qtscript' \
+          '    qt5.qttools' \
+          '  ];' \
+          '' \
+          '  cmakeFlags = [' \
+          '    "-DCMAKE_BUILD_TYPE=Release"' \
+          '  ];' \
+          '' \
+          '  installPhase = '\'''\'\''' \
+          '    mkdir -p $out' \
+          '    cmake --install . --prefix $out' \
+          '  '\'''\'\''';' \
+          '}' \
+          > detect-it-easy-nixos.nix
+
+      - name: Build Nix package
+        working-directory: DIE-engine
+        run: |
+          nix-build detect-it-easy-nixos.nix
+
+      - name: Verify build result
+        working-directory: DIE-engine
+        run: |
+          ls -la result
+          find result -maxdepth 3 -type f | head -50
+
+      - name: Upload Nix package
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: Beta
+          draft: false
+          prerelease: true
+          files: |
+            DIE-engine/detect-it-easy-nixos.nix
