@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: clearlinux:latest
+      image: clearlinux/builder:latest
 
     steps:
 
