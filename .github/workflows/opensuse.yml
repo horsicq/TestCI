@@ -37,27 +37,20 @@ jobs:
           path: DIE-engine
 
       - name: Build RPM
+        working-directory: DIE-engine
         run: |
-          chown -R builduser:builduser DIE-engine
+          mkdir -p build
 
-          su - builduser -c "
-            set -ex
+          cmake \
+          -B build \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_INSTALL_PREFIX=/usr
 
-            cd \$GITHUB_WORKSPACE/DIE-engine
+          cmake --build build -j$(nproc)
 
-            mkdir -p build
+          cd build
+          cpack -G RPM
 
-            cmake \
-              -B build \
-              -DCMAKE_BUILD_TYPE=Release \
-              -DCMAKE_INSTALL_PREFIX=/usr
-
-            cmake --build build -j\$(nproc)
-
-            cd build
-
-            cpack -G RPM
-          "
 
       - name: Collect RPM
         run: |
