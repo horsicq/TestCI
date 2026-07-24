@@ -37,11 +37,17 @@ jobs:
           path: DIE-engine
 
       - name: Build RPM
-        working-directory: DIE-engine
         run: |
+          pwd
+          ls -la
+          ls -la DIE-engine
+
+          cd DIE-engine
+
           mkdir -p build
 
           cmake \
+          -S . \
           -B build \
           -DCMAKE_BUILD_TYPE=Release \
           -DCMAKE_INSTALL_PREFIX=/usr
@@ -50,7 +56,6 @@ jobs:
 
           cd build
           cpack -G RPM
-
 
       - name: Collect RPM
         run: |
