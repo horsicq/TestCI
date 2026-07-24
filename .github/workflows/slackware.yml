@@ -1,0 +1,109 @@
+name: Build DIE-engine (Slackware TXZ)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-slackware:
+    runs-on: ubuntu-latest
+
+    container:
+      image: vbatts/slackware:15.0
+
+    steps:
+      - name: Install dependencies
+        run: |
+          slackpkg update
+
+          slackpkg install-new
+
+          slackpkg install \
+            git \
+            cmake \
+            gcc \
+            gcc-g++ \
+            make \
+            pkg-config \
+            qt5
+
+      - name: Clone DIE-engine
+        run: |
+          git clone --recursive \
+            https://github.com/horsicq/DIE-engine.git \
+            /opt/DIE-engine
+
+      - name: Build DIE-engine
+        run: |
+          cd /opt/DIE-engine
+
+          pwd
+          uname -m
+          ls -la
+
+          cmake \
+            -S . \
+            -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX=/usr
+
+          cmake --build build -j$(nproc)
+
+      - name: Install staging tree
+        run: |
+          cd /opt/DIE-engine
+
+          mkdir -p pkg
+
+          DESTDIR="$PWD/pkg" \
+            cmake --install build
+
+          find pkg -maxdepth 4 -type f | head -50
+
+      - name: Create Slackware package metadata
+        run: |
+          cd /opt/DIE-engine/pkg
+
+          mkdir -p install
+
+          printf '%s\n' \
+            "detect-it-easy: Detect It Easy" \
+            "detect-it-easy:" \
+            "detect-it-easy: File type identification utility." \
+            "detect-it-easy:" \
+            "detect-it-easy: https://github.com/horsicq/DIE-engine" \
+            "detect-it-easy:" \
+            "detect-it-easy:" \
+            "detect-it-easy:" \
+            "detect-it-easy:" \
+            "detect-it-easy:" \
+            > install/slack-desc
+
+      - name: Build TXZ package
+        run: |
+          cd /opt/DIE-engine
+
+          mkdir -p release
+
+          cd pkg
+
+          makepkg \
+            -l y \
+            -c n \
+            ../release/detect-it-easy-4.0.0-x86_64-1.txz
+
+      - name: Verify package
+        run: |
+          ls -lah /opt/DIE-engine/release
+
+          test -f \
+            /opt/DIE-engine/release/detect-it-easy-4.0.0-x86_64-1.txz
+
+      - name: Upload Release
+        if: github.event_name != 'pull_request'
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: Beta
+          draft: false
+          prerelease: true
+          files: |
+            /opt/DIE-engine/release/*.txz
