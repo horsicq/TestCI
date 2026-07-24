@@ -17,6 +17,7 @@ jobs:
           apk add \
             alpine-sdk \
             bash \
+            doas \
             git \
             cmake \
             pkgconf \
