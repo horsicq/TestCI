@@ -13,6 +13,9 @@ jobs:
     steps:
       - name: Install dependencies
         run: |
+          sed -i 's/^#PKGMAIN=/PKGMAIN=/' /etc/slackpkg/mirrors || true
+          
+          slackpkg update gpg
           slackpkg update
 
           slackpkg install-new
@@ -22,6 +25,9 @@ jobs:
             cmake \
             gcc \
             gcc-g++ \
+            make \
+            pkg-config \
+            qt5
             make \
             pkg-config \
             qt5
