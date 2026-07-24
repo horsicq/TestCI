@@ -45,17 +45,14 @@ jobs:
           '    "-DCMAKE_BUILD_TYPE=Release"' \
           '  ];' \
           '' \
-          '  installPhase = '\'''\'\''' \
-          '    mkdir -p $out' \
-          '    cmake --install . --prefix $out' \
-          '  '\'''\'\''';' \
+          '  installPhase = "mkdir -p $out && cmake --install . --prefix $out";' \
           '}' \
           > detect-it-easy-nixos.nix
 
       - name: Build Nix package
         working-directory: DIE-engine
         run: |
-          nix-build detect-it-easy-nixos.nix
+            nix-build detect-it-easy-nixos.nix
 
       - name: Verify build result
         working-directory: DIE-engine
