@@ -32,22 +32,6 @@ jobs:
             https://github.com/horsicq/DIE-engine.git \
             /opt/DIE-engine
 
-      - name: Build DIE-engine
-        run: |
-          cd /opt/DIE-engine
-
-          pwd
-          uname -m
-          ls -la
-
-          cmake \
-            -S . \
-            -B build \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_INSTALL_PREFIX=/usr
-
-          cmake --build build -j$(nproc)
-
       - name: Build Alpine APK
         run: |
           cd /opt/DIE-engine
