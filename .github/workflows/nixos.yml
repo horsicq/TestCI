@@ -35,11 +35,11 @@ jobs:
           '    wrapQtAppsHook' \
           '  ];' \
           '' \
-          '  buildInputs = with pkgs; [' \
-          '    qt5.qtbase' \
-          '    qt5.qtsvg' \
-          '    qt5.qtscript' \
-          '    qt5.qttools' \
+          '  buildInputs = with pkgs.qt5; [' \
+          '    qtbase' \
+          '    qtsvg' \
+          '    qtscript' \
+          '    qttools' \
           '  ];' \
           '' \
           '  cmakeFlags = [' \
@@ -54,7 +54,7 @@ jobs:
         working-directory: DIE-engine
         run: |
           nix-build \
-            -I nixpkgs=https://github.com/NixOS/nixpkgs/archive/refs/heads/nixos-unstable.tar.gz \
+            -I nixpkgs=nixpkgs=https://github.com/NixOS/nixpkgs/archive/nixos-24.05.tar.gz \
             detect-it-easy-nixos.nix
 
       - name: Verify build
