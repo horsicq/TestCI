@@ -30,16 +30,22 @@ jobs:
         run: |
           useradd -m builduser
 
+      - name: Checkout source
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+          path: DIE-engine
+
       - name: Build RPM
         run: |
           chown -R builduser:builduser DIE-engine
 
           su - builduser -c "
             set -ex
-            git clone https://github.com/horsicq/DIE-engine.git --recursive
-            cd DIE-engine
 
-            mkdir build
+            cd \$GITHUB_WORKSPACE/DIE-engine
+
+            mkdir -p build
 
             cmake \
               -B build \
@@ -55,7 +61,7 @@ jobs:
 
       - name: Collect RPM
         run: |
-          mkdir release
+          mkdir -p release
 
           find DIE-engine/build \
             -name '*.rpm' \
