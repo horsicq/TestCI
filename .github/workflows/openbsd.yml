@@ -1,0 +1,75 @@
+name: Build DIE-engine (OpenBSD Package)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-openbsd:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - name: Build on OpenBSD VM
+        uses: vmactions/openbsd-vm@v1
+        with:
+          release: "7.7"
+          usesh: true
+
+          prepare: |
+            pkg_add -I git cmake ninja pkgconf \
+              qt5-qtbase \
+              qt5-qtsvg
+
+          run: |
+            set -ex
+
+            git clone --recursive \
+              https://github.com/horsicq/DIE-engine.git \
+              /tmp/DIE-engine
+
+            cd /tmp/DIE-engine
+
+            cmake \
+              -B build \
+              -G Ninja \
+              -DCMAKE_BUILD_TYPE=Release \
+              -DCMAKE_INSTALL_PREFIX=/usr/local
+
+            cmake --build build \
+              --parallel $(sysctl -n hw.ncpu)
+
+            mkdir -p package-root/usr/local/bin
+
+            DESTDIR=/tmp/package-root \
+              cmake --install build
+
+            mkdir -p package-root/+DESC
+
+            printf '%s\n' \
+              "Detect It Easy" \
+              "" \
+              "File type identification tool" \
+              "https://github.com/horsicq/DIE-engine" \
+              > package-root/+DESC
+
+            mkdir -p release
+
+            tar \
+              -czf \
+              release/detect-it-easy-4.0.0-openbsd.tgz \
+              -C package-root \
+              .
+
+      - name: Upload OpenBSD package
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: Beta
+          draft: false
+          prerelease: true
+          files: |
+            release/*.tgz
