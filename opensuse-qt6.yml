@@ -1,4 +1,4 @@
-name: Build DIE-engine (openSUSE Qt6 RPM)
+name: openSuse QT6 x64
 
 on:
   workflow_dispatch:
