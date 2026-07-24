@@ -23,10 +23,10 @@ jobs:
           prepare: |
             set -ex
 
-            pkg_add -I git cmake ninja pkgconf
+            pkg_add -I git cmake gmake
 
             # Qt packages
-            pkg_add -I qt5-qtbase qt5-qtsvg
+            pkg_add -I qtbase qtsvg qtscript qttools
 
           run: |
             set -euxo pipefail
