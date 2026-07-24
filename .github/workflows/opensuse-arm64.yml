@@ -1,11 +1,11 @@
-name: openSuse QT6 x64
+name: openSUSE Qt5 ARM64 RPM
 
 on:
   workflow_dispatch:
 
 jobs:
-  build-opensuse-qt6:
-    runs-on: ubuntu-latest
+  build-opensuse-qt5-arm64:
+    runs-on: ubuntu-24.04-arm
 
     container:
       image: opensuse/leap:latest
@@ -21,9 +21,10 @@ jobs:
             make \
             rpm-build \
             rpmdevtools \
-            qt6-base-devel \
-            qt6-tools-devel \
-            qt6-svg-devel
+            libqt5-qtbase-devel \
+            libqt5-qttools-devel \
+            libqt5-qtsvg-devel \
+            libqt5-qtscript-devel
 
       - name: Clone DIE-engine
         run: |
@@ -36,6 +37,7 @@ jobs:
           cd $HOME/DIE-engine
 
           pwd
+          uname -m
           ls -la
 
           cmake \
@@ -56,13 +58,13 @@ jobs:
 
           find $HOME/DIE-engine/build \
             -name '*.rpm' \
-            -exec cp {} release/DIE-engine-opensuse-qt6-x86_64.rpm \;
+            -exec cp {} release/DIE-engine-opensuse-qt5-aarch64.rpm \;
 
           ls -lah release
 
       - name: Verify RPM
         run: |
-          test -f release/DIE-engine-opensuse-qt6-x86_64.rpm
+          test -f release/DIE-engine-opensuse-qt5-aarch64.rpm
 
       - name: Upload RPM Release
         if: github.event_name != 'pull_request'
