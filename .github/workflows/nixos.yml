@@ -32,6 +32,7 @@ jobs:
           '  nativeBuildInputs = with pkgs; [' \
           '    cmake' \
           '    pkg-config' \
+          '    wrapQtAppsHook' \
           '  ];' \
           '' \
           '  buildInputs = with pkgs; [' \
@@ -52,9 +53,11 @@ jobs:
       - name: Build Nix package
         working-directory: DIE-engine
         run: |
-            nix-build -I nixpkgs=https://github.com/NixOS/nixpkgs/archive/refs/heads/nixos-unstable.tar.gz detect-it-easy-nixos.nix
+          nix-build \
+            -I nixpkgs=https://github.com/NixOS/nixpkgs/archive/refs/heads/nixos-unstable.tar.gz \
+            detect-it-easy-nixos.nix
 
-      - name: Verify build result
+      - name: Verify build
         working-directory: DIE-engine
         run: |
           ls -la result
