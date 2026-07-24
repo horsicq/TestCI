@@ -1,0 +1,121 @@
+name: Build DIE-engine (Clear Linux Mixer Bundle)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-clearlinux:
+
+    runs-on: ubuntu-latest
+
+    container:
+      image: clearlinux:latest
+
+    steps:
+
+      - name: Install build tools
+        run: |
+          swupd update
+
+          swupd bundle-add \
+            developer-tools \
+            desktop-dev \
+            qt-basic-dev \
+            mixer
+
+      - name: Initialize mixer workspace
+        run: |
+          mkdir -p /opt/mixer
+
+          cd /opt/mixer
+
+          mixer init --no-default-bundles
+
+      - name: Create local bundle
+        run: |
+          cd /opt/mixer
+
+          mixer bundle create detect-it-easy --local
+
+          printf '%s\n' \
+            'name(detect-it-easy)' \
+            'description(Detect It Easy file analysis tool)' \
+            'content(/opt/mixer/local-bundles/detect-it-easy/files)' \
+            > local-bundles/detect-it-easy
+
+      - name: Clone DIE-engine
+        run: |
+          git clone --recursive \
+            https://github.com/horsicq/DIE-engine.git \
+            /opt/DIE-engine
+
+      - name: Configure CMake
+        run: |
+          cd /opt/DIE-engine
+
+          cmake \
+            -B build \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX=/usr
+
+      - name: Build
+        run: |
+          cmake \
+            --build /opt/DIE-engine/build \
+            --parallel $(nproc)
+
+      - name: Install into bundle
+        run: |
+          mkdir -p \
+            /opt/mixer/local-bundles/detect-it-easy/files
+
+          DESTDIR=/opt/mixer/local-bundles/detect-it-easy/files \
+          cmake \
+            --install /opt/DIE-engine/build
+
+          find \
+            /opt/mixer/local-bundles/detect-it-easy/files \
+            | head -100
+
+      - name: Add bundle to mix
+        run: |
+          cd /opt/mixer
+
+          mixer bundle add detect-it-easy
+
+      - name: Build mixer bundle
+        run: |
+          cd /opt/mixer
+
+          mixer build bundles
+
+          mixer build update
+
+      - name: Collect Clear Linux bundle
+        run: |
+          mkdir release
+
+          find /opt/mixer \
+            -name "*detect-it-easy*" \
+            -exec cp -r {} release/ \;
+
+          tar \
+            -cJf \
+            release/detect-it-easy-clearlinux-bundle.tar.xz \
+            -C release .
+
+          ls -lah release
+
+      - name: Verify
+        run: |
+          test -f release/detect-it-easy-clearlinux-bundle.tar.xz
+
+      - name: Upload Release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: Beta
+          draft: false
+          prerelease: true
+          files: |
+            release/*
