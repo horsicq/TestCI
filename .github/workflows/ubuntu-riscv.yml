@@ -1,0 +1,75 @@
+name: Build DIE-engine (Ubuntu RISC-V64)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-riscv64:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Enable QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Clone DIE-engine
+        run: |
+          git clone --recursive \
+            https://github.com/horsicq/DIE-engine.git
+
+      - name: Build on Ubuntu riscv64
+        run: |
+          docker run \
+            --rm \
+            --platform linux/riscv64 \
+            -v "$PWD/DIE-engine:/src" \
+            ubuntu:24.04 \
+            bash -c '
+              set -ex
+
+              apt update
+
+              apt install -y \
+                git \
+                cmake \
+                ninja-build \
+                build-essential \
+                pkg-config \
+                qt6-base-dev \
+                qt6-svg-dev
+
+              cd /src
+
+              cmake \
+                -B build \
+                -G Ninja \
+                -DCMAKE_BUILD_TYPE=Release
+
+              cmake \
+                --build build \
+                --parallel 2
+            '
+
+      - name: Collect build
+        run: |
+          mkdir -p release
+
+          tar \
+            -czf \
+            release/detect-it-easy-4.0.0-linux-riscv64.tar.gz \
+            -C DIE-engine \
+            build
+
+          ls -lh release
+
+      - name: Upload Release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: Beta
+          draft: false
+          prerelease: true
+          files: |
+            release/*.tar.gz
