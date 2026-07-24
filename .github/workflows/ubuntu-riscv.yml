@@ -42,9 +42,7 @@ jobs:
                 -G Ninja \
                 -DCMAKE_BUILD_TYPE=Release
 
-              cmake \
-                --build build \
-                --parallel 2
+              cmake --build build --parallel $(nproc)
             '
 
       - name: Package result
