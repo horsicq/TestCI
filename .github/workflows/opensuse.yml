@@ -26,10 +26,6 @@ jobs:
             libqt5-qtsvg-devel \
             libqt5-qtscript-devel
 
-      - name: Create build user
-        run: |
-          useradd -m builduser
-
       - name: Clone DIE-engine
         run: |
           cd $HOME 
@@ -38,9 +34,10 @@ jobs:
 
       - name: Build RPM
         run: |
-          pwd
+          cd $HOME/DIE-engine
 
-          mkdir -p build
+          pwd
+          ls -la
 
           cmake \
           -S . \
@@ -53,13 +50,16 @@ jobs:
           cd build
           cpack -G RPM
 
+
       - name: Collect RPM
         run: |
           mkdir -p release
 
-          find DIE-engine/build \
-            -name '*.rpm' \
-            -exec cp {} release/DIE-engine-opensuse-qt5-x86_64.rpm \;
+          find $HOME/DIE-engine/build \
+          -name '*.rpm' \
+          -exec cp {} release/DIE-engine-opensuse-qt5-x86_64.rpm \;
+
+          ls -lah release
 
           ls -lah release
 
