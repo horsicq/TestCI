@@ -1,71 +1,115 @@
-name: Build DIE-engine (macOS)
+name: macOS CI
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
-jobs:
-  build-macos:
+permissions:
+  contents: write
 
+jobs:
+  build-osx:
     runs-on: macos-latest
 
     steps:
-      - name: Install dependencies
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '5.15.2'
+          host: mac
+          target: desktop
+          arch: clang_64
+          modules: qtscript
+
+      - name: Fix Qt path for build_mac.sh
         run: |
-          brew update
+          REAL_QMAKE=$(find $HOME -name qmake | grep clang_64 | head -n 1)
+          echo "Found qmake: $REAL_QMAKE"
+          REAL_QT=$(dirname $(dirname $REAL_QMAKE))
+          mkdir -p /Users/runner/Qt/5.15.2
+          ln -s $REAL_QT /Users/runner/Qt/5.15.2/clang_64
+          ls -la /Users/runner/Qt/5.15.2/clang_64/bin/qmake
 
-          brew install \
-            git \
-            cmake \
-            ninja \
-            qt@5
-
-      - name: Clone DIE-engine
+      - name: Clone DiE's submodules
         run: |
-          git clone \
-            --recursive \
-            https://github.com/horsicq/DIE-engine.git
+          git clone https://github.com/horsicq/DIE-engine.git
+          git clone https://github.com/horsicq/Detect-It-Easy.git
+          git clone https://github.com/horsicq/Formats.git
+          git clone https://github.com/horsicq/SpecAbstract.git
+          git clone https://github.com/horsicq/StaticScan.git
+          git clone https://github.com/horsicq/XArchive.git
+          git clone https://github.com/horsicq/XQwt.git
+          git clone https://github.com/horsicq/XOptions.git
+          git clone https://github.com/horsicq/XStyles.git
+          git clone https://github.com/horsicq/XTranslation.git
+          git clone https://github.com/horsicq/XDEX.git
+          git clone https://github.com/horsicq/FormatDialogs.git
+          git clone https://github.com/horsicq/FormatWidgets.git
+          git clone https://github.com/horsicq/Controls.git
+          git clone https://github.com/horsicq/XMemoryMapWidget.git
+          git clone https://github.com/horsicq/XEntropyWidget.git
+          git clone https://github.com/horsicq/XCapstone.git
+          git clone https://github.com/horsicq/XHashWidget.git
+          git clone https://github.com/horsicq/die_script.git
+          git clone https://github.com/horsicq/die_widget.git
+          git clone https://github.com/horsicq/nfd_widget.git
+          git clone https://github.com/horsicq/archive_widget.git
+          git clone https://github.com/horsicq/XMIME.git
+          git clone https://github.com/horsicq/XSingleApplication.git
+          git clone https://github.com/horsicq/XMIMEWidget.git
+          git clone https://github.com/horsicq/XHexView.git
+          git clone https://github.com/horsicq/XDisasmView.git
+          git clone https://github.com/horsicq/XGithub.git
+          git clone https://github.com/horsicq/XShortcuts.git
+          git clone https://github.com/horsicq/XHexEdit.git
+          git clone https://github.com/horsicq/signatures.git
+          git clone https://github.com/horsicq/XDemangle.git
+          git clone https://github.com/horsicq/XDemangleWidget.git
+          git clone https://github.com/horsicq/build_tools.git
+          git clone https://github.com/horsicq/XCppfilt.git
+          git clone https://github.com/horsicq/XDynStructs.git
+          git clone https://github.com/horsicq/XDynStructsEngine.git
+          git clone https://github.com/horsicq/XDynStructsWidget.git
+          git clone https://github.com/horsicq/XFileInfo.git
+          git clone https://github.com/horsicq/XPDF.git
+          git clone https://github.com/horsicq/XInfoDB.git
+          git clone https://github.com/horsicq/XSymbolsWidget.git
+          git clone https://github.com/horsicq/XOnlineTools.git
+          git clone https://github.com/horsicq/XAboutWidget.git
+          git clone https://github.com/horsicq/hex_templates.git
+          git clone https://github.com/horsicq/XExtractorWidget.git
+          git clone https://github.com/horsicq/XExtractor.git
+          git clone https://github.com/horsicq/XUpdate.git
+          git clone https://github.com/horsicq/XVisualizationWidget.git
+          git clone https://github.com/horsicq/XDecompiler.git
+          git clone https://github.com/horsicq/XYara.git
+          git clone https://github.com/horsicq/yara_widget.git
+          git clone https://github.com/horsicq/XDataConvertorWidget.git
+          git clone https://github.com/horsicq/XScanEngine.git
+          git clone https://github.com/horsicq/XDisasmCore.git
+          git clone https://github.com/horsicq/XRegionsWidget.git
+          git clone https://github.com/horsicq/XStaticUnpacker.git
 
-      - name: Configure
-        working-directory: DIE-engine
+      - name: Build DiE macOS
         run: |
-          export PATH="$(brew --prefix qt@5)/bin:$PATH"
+          rsync -av --exclude 'DIE-engine' ./ DIE-engine/
+          cd DIE-engine
+          chmod +x build_mac.sh
+          ./build_mac.sh
 
-          cmake \
-            -B build \
-            -G Ninja \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_PREFIX_PATH="$(brew --prefix qt@5)"
-
-      - name: Build
-        working-directory: DIE-engine
-        run: |
-          cmake \
-            --build build \
-            --parallel "$(sysctl -n hw.ncpu)"
-
-      - name: Show build output
-        working-directory: DIE-engine
-        run: |
-          find build -maxdepth 3 -type f
-
-      - name: Create release archive
-        working-directory: DIE-engine
-        run: |
-          mkdir -p release
-
-          tar \
-            -czf \
-            release/detect-it-easy-4.0.0-macos.tar.gz \
-            -C build \
-            .
-
-          ls -lh release
-
-      - name: Upload Release
-        uses: softprops/action-gh-release@v3
+      - name: Upload macOS Release
+        if: github.event_name != 'pull_request'
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: Beta
           draft: false
           prerelease: true
           files: |
-            DIE-engine/release/*.tar.gz
+            /Users/runner/work/*/*/DIE-engine/release/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
