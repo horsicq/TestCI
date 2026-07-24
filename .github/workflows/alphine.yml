@@ -16,7 +16,6 @@ jobs:
           apk update
           apk add \
             alpine-sdk \
-            sudo \
             bash \
             git \
             cmake \
@@ -26,38 +25,31 @@ jobs:
             qt5-qttools-dev \
             qt5-qtsvg-dev
 
-      - name: Create build user
-        run: |
-          adduser -D builduser
-          adduser builduser abuild
-          echo "builduser ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
-
       - name: Clone DIE-engine
         run: |
-          git clone --recursive https://github.com/horsicq/DIE-engine.git /home/builduser/DIE-engine
-          chown -R builduser:abuild /home/builduser/DIE-engine
-
-      - name: Prepare abuild directory
-        run: |
-          mkdir -p /home/builduser/.abuild
-          chown -R builduser:abuild /home/builduser/.abuild
+          git clone --recursive \
+            https://github.com/horsicq/DIE-engine.git \
+            /opt/DIE-engine
 
       - name: Build Alpine APK
         run: |
-          sudo -u builduser bash -c "
-            cd /home/builduser/DIE-engine
-            chmod +x build_alpinepkg.sh
-            bash -x build_alpinepkg.sh
-          "
+          cd /opt/DIE-engine
+
+          chmod a+x build_alpinepkg.sh
+
+          bash -x build_alpinepkg.sh
 
       - name: Verify APK
         run: |
-          if ! ls /home/builduser/DIE-engine/release/*.apk >/dev/null 2>&1; then
-            echo "APK file does not exist"
-            exit 1
-          fi
+          mkdir -p release
 
-          ls -lah /home/builduser/DIE-engine/release/
+          find /opt/DIE-engine \
+            -name "*.apk" \
+            -exec cp {} release/DetectItEasy-alpine.apk \;
+
+          ls -lah release
+
+          test -f release/DetectItEasy-alpine.apk
 
       - name: Upload Release APK
         if: github.event_name != 'pull_request'
@@ -67,4 +59,4 @@ jobs:
           draft: false
           prerelease: true
           files: |
-            /home/builduser/DIE-engine/release/*.apk
+            release/*.apk
