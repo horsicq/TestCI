@@ -21,18 +21,21 @@ jobs:
           usesh: true
 
           prepare: |
-            pkg_add -I git cmake ninja pkgconf \
-              qt5-qtbase \
-              qt5-qtsvg
-
-          run: |
             set -ex
 
-            git clone --recursive \
-              https://github.com/horsicq/DIE-engine.git \
-              /tmp/DIE-engine
+            pkg_add -I git cmake ninja pkgconf
 
-            cd /tmp/DIE-engine
+            # Qt packages
+            pkg_add -I qt5-qtbase qt5-qtsvg
+
+          run: |
+            set -euxo pipefail
+
+            cd "$GITHUB_WORKSPACE"
+
+            echo "Building from:"
+            pwd
+            ls -la
 
             cmake \
               -B build \
@@ -41,29 +44,33 @@ jobs:
               -DCMAKE_INSTALL_PREFIX=/usr/local
 
             cmake --build build \
-              --parallel $(sysctl -n hw.ncpu)
+              --parallel "$(sysctl -n hw.ncpu)"
 
-            mkdir -p package-root/usr/local/bin
+            rm -rf /tmp/package-root
+            mkdir -p /tmp/package-root
 
             DESTDIR=/tmp/package-root \
               cmake --install build
 
-            mkdir -p package-root/+DESC
+            mkdir -p /tmp/package-root/+DESC
 
             printf '%s\n' \
               "Detect It Easy" \
               "" \
               "File type identification tool" \
               "https://github.com/horsicq/DIE-engine" \
-              > package-root/+DESC
+              > /tmp/package-root/+DESC
 
             mkdir -p release
 
             tar \
               -czf \
               release/detect-it-easy-4.0.0-openbsd.tgz \
-              -C package-root \
+              -C /tmp/package-root \
               .
+
+            echo "Package created:"
+            ls -lh release/
 
       - name: Upload OpenBSD package
         uses: softprops/action-gh-release@v3
