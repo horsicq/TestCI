@@ -13,7 +13,7 @@ jobs:
           git clone --recursive \
             https://github.com/horsicq/DIE-engine.git
 
-      - name: Install RISC-V64 toolchain
+      - name: Install RISC-V64 toolchain and host Qt tools
         run: |
           sudo apt-get update
 
@@ -27,7 +27,9 @@ jobs:
             g++-riscv64-linux-gnu \
             qemu-user-static \
             debootstrap \
-            binfmt-support
+            binfmt-support \
+            qttools5-dev-tools \
+            qtbase5-dev
 
       - name: Create RISC-V64 Ubuntu Sysroot with Qt5
         run: |
@@ -75,7 +77,8 @@ jobs:
             -DCMAKE_SYSROOT=/opt/riscv64-sysroot \
             -DCMAKE_C_COMPILER=riscv64-linux-gnu-gcc \
             -DCMAKE_CXX_COMPILER=riscv64-linux-gnu-g++ \
-            -DCMAKE_PREFIX_PATH=/opt/riscv64-sysroot/usr/lib/riscv64-linux-gnu/cmake
+            -DCMAKE_PREFIX_PATH=/opt/riscv64-sysroot/usr/lib/riscv64-linux-gnu/cmake \
+            -DQT_LRELEASE_EXECUTABLE=/usr/bin/lrelease
 
           cmake \
             --build build \
