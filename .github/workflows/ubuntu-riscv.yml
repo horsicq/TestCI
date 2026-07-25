@@ -65,17 +65,32 @@ jobs:
             qttools5-dev-tools \
             libqt5svg5-dev
 
-      - name: Remove target Qt host tools
+      - name: Fix Qt5 host tools for cross compile
         run: |
-          sudo rm -f /opt/riscv64-sysroot/usr/lib/qt5/bin/moc
-          sudo rm -f /opt/riscv64-sysroot/usr/lib/qt5/bin/rcc
-          sudo rm -f /opt/riscv64-sysroot/usr/lib/qt5/bin/uic
-          sudo rm -f /opt/riscv64-sysroot/usr/lib/qt5/bin/lrelease
+          sudo ln -sf /usr/bin/moc \
+            /opt/riscv64-sysroot/usr/lib/qt5/bin/moc
 
-          sudo rm -f /opt/riscv64-sysroot/usr/bin/moc
-          sudo rm -f /opt/riscv64-sysroot/usr/bin/rcc
-          sudo rm -f /opt/riscv64-sysroot/usr/bin/uic
-          sudo rm -f /opt/riscv64-sysroot/usr/bin/lrelease
+          sudo ln -sf /usr/bin/rcc \
+            /opt/riscv64-sysroot/usr/lib/qt5/bin/rcc
+
+          sudo ln -sf /usr/bin/uic \
+            /opt/riscv64-sysroot/usr/lib/qt5/bin/uic
+
+          sudo ln -sf /usr/bin/lrelease \
+            /opt/riscv64-sysroot/usr/lib/qt5/bin/lrelease
+
+      - name: Verify Qt tools
+        run: |
+          ls -l /opt/riscv64-sysroot/usr/lib/qt5/bin/
+          which moc
+          which rcc
+          which uic
+          which lrelease
+
+      - name: Clean build directory
+        working-directory: DIE-engine
+        run: |
+          rm -rf build
 
       - name: Configure RISC-V64 build
         working-directory: DIE-engine
@@ -90,10 +105,10 @@ jobs:
             -DCMAKE_C_COMPILER=riscv64-linux-gnu-gcc \
             -DCMAKE_CXX_COMPILER=riscv64-linux-gnu-g++ \
             -DCMAKE_PREFIX_PATH=/opt/riscv64-sysroot/usr/lib/riscv64-linux-gnu/cmake \
-            -DQT_MOC_EXECUTABLE=/usr/lib/qt5/bin/moc \
-            -DQT_RCC_EXECUTABLE=/usr/lib/qt5/bin/rcc \
-            -DQT_UIC_EXECUTABLE=/usr/lib/qt5/bin/uic \
-            -DQT_LRELEASE_EXECUTABLE=/usr/bin/lrelease
+            -DQT_MOC_EXECUTABLE=/opt/riscv64-sysroot/usr/lib/qt5/bin/moc \
+            -DQT_RCC_EXECUTABLE=/opt/riscv64-sysroot/usr/lib/qt5/bin/rcc \
+            -DQT_UIC_EXECUTABLE=/opt/riscv64-sysroot/usr/lib/qt5/bin/uic \
+            -DQT_LRELEASE_EXECUTABLE=/opt/riscv64-sysroot/usr/lib/qt5/bin/lrelease
 
       - name: Build RISC-V64
         working-directory: DIE-engine
