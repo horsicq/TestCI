@@ -1,4 +1,4 @@
-name: Build DIE-engine ARMHF
+name: Build DIE-engine ARMhf
 
 on:
   workflow_dispatch:
@@ -8,53 +8,96 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Enable QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
       - name: Clone DIE-engine
         run: |
           git clone --recursive \
             https://github.com/horsicq/DIE-engine.git
 
-      - name: Build DIE-engine (ARMHF)
+      - name: Install ARMhf toolchain and host Qt tools
         run: |
-          docker run --rm \
-            --platform linux/arm/v7 \
-            -v "$PWD/DIE-engine:/DIE-engine" \
-            ubuntu:22.04 \
-            bash -c '
-              set -eux
+          sudo apt-get update
 
-              export DEBIAN_FRONTEND=noninteractive
+          sudo apt-get install -y \
+            git \
+            cmake \
+            ninja-build \
+            pkg-config \
+            build-essential \
+            gcc-arm-linux-gnueabihf \
+            g++-arm-linux-gnueabihf \
+            qemu-user-static \
+            debootstrap \
+            binfmt-support \
+            qtbase5-dev \
+            qttools5-dev-tools
 
-              apt-get update
+      - name: Create ARMhf Ubuntu Sysroot with Qt5
+        run: |
+          sudo mkdir -p /opt/armhf-sysroot
 
-             apt-get install -y \
-             git \
-             build-essential \
-             cmake \
-             ninja-build \
-             pkg-config \
-             qtbase5-dev \
-             qtscript5-dev \
-             qttools5-dev \
-             qttools5-dev-tools \
-             libqt5svg5-dev
+          sudo debootstrap \
+            --arch=armhf \
+            --foreign \
+            --components=main,universe,multiverse,restricted \
+            jammy \
+            /opt/armhf-sysroot \
+            http://ports.ubuntu.com/ubuntu-ports
 
-              cd /DIE-engine
+          sudo cp /usr/bin/qemu-arm-static \
+            /opt/armhf-sysroot/usr/bin/
 
-              cmake \
-                -B build \
-                -G Ninja \
-                -DCMAKE_BUILD_TYPE=Release
+          sudo chroot /opt/armhf-sysroot \
+            /debootstrap/debootstrap \
+            --second-stage
 
-              cmake \
-                --build build \
-                --parallel $(nproc)
-            '
+          sudo printf '%s\n' \
+            "deb http://ports.ubuntu.com/ubuntu-ports jammy main restricted universe multiverse" \
+            "deb http://ports.ubuntu.com/ubuntu-ports jammy-updates main restricted universe multiverse" \
+            "deb http://ports.ubuntu.com/ubuntu-ports jammy-security main restricted universe multiverse" \
+            | sudo tee /opt/armhf-sysroot/etc/apt/sources.list > /dev/null
+
+          sudo chroot /opt/armhf-sysroot apt-get update
+
+          sudo chroot /opt/armhf-sysroot apt-get install -y \
+            qtbase5-dev \
+            qtscript5-dev \
+            qttools5-dev \
+            qttools5-dev-tools \
+            libqt5svg5-dev
+
+      - name: Configure ARMhf build
+        working-directory: DIE-engine
+        run: |
+          rm -rf build
+
+          cmake \
+            -B build \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_SYSTEM_NAME=Linux \
+            -DCMAKE_SYSTEM_PROCESSOR=arm \
+            -DCMAKE_SYSROOT=/opt/armhf-sysroot \
+            -DCMAKE_C_COMPILER=arm-linux-gnueabihf-gcc \
+            -DCMAKE_CXX_COMPILER=arm-linux-gnueabihf-g++ \
+            -DCMAKE_PREFIX_PATH=/opt/armhf-sysroot/usr/lib/arm-linux-gnueabihf/cmake \
+            -DQT_MOC_EXECUTABLE=$(which moc) \
+            -DQT_RCC_EXECUTABLE=$(which rcc) \
+            -DQT_UIC_EXECUTABLE=$(which uic) \
+            -DQT_LRELEASE_EXECUTABLE=$(which lrelease)
+
+      - name: Build ARMhf
+        working-directory: DIE-engine
+        run: |
+          cmake \
+            --build build \
+            --parallel $(nproc)
+
+      - name: Check architecture
+        run: |
+          find DIE-engine/build \
+            -type f \
+            -executable \
+            -exec file {} \;
 
       - name: Create Release Archive
         run: |
@@ -66,9 +109,7 @@ jobs:
             -C DIE-engine/build \
             .
 
-          ls -lh release
-
-      - name: Upload Release as Download
+      - name: Upload Release
         if: github.event_name != 'pull_request'
         uses: softprops/action-gh-release@v3
         env:
