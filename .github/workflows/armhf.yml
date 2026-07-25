@@ -32,16 +32,16 @@ jobs:
 
               apt-get update
 
-              apt-get install -y \
-                build-essential \
-                cmake \
-                ninja-build \
-                git \
-                pkg-config \
-                qtbase5-dev \
-                qtsvg5-dev \
-                qttools5-dev \
-                qttools5-dev-tools
+             apt-get install -y \
+             git \
+             build-essential \
+             cmake \
+             ninja-build \
+             pkg-config \
+             qtbase5-dev \
+             qtscript5-dev \
+             qttools5-dev-tools \
+             libqt5svg5-dev
 
               cd /DIE-engine
 
@@ -67,10 +67,6 @@ jobs:
 
           ls -lh release
 
-      - name: Set Release Path
-        run: |
-          echo "RELEASE_PATH=release" >> "$GITHUB_ENV"
-
       - name: Upload Release as Download
         if: github.event_name != 'pull_request'
         uses: softprops/action-gh-release@v3
@@ -81,4 +77,4 @@ jobs:
           draft: false
           prerelease: true
           files: |
-            ${{ env.RELEASE_PATH }}/*.tar.gz
+            release/*.tar.gz
