@@ -28,8 +28,8 @@ jobs:
             qemu-user-static \
             debootstrap \
             binfmt-support \
-            qttools5-dev-tools \
-            qtbase5-dev
+            qtbase5-dev \
+            qttools5-dev-tools
 
       - name: Create RISC-V64 Ubuntu Sysroot with Qt5
         run: |
@@ -65,7 +65,14 @@ jobs:
             qttools5-dev-tools \
             libqt5svg5-dev
 
-      - name: Build RISC-V64
+      - name: Remove target Qt build tools
+        run: |
+          sudo rm -f /opt/riscv64-sysroot/usr/bin/lrelease
+          sudo rm -f /opt/riscv64-sysroot/usr/bin/lupdate
+          sudo rm -f /opt/riscv64-sysroot/usr/bin/moc
+          sudo rm -f /opt/riscv64-sysroot/usr/bin/rcc
+
+      - name: Configure RISC-V64 build
         working-directory: DIE-engine
         run: |
           cmake \
@@ -78,8 +85,11 @@ jobs:
             -DCMAKE_C_COMPILER=riscv64-linux-gnu-gcc \
             -DCMAKE_CXX_COMPILER=riscv64-linux-gnu-g++ \
             -DCMAKE_PREFIX_PATH=/opt/riscv64-sysroot/usr/lib/riscv64-linux-gnu/cmake \
-            -DQT_LRELEASE_EXECUTABLE=/usr/bin/lrelease
+            -DQt5_LRELEASE_EXECUTABLE=/usr/bin/lrelease
 
+      - name: Build RISC-V64
+        working-directory: DIE-engine
+        run: |
           cmake \
             --build build \
             --parallel $(nproc)
