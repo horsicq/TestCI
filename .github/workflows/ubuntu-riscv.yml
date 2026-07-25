@@ -29,14 +29,14 @@ jobs:
             debootstrap \
             binfmt-support
 
-          sudo mkdir -p /opt/riscv64-sysroot
-
-          sudo debootstrap \
+            sudo debootstrap \
             --arch=riscv64 \
             --foreign \
             jammy \
             /opt/riscv64-sysroot \
-            http://ports.ubuntu.com/
+            http://ports.ubuntu.com/ubuntu-ports
+
+          sudo mkdir -p /opt/riscv64-sysroot
 
           sudo cp /usr/bin/qemu-riscv64-static \
             /opt/riscv64-sysroot/usr/bin/
