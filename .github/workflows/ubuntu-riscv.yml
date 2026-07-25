@@ -13,7 +13,7 @@ jobs:
           git clone --recursive \
             https://github.com/horsicq/DIE-engine.git
 
-      - name: Install RISC-V64 toolchain and Qt5 dependencies
+      - name: Install RISC-V64 toolchain
         run: |
           sudo apt-get update
 
@@ -29,14 +29,17 @@ jobs:
             debootstrap \
             binfmt-support
 
-            sudo debootstrap \
+      - name: Create RISC-V64 Ubuntu Sysroot with Qt5
+        run: |
+          sudo mkdir -p /opt/riscv64-sysroot
+
+          sudo debootstrap \
             --arch=riscv64 \
             --foreign \
+            --components=main,universe,multiverse,restricted \
             jammy \
             /opt/riscv64-sysroot \
             http://ports.ubuntu.com/ubuntu-ports
-
-          sudo mkdir -p /opt/riscv64-sysroot
 
           sudo cp /usr/bin/qemu-riscv64-static \
             /opt/riscv64-sysroot/usr/bin/
@@ -45,17 +48,20 @@ jobs:
             /debootstrap/debootstrap \
             --second-stage
 
-          sudo chroot /opt/riscv64-sysroot \
-            apt-get update
+          sudo printf '%s\n' \
+            "deb http://ports.ubuntu.com/ubuntu-ports jammy main restricted universe multiverse" \
+            "deb http://ports.ubuntu.com/ubuntu-ports jammy-updates main restricted universe multiverse" \
+            "deb http://ports.ubuntu.com/ubuntu-ports jammy-security main restricted universe multiverse" \
+            | sudo tee /opt/riscv64-sysroot/etc/apt/sources.list > /dev/null
 
-          sudo chroot /opt/riscv64-sysroot \
-            apt-get install -y \
-              qtbase5-dev \
-              qtscript5-dev \
-              qttools5-dev \
-              qttools5-dev-tools \
-              libqt5svg5-dev
+          sudo chroot /opt/riscv64-sysroot apt-get update
 
+          sudo chroot /opt/riscv64-sysroot apt-get install -y \
+            qtbase5-dev \
+            qtscript5-dev \
+            qttools5-dev \
+            qttools5-dev-tools \
+            libqt5svg5-dev
 
       - name: Build RISC-V64
         working-directory: DIE-engine
@@ -75,10 +81,9 @@ jobs:
             --build build \
             --parallel $(nproc)
 
-
-      - name: Verify architecture
+      - name: Check binary architecture
         run: |
-          file DIE-engine/build/* || true
+          find DIE-engine/build -type f -executable -exec file {} \;
 
       - name: Create Release Archive
         run: |
@@ -89,8 +94,6 @@ jobs:
             release/detect-it-easy-4.0.0-linux-riscv64.tar.gz \
             -C DIE-engine/build \
             .
-
-          ls -lh release
 
       - name: Upload Release as Download
         if: github.event_name != 'pull_request'
