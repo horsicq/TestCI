@@ -24,7 +24,38 @@ jobs:
             pkg-config \
             build-essential \
             gcc-riscv64-linux-gnu \
-            g++-riscv64-linux-gnu
+            g++-riscv64-linux-gnu \
+            qemu-user-static \
+            debootstrap \
+            binfmt-support
+
+          sudo mkdir -p /opt/riscv64-sysroot
+
+          sudo debootstrap \
+            --arch=riscv64 \
+            --foreign \
+            jammy \
+            /opt/riscv64-sysroot \
+            http://ports.ubuntu.com/
+
+          sudo cp /usr/bin/qemu-riscv64-static \
+            /opt/riscv64-sysroot/usr/bin/
+
+          sudo chroot /opt/riscv64-sysroot \
+            /debootstrap/debootstrap \
+            --second-stage
+
+          sudo chroot /opt/riscv64-sysroot \
+            apt-get update
+
+          sudo chroot /opt/riscv64-sysroot \
+            apt-get install -y \
+              qtbase5-dev \
+              qtscript5-dev \
+              qttools5-dev \
+              qttools5-dev-tools \
+              libqt5svg5-dev
+
 
       - name: Build RISC-V64
         working-directory: DIE-engine
@@ -35,12 +66,15 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_SYSTEM_NAME=Linux \
             -DCMAKE_SYSTEM_PROCESSOR=riscv64 \
+            -DCMAKE_SYSROOT=/opt/riscv64-sysroot \
             -DCMAKE_C_COMPILER=riscv64-linux-gnu-gcc \
-            -DCMAKE_CXX_COMPILER=riscv64-linux-gnu-g++
+            -DCMAKE_CXX_COMPILER=riscv64-linux-gnu-g++ \
+            -DCMAKE_PREFIX_PATH=/opt/riscv64-sysroot/usr/lib/riscv64-linux-gnu/cmake
 
           cmake \
             --build build \
             --parallel $(nproc)
+
 
       - name: Verify architecture
         run: |
