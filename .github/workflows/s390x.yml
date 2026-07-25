@@ -9,10 +9,12 @@ on:
 env:
   SRC_PATH: DIE-engine
 
+
 jobs:
+
   build-s390x:
 
-    name: Build s390x (CMake)
+    name: Build s390x
     runs-on: ubuntu-24.04
 
     steps:
@@ -26,7 +28,7 @@ jobs:
           git clone https://github.com/horsicq/DIE-engine.git --recursive ${{ env.SRC_PATH }}
 
 
-      - name: Build s390x
+      - name: Install dependencies (s390x)
         run: |
           printf '%s\n' \
             'set -ex' \
@@ -39,33 +41,67 @@ jobs:
               qtbase5-dev \
               qttools5-dev \
               libqt5svg5-dev \
-              qt5-qmake \
+              qtscript5-dev \
               tar \
               gzip' \
-            'echo Architecture:' \
-            'uname -m' \
-            'cd /src/DIE-engine' \
-            'mkdir -p build' \
-            'cd build' \
-            'cmake .. -DCMAKE_BUILD_TYPE=Release' \
-            'cmake --build . -j$(nproc)' \
-            'mkdir -p /src/package' \
-            'cp -a ./* /src/package/ 2>/dev/null || true' \
-            'cd /src' \
-            'tar -czf detect-it-easy-s390x.tar.gz package' \
           | docker run --rm -i \
               --platform linux/s390x \
-              -v "${PWD}:/src" \
+              -v "${PWD}/${{ env.SRC_PATH }}:/src" \
               -w /src \
               s390x/ubuntu:24.04 \
               bash
 
 
-      - name: Upload Artifact
+      - name: CMake configure
+        run: |
+          printf '%s\n' \
+            'set -ex' \
+            'cd /src' \
+            'cmake -B build \
+              -DCMAKE_BUILD_TYPE=Release' \
+          | docker run --rm -i \
+              --platform linux/s390x \
+              -v "${PWD}/${{ env.SRC_PATH }}:/src" \
+              -w /src \
+              s390x/ubuntu:24.04 \
+              bash
+
+
+      - name: CMake compile
+        run: |
+          printf '%s\n' \
+            'set -ex' \
+            'cd /src' \
+            'cmake --build build -j$(nproc)' \
+          | docker run --rm -i \
+              --platform linux/s390x \
+              -v "${PWD}/${{ env.SRC_PATH }}:/src" \
+              -w /src \
+              s390x/ubuntu:24.04 \
+              bash
+
+
+      - name: Create portable archive
+        run: |
+          printf '%s\n' \
+            'set -ex' \
+            'cd /src/build' \
+            'mkdir -p package' \
+            'cp -a ./* package/ || true' \
+            'tar -czf /src/detect-it-easy-s390x.tar.gz package' \
+          | docker run --rm -i \
+              --platform linux/s390x \
+              -v "${PWD}/${{ env.SRC_PATH }}:/src" \
+              -w /src \
+              s390x/ubuntu:24.04 \
+              bash
+
+
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: detect-it-easy-s390x
-          path: detect-it-easy-s390x.tar.gz
+          path: ${{ env.SRC_PATH }}/detect-it-easy-s390x.tar.gz
 
 
       - name: Upload Release
@@ -78,4 +114,4 @@ jobs:
           draft: false
           prerelease: true
           files: |
-            detect-it-easy-s390x.tar.gz
+            ${{ env.SRC_PATH }}/detect-it-easy-s390x.tar.gz
