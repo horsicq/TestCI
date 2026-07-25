@@ -1,144 +1,92 @@
-name: Build DIE-engine RISC-V64
+name: Build Detect It Easy riscv64
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - "*"
+
+env:
+  SRC_PATH: DIE-engine
 
 jobs:
+
   build-riscv64:
-    runs-on: ubuntu-latest
+
+    name: Build riscv64
+    runs-on: ubuntu-24.04
 
     steps:
+
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v3
+
       - name: Clone DIE-engine
         run: |
-          git clone --recursive \
-            https://github.com/horsicq/DIE-engine.git
+          git clone https://github.com/horsicq/DIE-engine.git \
+            --recursive \
+            ${{ env.SRC_PATH }}
 
-      - name: Install RISC-V64 toolchain and host Qt tools
+      - name: Build riscv64
         run: |
-          sudo apt-get update
+          printf '%s\n' \
+            'set -ex' \
+            '' \
+            '# Install dependencies' \
+            'apt-get update' \
+            'DEBIAN_FRONTEND=noninteractive apt-get install -y \
+              build-essential \
+              cmake \
+              ninja-build \
+              git \
+              qtbase5-dev \
+              qtscript5-dev \
+              qttools5-dev \
+              qttools5-dev-tools \
+              libqt5svg5-dev \
+              qt5-qmake \
+              tar \
+              gzip' \
+            '' \
+            '# Check architecture' \
+            'uname -m' \
+            'cmake --version' \
+            '' \
+            '# Configure' \
+            'cd /src' \
+            'cmake -B build \
+              -DCMAKE_BUILD_TYPE=Release' \
+            '' \
+            '# Compile' \
+            'cmake --build build -j$(nproc)' \
+            '' \
+            '# Package' \
+            'mkdir -p package' \
+            'cp -a build/* package/ || true' \
+            'tar -czf detect-it-easy-riscv64.tar.gz package' \
+          | docker run --rm -i \
+              --platform linux/riscv64 \
+              -v "${PWD}/${{ env.SRC_PATH }}:/src" \
+              -w /src \
+              riscv64/ubuntu:24.04 \
+              bash
 
-          sudo apt-get install -y \
-            git \
-            cmake \
-            ninja-build \
-            pkg-config \
-            build-essential \
-            gcc-riscv64-linux-gnu \
-            g++-riscv64-linux-gnu \
-            qemu-user-static \
-            debootstrap \
-            binfmt-support \
-            qtbase5-dev \
-            qttools5-dev-tools
 
-      - name: Create RISC-V64 Ubuntu Sysroot with Qt5
-        run: |
-          sudo mkdir -p /opt/riscv64-sysroot
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: detect-it-easy-riscv64
+          path: ${{ env.SRC_PATH }}/detect-it-easy-riscv64.tar.gz
 
-          sudo debootstrap \
-            --arch=riscv64 \
-            --foreign \
-            --components=main,universe,multiverse,restricted \
-            jammy \
-            /opt/riscv64-sysroot \
-            http://ports.ubuntu.com/ubuntu-ports
 
-          sudo cp /usr/bin/qemu-riscv64-static \
-            /opt/riscv64-sysroot/usr/bin/
-
-          sudo chroot /opt/riscv64-sysroot \
-            /debootstrap/debootstrap \
-            --second-stage
-
-          sudo printf '%s\n' \
-            "deb http://ports.ubuntu.com/ubuntu-ports jammy main restricted universe multiverse" \
-            "deb http://ports.ubuntu.com/ubuntu-ports jammy-updates main restricted universe multiverse" \
-            "deb http://ports.ubuntu.com/ubuntu-ports jammy-security main restricted universe multiverse" \
-            | sudo tee /opt/riscv64-sysroot/etc/apt/sources.list > /dev/null
-
-          sudo chroot /opt/riscv64-sysroot apt-get update
-
-          sudo chroot /opt/riscv64-sysroot apt-get install -y \
-            qtbase5-dev \
-            qtscript5-dev \
-            qttools5-dev \
-            qttools5-dev-tools \
-            libqt5svg5-dev
-
-      - name: Fix Qt5 host tools for cross compile
-        run: |
-          sudo ln -sf /usr/bin/moc \
-            /opt/riscv64-sysroot/usr/lib/qt5/bin/moc
-
-          sudo ln -sf /usr/bin/rcc \
-            /opt/riscv64-sysroot/usr/lib/qt5/bin/rcc
-
-          sudo ln -sf /usr/bin/uic \
-            /opt/riscv64-sysroot/usr/lib/qt5/bin/uic
-
-          sudo ln -sf /usr/bin/lrelease \
-            /opt/riscv64-sysroot/usr/lib/qt5/bin/lrelease
-
-      - name: Verify Qt tools
-        run: |
-          ls -l /opt/riscv64-sysroot/usr/lib/qt5/bin/
-          which moc
-          which rcc
-          which uic
-          which lrelease
-
-      - name: Clean build directory
-        working-directory: DIE-engine
-        run: |
-          rm -rf build
-
-      - name: Configure RISC-V64 build
-        working-directory: DIE-engine
-        run: |
-          cmake \
-            -B build \
-            -G Ninja \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_SYSTEM_NAME=Linux \
-            -DCMAKE_SYSTEM_PROCESSOR=riscv64 \
-            -DCMAKE_SYSROOT=/opt/riscv64-sysroot \
-            -DCMAKE_C_COMPILER=riscv64-linux-gnu-gcc \
-            -DCMAKE_CXX_COMPILER=riscv64-linux-gnu-g++ \
-            -DCMAKE_PREFIX_PATH=/opt/riscv64-sysroot/usr/lib/riscv64-linux-gnu/cmake \
-            -DQT_MOC_EXECUTABLE=/opt/riscv64-sysroot/usr/lib/qt5/bin/moc \
-            -DQT_RCC_EXECUTABLE=/opt/riscv64-sysroot/usr/lib/qt5/bin/rcc \
-            -DQT_UIC_EXECUTABLE=/opt/riscv64-sysroot/usr/lib/qt5/bin/uic \
-            -DQT_LRELEASE_EXECUTABLE=/opt/riscv64-sysroot/usr/lib/qt5/bin/lrelease
-
-      - name: Build RISC-V64
-        working-directory: DIE-engine
-        run: |
-          cmake \
-            --build build \
-            --parallel $(nproc)
-
-      - name: Check binary architecture
-        run: |
-          find DIE-engine/build -type f -executable -exec file {} \;
-
-      - name: Create Release Archive
-        run: |
-          mkdir -p release
-
-          tar \
-            -czf \
-            release/detect-it-easy-4.0.0-linux-riscv64.tar.gz \
-            -C DIE-engine/build \
-            .
-
-      - name: Upload Release as Download
+      - name: Upload Release
         if: github.event_name != 'pull_request'
         uses: softprops/action-gh-release@v3
         env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         with:
           tag_name: Beta
           draft: false
           prerelease: true
           files: |
-            release/*.tar.gz
+            ${{ env.SRC_PATH }}/detect-it-easy-riscv64.tar.gz
