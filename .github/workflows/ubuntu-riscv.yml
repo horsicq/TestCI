@@ -1,64 +1,68 @@
-name: Build DIE-engine (Ubuntu RISC-V64 Qt5)
+name: Build DIE-engine RISC-V64
 
 on:
   workflow_dispatch:
 
 jobs:
   build-riscv64:
-
     runs-on: ubuntu-latest
 
     steps:
-      - name: Enable QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
       - name: Clone DIE-engine
         run: |
           git clone --recursive \
             https://github.com/horsicq/DIE-engine.git
 
-      - name: Build on Ubuntu riscv64
+      - name: Install RISC-V64 toolchain and Qt5 dependencies
         run: |
-          docker run \
-            --rm \
-            --platform linux/riscv64 \
-            -v "$PWD/DIE-engine:/src" \
-            ubuntu:22.04 \
-            bash -c '
-              set -ex
+          sudo apt-get update
 
-              apt update
+          sudo apt-get install -y \
+            git \
+            cmake \
+            ninja-build \
+            pkg-config \
+            build-essential \
+            gcc-riscv64-linux-gnu \
+            g++-riscv64-linux-gnu
 
-             apt-get install qtbase5-dev qtscript5-dev qttools5-dev-tools libqt5svg5-dev git build-essential qtchooser qt5-qmake -y
+      - name: Build RISC-V64
+        working-directory: DIE-engine
+        run: |
+          cmake \
+            -B build \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_SYSTEM_NAME=Linux \
+            -DCMAKE_SYSTEM_PROCESSOR=riscv64 \
+            -DCMAKE_C_COMPILER=riscv64-linux-gnu-gcc \
+            -DCMAKE_CXX_COMPILER=riscv64-linux-gnu-g++
 
+          cmake \
+            --build build \
+            --parallel $(nproc)
 
-              cd /src
+      - name: Verify architecture
+        run: |
+          file DIE-engine/build/* || true
 
-              cmake \
-                -B build \
-                -G Ninja \
-                -DCMAKE_BUILD_TYPE=Release
-
-              cmake --build build --parallel $(nproc)
-            '
-
-      - name: Package result
+      - name: Create Release Archive
         run: |
           mkdir -p release
 
           tar \
             -czf \
             release/detect-it-easy-4.0.0-linux-riscv64.tar.gz \
-            -C DIE-engine \
-            build
+            -C DIE-engine/build \
+            .
 
           ls -lh release
 
-      - name: Upload Release
+      - name: Upload Release as Download
+        if: github.event_name != 'pull_request'
         uses: softprops/action-gh-release@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         with:
           tag_name: Beta
           draft: false
