@@ -5,7 +5,6 @@ on:
 
 jobs:
   build-nix:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -20,54 +19,78 @@ jobs:
       - name: Create detect-it-easy-nixos.nix
         working-directory: DIE-engine
         run: |
-          printf '%s\n' \
-          '{ pkgs ? import <nixpkgs> {} }:' \
-          '' \
-          'pkgs.stdenv.mkDerivation {' \
-          '  pname = "detect-it-easy";' \
-          '  version = "4.0.0";' \
-          '' \
-          '  src = ./.;' \
-          '' \
-          '  nativeBuildInputs = with pkgs; [' \
-          '    cmake' \
-          '    pkg-config' \
-          '    wrapQtAppsHook' \
-          '  ];' \
-          '' \
-          '  buildInputs = with pkgs.qt5; [' \
-          '    qtbase' \
-          '    qtsvg' \
-          '    qtscript' \
-          '    qttools' \
-          '  ];' \
-          '' \
-          '  cmakeFlags = [' \
-          '    "-DCMAKE_BUILD_TYPE=Release"' \
-          '  ];' \
-          '' \
-          '  installPhase = "mkdir -p $out && cmake --install . --prefix $out";' \
-          '}' \
-          > detect-it-easy-nixos.nix
+          cat > detect-it-easy-nixos.nix <<'EOF'
+          { pkgs ? import (builtins.fetchTarball "https://github.com/NixOS/nixpkgs/archive/nixos-24.05.tar.gz") {} }:
+
+          pkgs.stdenv.mkDerivation {
+            pname = "detect-it-easy";
+            version = "4.0.0";
+
+            src = ./.;
+
+            nativeBuildInputs = with pkgs; [
+              cmake
+              pkg-config
+              wrapQtAppsHook
+            ];
+
+            buildInputs = with pkgs.qt5; [
+              qtbase
+              qtsvg
+              qtscript
+              qttools
+            ];
+
+            configurePhase = ''
+              cmake -B build \
+                -DCMAKE_BUILD_TYPE=Release
+            '';
+
+            buildPhase = ''
+              cmake --build build -j$NIX_BUILD_CORES
+            '';
+
+            installPhase = ''
+              mkdir -p $out/bin
+
+              cp build/gui/die $out/bin/
+              cp build/console/diec $out/bin/
+              cp build/lite/diel $out/bin/
+
+              for d in db db_extra db_min peid_rules yara_rules; do
+                if [ -d "$d" ]; then
+                  cp -a "$d" "$out/"
+                fi
+              done
+            '';
+          }
+          EOF
 
       - name: Build Nix package
         working-directory: DIE-engine
         run: |
-          nix-build \
-            -I nixpkgs=nixpkgs=https://github.com/NixOS/nixpkgs/archive/nixos-24.05.tar.gz \
-            detect-it-easy-nixos.nix
+          nix-build detect-it-easy-nixos.nix
 
       - name: Verify build
         working-directory: DIE-engine
         run: |
           ls -la result
-          find result -maxdepth 3 -type f | head -50
+          find result -maxdepth 3
 
-      - name: Upload Nix package
+      - name: Package result
+        working-directory: DIE-engine
+        run: |
+          tar -czf detect-it-easy-nixos.tar.gz \
+            -C result .
+
+      - name: Upload Release
+        if: github.event_name != 'pull_request'
         uses: softprops/action-gh-release@v3
+        env:
+          RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         with:
           tag_name: Beta
           draft: false
           prerelease: true
           files: |
-            DIE-engine/detect-it-easy-nixos.nix
+            DIE-engine/detect-it-easy-nixos.tar.gz
