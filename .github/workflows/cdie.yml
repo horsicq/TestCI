@@ -1,0 +1,45 @@
+name: BJNFNE's CI
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install required libs
+        run: |
+          sudo apt-get update
+          sudo apt-get install build-essentials cmake -y
+
+      - name: Clone cdie
+        run: |
+            git clone https://github.com/horsicq/cdie.git
+
+      - name: Build cdie
+        run: |
+          rsync -av --exclude 'cdie' ./ cdie/
+          cd cdie
+          mkdir build
+          cd build
+          cmake -G Ninja -DCMAKE_BUILD_TYPE=Release ..
+          make -j$(nproc)
+
+      - name: Upload Linux Release
+        if: github.event_name != 'pull_request'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: Beta
+          draft: false
+          prerelease: true
+          files: |
+            /home/runner/work/TestCI/TestCI/cdie/build/src/console/cdie
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
