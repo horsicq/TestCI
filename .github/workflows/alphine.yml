@@ -42,12 +42,16 @@ jobs:
           adduser builduser abuild || true
           
           echo "builduser ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+          echo "permit nopass builduser" >> /etc/doas.d/doas.conf || true
 
           chown -R builduser:abuild /opt/DIE-engine
 
           mkdir -p /home/builduser/.abuild
           chown -R builduser:abuild /home/builduser/.abuild
-          sudo -u builduser abuild-keygen -a -i -n
+          
+          sudo -u builduser abuild-keygen -a -n
+          
+          cp /home/builduser/.abuild/*.rsa.pub /etc/apk/keys/
 
           chmod a+x build_alpinepkg.sh
 
