@@ -46,6 +46,8 @@ jobs:
 
               cd DIE-engine
 
+              pwd
+
               chmod a+x build_dpkg.sh
 
               ./build_dpkg.sh
