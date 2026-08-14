@@ -1,82 +1,44 @@
-name: Build DIE-engine (OpenBSD Package)
+name: Build DIE-engine (OpenBSD)
 
 on:
   workflow_dispatch:
+  release:
+    types: [created]
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 jobs:
   build-openbsd:
-
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
+      - uses: actions/checkout@v6
         with:
-          submodules: recursive
+          submodules: 'recursive'
 
-      - name: Build on OpenBSD VM
+      - name: Run OpenBSD Build & Package
         uses: vmactions/openbsd-vm@v1
         with:
-          release: "7.7"
-          usesh: true
-
           prepare: |
-            set -ex
-
-            pkg_add -I git cmake gmake
-
-            # Qt packages
-            pkg_add -I qtbase qtsvg qtscript qttools
-
+            pkg_add git gmake cmake qtbase qtsvg qtscript qttools
           run: |
-            set -euxo pipefail
-
-            cd "$GITHUB_WORKSPACE"
-
-            echo "Building from:"
-            pwd
-            ls -la
-
-            cmake \
-              -B build \
-              -G Ninja \
-              -DCMAKE_BUILD_TYPE=Release \
-              -DCMAKE_INSTALL_PREFIX=/usr/local
-
-            cmake --build build \
-              --parallel "$(sysctl -n hw.ncpu)"
-
-            rm -rf /tmp/package-root
-            mkdir -p /tmp/package-root
-
-            DESTDIR=/tmp/package-root \
-              cmake --install build
-
-            mkdir -p /tmp/package-root/+DESC
-
-            printf '%s\n' \
-              "Detect It Easy" \
-              "" \
-              "File type identification tool" \
-              "https://github.com/horsicq/DIE-engine" \
-              > /tmp/package-root/+DESC
-
+            mkdir -p build
+            cd build
+            
+            qmake-qt5 ../die_source.pro CONFIG+=release
+            gmake -j$(nproc)
+            
+            cd ..
             mkdir -p release
+            tar -czf release/DetectItEasy-openbsd-amd64.tar.gz -C build .
 
-            tar \
-              -czf \
-              release/detect-it-easy-4.0.0-openbsd.tgz \
-              -C /tmp/package-root \
-              .
-
-            echo "Package created:"
-            ls -lh release/
-
-      - name: Upload OpenBSD package
+      - name: Upload OpenBSD Release
+        if: github.event_name != 'pull_request'
         uses: softprops/action-gh-release@v3
+        env:
+          RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         with:
           tag_name: Beta
           draft: false
           prerelease: true
           files: |
-            release/*.tgz
+            release/*.tar.gz
