@@ -50,7 +50,7 @@ jobs:
                 libqt5svg5-dev \
                 qtchooser \
                 build-essential
-
+              pwd
               bash -ex build_dpkg.sh
             '
 
