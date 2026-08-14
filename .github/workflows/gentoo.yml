@@ -13,7 +13,7 @@ jobs:
     steps:
       - name: Install dependencies
         run: |
-          emerge-webrsync
+          emerge --sync --quiet
           echo 'FEATURES="${FEATURES} getbinpkg"' >> /etc/portage/make.conf
           echo 'EMERGE_DEFAULT_OPTS="${EMERGE_DEFAULT_OPTS} --getbinpkg --usepkg"' >> /etc/portage/make.conf
           mkdir -p /etc/portage/package.use
