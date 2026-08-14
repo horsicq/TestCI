@@ -17,6 +17,7 @@ jobs:
           apk add \
             alpine-sdk \
             bash \
+            sudo \
             doas \
             git \
             cmake \
@@ -24,7 +25,9 @@ jobs:
             qt5-qtbase-dev \
             qt5-qtscript-dev \
             qt5-qttools-dev \
-            qt5-qtsvg-dev
+            qt5-qtsvg-dev \
+            linux-headers \
+            libexecinfo-dev
 
       - name: Clone DIE-engine
         run: |
@@ -36,12 +39,16 @@ jobs:
         run: |
           cd /opt/DIE-engine
 
-          mkdir -p /github/home/.abuild
+          adduser -D builduser || true
+          adduser builduser abuild || true
+          
+          echo "builduser ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
-          if [ ! -f /github/home/.abuild/abuild.conf ]; then
-            abuild-keygen -n
-            cp /github/home/.abuild/*.rsa.pub /etc/apk/keys/
-          fi
+          chown -R builduser:abuild /opt/DIE-engine
+
+          mkdir -p /home/builduser/.abuild
+          chown -R builduser:abuild /home/builduser/.abuild
+          sudo -u builduser abuild-keygen -a -i -n
 
           chmod a+x build_alpinepkg.sh
 
