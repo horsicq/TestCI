@@ -8,41 +8,32 @@ on:
   pull_request:
 
 env:
-  SRC_PATH: Detect-It-Easy
   RELEASE_PATH: release
 
 jobs:
   build-ubuntu-24-ppc64le:
-    name: Build Ubuntu 24 PPC64LE
     runs-on: ubuntu-24.04
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-        with:
-          submodules: recursive
-          path: ${{ env.SRC_PATH }}
+      - uses: actions/checkout@v6
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v4
         with:
           platforms: ppc64le
 
-      - name: Prepare release directory
-        run: |
-          mkdir -p "${{ env.RELEASE_PATH }}"
-
-      - name: Build PPC64LE
+      - name: Build
         run: |
           docker run --rm \
             --platform linux/ppc64le \
             -v "${{ github.workspace }}:/workspace" \
-            -w "/workspace/${{ env.SRC_PATH }}" \
+            -w /workspace \
             ubuntu:24.04 \
             bash -ex -c '
               apt-get update
 
               apt-get install -y \
+                git \
                 qtbase5-dev \
                 qtscript5-dev \
                 qttools5-dev \
@@ -50,18 +41,26 @@ jobs:
                 libqt5svg5-dev \
                 qtchooser \
                 build-essential
-              pwd
-              bash -ex build_dpkg.sh
+
+              git clone --recursive https://github.com/horsicq/DIE-engine.git
+
+              cd DIE-engine
+
+              chmod a+x build_dpkg.sh
+
+              ./build_dpkg.sh
             '
 
       - name: Collect packages
         run: |
-          find "${{ env.SRC_PATH }}" \
+          mkdir -p "${{ env.RELEASE_PATH }}"
+
+          find DIE-engine \
             -type f \
             -name "*.deb" \
             -exec cp {} "${{ env.RELEASE_PATH }}/" \;
 
-      - name: Verify packages
+      - name: Verify package architecture
         run: |
           shopt -s nullglob
           packages=("${{ env.RELEASE_PATH }}"/*.deb)
@@ -73,20 +72,13 @@ jobs:
 
           for package in "${packages[@]}"; do
             echo "Package: $package"
-            dpkg-deb -f "$package" Package
-            dpkg-deb -f "$package" Version
-            echo "Architecture:"
-            dpkg-deb -f "$package" Architecture
+            echo "Architecture: $(dpkg-deb -f "$package" Architecture)"
 
             if [ "$(dpkg-deb -f "$package" Architecture)" != "ppc64el" ]; then
               echo "ERROR: Package is not ppc64el!"
               exit 1
             fi
           done
-
-      - name: List release files
-        run: |
-          ls -lah "${{ env.RELEASE_PATH }}"
 
       - name: Upload Release as Download
         if: github.event_name != 'pull_request'
