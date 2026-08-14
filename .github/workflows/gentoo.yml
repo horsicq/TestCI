@@ -18,6 +18,7 @@ jobs:
           echo 'EMERGE_DEFAULT_OPTS="${EMERGE_DEFAULT_OPTS} --getbinpkg --usepkg"' >> /etc/portage/make.conf
           mkdir -p /etc/portage/package.use
           echo "x11-libs/libxkbcommon X" >> /etc/portage/package.use/libxkbcommon
+          echo "dev-qt/qtbase opengl" >> /etc/portage/package.use/qtbase
           emerge --ask=n \
             dev-build/cmake \
             sys-devel/gcc \
