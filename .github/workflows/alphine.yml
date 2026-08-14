@@ -11,7 +11,7 @@ jobs:
       image: alpine:latest
 
     steps:
-      - name: Install dependencies
+- name: Install dependencies
         run: |
           apk update
           apk add \
@@ -26,8 +26,7 @@ jobs:
             qt5-qtscript-dev \
             qt5-qttools-dev \
             qt5-qtsvg-dev \
-            linux-headers \
-            libexecinfo-dev
+            linux-headers
 
       - name: Clone DIE-engine
         run: |
