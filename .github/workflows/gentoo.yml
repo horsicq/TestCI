@@ -14,7 +14,10 @@ jobs:
       - name: Install dependencies
         run: |
           emerge-webrsync
-
+          echo 'FEATURES="${FEATURES} getbinpkg"' >> /etc/portage/make.conf
+          echo 'EMERGE_DEFAULT_OPTS="${EMERGE_DEFAULT_OPTS} --getbinpkg --usepkg"' >> /etc/portage/make.conf
+          mkdir -p /etc/portage/package.use
+          echo "x11-libs/libxkbcommon X" >> /etc/portage/package.use/libxkbcommon
           emerge --ask=n \
             dev-build/cmake \
             sys-devel/gcc \
@@ -38,27 +41,21 @@ jobs:
         run: |
           su - builduser -c "
             set -ex
-
             cd /home/builduser/DIE-engine
-
             mkdir -p build
-
             cmake \
               -B build \
               -DCMAKE_BUILD_TYPE=Release \
               -DCMAKE_INSTALL_PREFIX=/usr
-
             cmake --build build -j\$(nproc)
           "
 
       - name: Collect build output
         run: |
           mkdir -p /home/builduser/DIE-engine/release
-
           tar czf \
             /home/builduser/DIE-engine/release/die-gentoo.tar.gz \
             -C /home/builduser/DIE-engine/build .
-
           ls -lah /home/builduser/DIE-engine/release
 
       - name: Upload Gentoo Build
