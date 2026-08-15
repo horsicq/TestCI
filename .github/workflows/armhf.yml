@@ -83,7 +83,8 @@ jobs:
             -DQT_MOC_EXECUTABLE=$(which moc) \
             -DQT_RCC_EXECUTABLE=$(which rcc) \
             -DQT_UIC_EXECUTABLE=$(which uic) \
-            -DQT_LRELEASE_EXECUTABLE=$(which lrelease)
+            -DQT_LRELEASE_EXECUTABLE=$(which lrelease) \
+            -DQT_LUPDATE_EXECUTABLE=$(which lupdate)
 
       - name: Build ARMhf
         working-directory: DIE-engine
