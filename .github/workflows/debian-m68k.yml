@@ -27,10 +27,10 @@ jobs:
           sudo mmdebstrap \
             --architectures=m68k \
             --variant=buildd \
-            --include="git,qtbase5-dev,qtscript5-dev,qttools5-dev,qttools5-dev-tools,libqt5svg5-dev,qtchooser,build-essential,cmake" \
+            --include="git,qtbase5-dev,qtscript5-dev,qttools5-dev,qttools5-dev-tools,libqt5svg5-dev,qtchooser,build-essential,cmake,debian-ports-archive-keyring" \
             unstable ./m68k-chroot \
-            "deb http://ftp.ports.debian.org/debian-ports/ unstable main" \
-            "deb http://ftp.ports.debian.org/debian-ports/ unreleased main"
+            "deb [trusted=yes] http://ftp.ports.debian.org/debian-ports/ unstable main" \
+            "deb [trusted=yes] http://ftp.ports.debian.org/debian-ports/ unreleased main"
 
       - name: Build DIE-engine inside m68k chroot
         run: |
