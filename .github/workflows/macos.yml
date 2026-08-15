@@ -23,7 +23,6 @@ jobs:
         run: |
           brew update
           brew install qt@5
-          brew link qt@5 --force
 
       - name: Clone DIE-engine
         run: |
@@ -36,10 +35,12 @@ jobs:
 
       - name: Build DiE macOS
         run: |
-          export PATH="$(brew --prefix qt)/bin:$PATH"
-          export CMAKE_PREFIX_PATH="$(brew --prefix qt)"
+          export QT_DIR="$(brew --prefix qt@5)"
+          export PATH="$QT_DIR/bin:$PATH"
+          export CMAKE_PREFIX_PATH="$QT_DIR"
           
-          export MAKEFLAGS="-j1"
+          export QT_PREFIX_PATH="$QT_DIR"
+          export CMAKE_OSX_ARCHITECTURES="arm64"
           
           cd DIE-engine
           chmod a+x build_mac.sh
