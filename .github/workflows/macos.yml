@@ -32,6 +32,11 @@ jobs:
         run: |
           git clone https://github.com/horsicq/DIE-engine.git --recursive
 
+      - name: Patch CMake Scope Errors
+        run: |
+          sed -i '' '/macdeployqt\.cmake/s/^/#/' DIE-engine/src/lite/CMakeLists.txt || true
+          sed -i '' '/macdeployqt\.cmake/s/^/#/' DIE-engine/src/console/CMakeLists.txt || true
+
       - name: Build DiE macOS
         run: |
           cd DIE-engine
@@ -46,6 +51,6 @@ jobs:
           draft: false
           prerelease: true
           files: |
-            /Users/runner/work/*/*/DIE-engine/release/*
+            DIE-engine/release/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
