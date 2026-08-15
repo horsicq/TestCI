@@ -31,21 +31,11 @@ jobs:
       - name: Clone DIE-engine
         run: |
           git clone https://github.com/horsicq/DIE-engine.git --recursive
-          cd DIE-engine
-          chmod a+x build_mac.sh
-
-      - name: Fix Qt path for build_mac.sh
-        run: |
-          REAL_QMAKE=$(find $HOME -name qmake | grep clang_64 | head -n 1)
-          echo "Found qmake: $REAL_QMAKE"
-          REAL_QT=$(dirname $(dirname $REAL_QMAKE))
-          mkdir -p /Users/runner/Qt/5.15.2
-          ln -s $REAL_QT /Users/runner/Qt/5.15.2/clang_64
-          ls -la /Users/runner/Qt/5.15.2/clang_64/bin/qmake
 
       - name: Build DiE macOS
         run: |
-          pwd
+          cd DIE-engine
+          chmod a+x build_mac.sh
           ./build_mac.sh
 
       - name: Upload macOS Release
