@@ -1,4 +1,4 @@
-name: macOS CI
+name: macOS CI (Raw CMake)
 
 on:
   push:
@@ -6,11 +6,8 @@ on:
       - main
   workflow_dispatch:
 
-permissions:
-  contents: write
-
 jobs:
-  build-osx:
+  build-osx-raw:
     runs-on: macos-latest
 
     steps:
@@ -33,27 +30,21 @@ jobs:
           sed -i '' '/macdeployqt\.cmake/s/^/#/' DIE-engine/src/lite/CMakeLists.txt || true
           sed -i '' '/macdeployqt\.cmake/s/^/#/' DIE-engine/src/console/CMakeLists.txt || true
 
-      - name: Build DiE macOS
+      - name: Build DiE macOS (Raw CMake & Clang)
         run: |
           export QT_DIR="$(brew --prefix qt@5)"
           export PATH="$QT_DIR/bin:$PATH"
           export CMAKE_PREFIX_PATH="$QT_DIR"
           
-          export QT_PREFIX_PATH="$QT_DIR"
-          export CMAKE_OSX_ARCHITECTURES="arm64"
+          export CC=clang
+          export CXX=clang++
           
           cd DIE-engine
-          chmod a+x build_mac.sh
-          ./build_mac.sh
-
-      - name: Upload macOS Release
-        if: github.event_name != 'pull_request'
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: Beta
-          draft: false
-          prerelease: true
-          files: |
-            DIE-engine/release/*
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          mkdir build
+          cd build
+          
+          cmake .. \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_OSX_ARCHITECTURES="arm64"
+            
+          cmake --build . --config Release --verbose -j 1
