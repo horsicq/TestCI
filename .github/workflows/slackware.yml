@@ -13,18 +13,11 @@ jobs:
       - name: Install dependencies
         run: |
           mkdir -p /etc/slackpkg
-          if [ -f /etc/slackpkg/slackpkg.conf ]; then
-            sed -i 's/^BATCH=.*/BATCH=on/' /etc/slackpkg/slackpkg.conf || echo "BATCH=on" >> /etc/slackpkg/slackpkg.conf
-          else
-            echo "BATCH=on" > /etc/slackpkg/slackpkg.conf
-          fi
-
-          slackpkg update gpg || true
-          
-          if ! gpg --list-keys | grep -q "Slackware"; then
-            slackpkg install slackpkg-keys || true
-            gpg --import /usr/share/slackpkg/gpg/* || true
-          fi
+          cat << 'EOF' > /etc/slackpkg/slackpkg.conf
+          BATCH=on
+          CHECK_GPG=off
+          MIRROR=http://slackware.osuosl.org/slackware64-15.0/
+          EOF
 
           slackpkg update || true
 
