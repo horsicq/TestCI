@@ -6,11 +6,12 @@ on:
 jobs:
   build-slackware:
     runs-on: ubuntu-latest
+    
     container:
       image: vbatts/slackware:latest
 
     steps:
-    - name: Install dependencies
+      - name: Install dependencies
         run: |
           mkdir -p /etc/slackpkg
           echo "http://slackware.osuosl.org/slackware64-15.0/" > /etc/slackpkg/mirrors
@@ -33,6 +34,7 @@ jobs:
             make \
             pkg-config \
             qt5
+
       - name: Clone DIE-engine
         run: |
           git clone --recursive \
