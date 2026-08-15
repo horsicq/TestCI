@@ -18,14 +18,13 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Build DiE FreeBSD Package
-        uses: cross-platform-actions/action@v0.25.0
+      - uses: cross-platform-actions/action@v0.25.0
         with:
           operating_system: freebsd
           version: '14.0'
           run: |
-            sudo pkg update
-            sudo pkg install -y git cmake qt5 pkgconf bash
+            sudo env IGNORE_OSVERSION=yes pkg update
+            sudo env IGNORE_OSVERSION=yes pkg install -y git cmake qt5 pkgconf bash
             git clone https://github.com/horsicq/DIE-engine.git --recursive
             cd DIE-engine
             mkdir build
@@ -41,7 +40,7 @@ jobs:
             cp -R dep/XInfoDB/info stage/usr/local/share/die/ || true
             cat << 'EOF' > +MANIFEST
             name: "detect-it-easy"
-            version: "4.0.0"
+            version: "3.10"
             origin: "security/detect-it-easy"
             comment: "Program for determining types of files"
             desc: "Detect It Easy (DiE) is a program for determining types of files."
@@ -52,8 +51,7 @@ jobs:
             mkdir ../release_pkg
             sudo pkg create -M +MANIFEST -r stage -o ../release_pkg
 
-      - name: Upload FreeBSD Package Release
-        if: github.event_name != 'pull_request'
+      - if: github.event_name != 'pull_request'
         uses: softprops/action-gh-release@v3
         with:
           tag_name: FreeBSD-Pkg-Beta
