@@ -84,7 +84,12 @@ jobs:
             -DQT_RCC_EXECUTABLE=$(which rcc) \
             -DQT_UIC_EXECUTABLE=$(which uic) \
             -DQT_LRELEASE_EXECUTABLE=$(which lrelease) \
-            -DQT_LUPDATE_EXECUTABLE=$(which lupdate)
+            -DQT_LUPDATE_EXECUTABLE=$(which lupdate) \
+            -DQT_HOST_PATH=/usr \
+            -DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER \
+            -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY \
+            -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY \
+            -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=ONLY
 
       - name: Build ARMhf
         working-directory: DIE-engine
