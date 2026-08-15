@@ -63,7 +63,8 @@ jobs:
             qtscript5-dev \
             qttools5-dev \
             qttools5-dev-tools \
-            libqt5svg5-dev
+            libqt5svg5-dev \
+            libc6-armhf-cross
 
       - name: Configure ARMhf build
         working-directory: DIE-engine
