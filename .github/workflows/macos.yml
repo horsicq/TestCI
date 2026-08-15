@@ -1,4 +1,4 @@
-name: macOS CI (Raw CMake)
+name: macOS CI
 
 on:
   push:
@@ -6,8 +6,11 @@ on:
       - main
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
-  build-osx-raw:
+  build-osx:
     runs-on: macos-latest
 
     steps:
@@ -30,21 +33,30 @@ jobs:
           sed -i '' '/macdeployqt\.cmake/s/^/#/' DIE-engine/src/lite/CMakeLists.txt || true
           sed -i '' '/macdeployqt\.cmake/s/^/#/' DIE-engine/src/console/CMakeLists.txt || true
 
-      - name: Build DiE macOS (Raw CMake & Clang)
+      - name: Build DiE macOS
         run: |
           export QT_DIR="$(brew --prefix qt@5)"
           export PATH="$QT_DIR/bin:$PATH"
           export CMAKE_PREFIX_PATH="$QT_DIR"
+          export QT_PREFIX_PATH="$QT_DIR"
           
-          export CC=clang
-          export CXX=clang++
+          export CMAKE_OSX_ARCHITECTURES="arm64"
+          
+          export CFLAGS="-Wno-error=implicit-function-declaration -Wno-error=incompatible-pointer-types -Wno-error=implicit-int -Wno-implicit-function-declaration"
+          export CXXFLAGS="$CFLAGS"
           
           cd DIE-engine
-          mkdir build
-          cd build
-          
-          cmake .. \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_OSX_ARCHITECTURES="arm64"
-            
-          cmake --build . --config Release --verbose -j 1
+          chmod a+x build_mac.sh
+          ./build_mac.sh
+
+      - name: Upload macOS Release
+        if: github.event_name != 'pull_request'
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: macOS-Beta
+          draft: false
+          prerelease: true
+          files: |
+            DIE-engine/release/*.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
