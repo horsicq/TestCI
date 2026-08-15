@@ -36,8 +36,10 @@ jobs:
 
       - name: Build DiE macOS
         run: |
-          export PATH="$(brew --prefix qt@5)/bin:$PATH"
-          export CMAKE_PREFIX_PATH="$(brew --prefix qt@5)"
+          export PATH="$(brew --prefix qt)/bin:$PATH"
+          export CMAKE_PREFIX_PATH="$(brew --prefix qt)"
+          
+          export MAKEFLAGS="-j1"
           
           cd DIE-engine
           chmod a+x build_mac.sh
