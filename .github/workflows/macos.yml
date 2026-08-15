@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   build-osx:
-    runs-on: macos-latest
+    runs-on: macos-13
 
     steps:
       - name: Checkout repository
