@@ -21,12 +21,12 @@ jobs:
 
       - name: Build with Nix
         run: |
-          nix-build DIE-engine/build.nix
+          nix-build DIE-engine/build.nix -o result
 
-      - name: Create Release Archive
+      - name: Export Nix Closure
         run: |
           mkdir -p release
-          tar -czf release/detect-it-easy-4.0.0-linux-nix.tar.gz -C result .
+          nix-store --export $(nix-store -qR result) | xz -T0 > release/detect-it-easy-4.0.0-nix-closure.nar.xz
 
       - name: Upload Release
         if: github.event_name != 'pull_request'
@@ -38,4 +38,4 @@ jobs:
           draft: false
           prerelease: true
           files: |
-            release/*.tar.gz
+            release/*.nar.xz
