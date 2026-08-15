@@ -45,6 +45,7 @@ jobs:
 
       - name: Build DiE macOS
         run: |
+          pwd
           ./build_mac.sh
 
       - name: Upload macOS Release
