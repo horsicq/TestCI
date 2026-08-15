@@ -24,7 +24,7 @@ jobs:
             mkdir -p build
             cd build
             
-            qmake-qt5 ../die_source.pro CONFIG+=release
+            cmake ..
             gmake -j$(nproc)
             
             cd ..
