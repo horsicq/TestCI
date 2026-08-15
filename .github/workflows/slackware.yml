@@ -6,14 +6,26 @@ on:
 jobs:
   build-slackware:
     runs-on: ubuntu-latest
-
     container:
-      image: vbatts/slackware:15.0-full
+      image: vbatts/slackware:latest
 
     steps:
       - name: Install dependencies
         run: |
+          mkdir -p /etc/slackpkg
+          if [ -f /etc/slackpkg/slackpkg.conf ]; then
+            sed -i 's/^BATCH=.*/BATCH=on/' /etc/slackpkg/slackpkg.conf || echo "BATCH=on" >> /etc/slackpkg/slackpkg.conf
+          else
+            echo "BATCH=on" > /etc/slackpkg/slackpkg.conf
+          fi
+
           slackpkg update gpg || true
+          
+          if ! gpg --list-keys | grep -q "Slackware"; then
+            slackpkg install slackpkg-keys || true
+            gpg --import /usr/share/slackpkg/gpg/* || true
+          fi
+
           slackpkg update || true
 
           slackpkg install \
@@ -23,7 +35,7 @@ jobs:
             gcc-g++ \
             make \
             pkg-config \
-            qt5
+            qt5 || true
 
       - name: Clone DIE-engine
         run: |
@@ -34,7 +46,6 @@ jobs:
       - name: Build DIE-engine
         run: |
           cd /opt/DIE-engine
-
           pwd
           uname -m
           ls -la
@@ -50,9 +61,7 @@ jobs:
       - name: Install staging tree
         run: |
           cd /opt/DIE-engine
-
           mkdir -p pkg
-
           DESTDIR="$PWD/pkg" \
             cmake --install build
 
@@ -61,7 +70,6 @@ jobs:
       - name: Create Slackware package metadata
         run: |
           cd /opt/DIE-engine/pkg
-
           mkdir -p install
 
           printf '%s\n' \
@@ -80,11 +88,8 @@ jobs:
       - name: Build TXZ package
         run: |
           cd /opt/DIE-engine
-
           mkdir -p release
-
           cd pkg
-
           makepkg \
             -l y \
             -c n \
@@ -93,7 +98,6 @@ jobs:
       - name: Verify package
         run: |
           ls -lah /opt/DIE-engine/release
-
           test -f \
             /opt/DIE-engine/release/detect-it-easy-4.0.0-x86_64-1.txz
 
