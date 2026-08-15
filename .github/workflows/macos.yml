@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   build-osx:
-    runs-on: macos-13
+    runs-on: macos-latest
 
     steps:
       - name: Checkout repository
@@ -19,14 +19,11 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v4
-        with:
-          version: '5.15.2'
-          host: mac
-          target: desktop
-          arch: clang_64
-          modules: qtscript
+      - name: Install Qt via Homebrew
+        run: |
+          brew update
+          brew install qt@5
+          brew link qt@5 --force
 
       - name: Clone DIE-engine
         run: |
@@ -39,6 +36,9 @@ jobs:
 
       - name: Build DiE macOS
         run: |
+          export PATH="$(brew --prefix qt@5)/bin:$PATH"
+          export CMAKE_PREFIX_PATH="$(brew --prefix qt@5)"
+          
           cd DIE-engine
           chmod a+x build_mac.sh
           ./build_mac.sh
