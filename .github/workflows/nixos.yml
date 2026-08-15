@@ -24,7 +24,7 @@ jobs:
           cat << 'EOF' > DIE-engine/default.nix
           { pkgs ? import (fetchTarball "https://github.com/NixOS/nixpkgs/archive/refs/tags/24.05.tar.gz") {} }:
 
-          pkgs.libsForQt5.stdenv.mkDerivation {
+          pkgs.stdenv.mkDerivation {
             pname = "detect-it-easy";
             version = "4.0.0";
 
