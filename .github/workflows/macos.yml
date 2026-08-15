@@ -28,6 +28,12 @@ jobs:
           arch: clang_64
           modules: qtscript
 
+      - name: Clone DIE-engine
+        run: |
+          git clone https://github.com/horsicq/DIE-engine.git --recursive
+          cd DIE-engine
+          chmod a+x build_mac.sh
+
       - name: Fix Qt path for build_mac.sh
         run: |
           REAL_QMAKE=$(find $HOME -name qmake | grep clang_64 | head -n 1)
@@ -39,9 +45,6 @@ jobs:
 
       - name: Build DiE macOS
         run: |
-          rsync -av --exclude 'DIE-engine' ./ DIE-engine/
-          cd DIE-engine
-          chmod +x build_mac.sh
           ./build_mac.sh
 
       - name: Upload macOS Release
