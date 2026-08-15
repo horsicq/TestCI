@@ -15,53 +15,40 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: m68k
-
-      - name: Build
+      - name: Install QEMU and Bootstrap Tools
         run: |
-          docker run --rm \
-            --platform linux/m68k \
-            -v "${{ github.workspace }}:/workspace" \
-            -w /workspace \
-            debian:unstable \
-            bash -ex -c '
-              apt-get update
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static binfmt-support mmdebstrap debian-ports-archive-keyring
 
-              apt-get install -y \
-                git \
-                qtbase5-dev \
-                qtscript5-dev \
-                qttools5-dev \
-                qttools5-dev-tools \
-                libqt5svg5-dev \
-                qtchooser \
-                build-essential \
-                cmake
+      - name: Bootstrap m68k Environment
+        run: |
+          sudo mmdebstrap \
+            --architectures=m68k \
+            --variant=buildd \
+            --include="git,qtbase5-dev,qtscript5-dev,qttools5-dev,qttools5-dev-tools,libqt5svg5-dev,qtchooser,build-essential,cmake" \
+            unstable ./m68k-chroot \
+            "deb http://ftp.ports.debian.org/debian-ports/ unstable main" \
+            "deb http://ftp.ports.debian.org/debian-ports/ unreleased main"
 
-              git clone --recursive https://github.com/horsicq/DIE-engine.git
-
-              cd DIE-engine
-
-              pwd
-
-              chmod a+x build_dpkg.sh
-
-              ./build_dpkg.sh
-            '
+      - name: Build DIE-engine inside m68k chroot
+        run: |
+          sudo cp -a "${{ github.workspace }}" ./m68k-chroot/workspace
+          
+          sudo chroot ./m68k-chroot /bin/bash -ex -c '
+            cd /workspace
+            git clone --recursive https://github.com/horsicq/DIE-engine.git
+            cd DIE-engine
+            chmod a+x build_dpkg.sh
+            ./build_dpkg.sh
+          '
 
       - name: Collect packages
         run: |
           mkdir -p "${{ env.RELEASE_PATH }}"
-
-          find DIE-engine \
-            -type f \
-            -name "*.deb" \
-            -exec cp {} "${{ env.RELEASE_PATH }}/" \;
+          sudo find ./m68k-chroot/workspace/DIE-engine -type f -name "*.deb" -exec cp {} "${{ env.RELEASE_PATH }}/" \;
+          sudo chown -R $USER:$USER "${{ env.RELEASE_PATH }}"
 
       - name: Verify package architecture
         run: |
@@ -75,10 +62,10 @@ jobs:
 
           for package in "${packages[@]}"; do
             echo "Package: $package"
-            echo "Architecture: $(dpkg-deb -f "$package" Architecture)"
+            ARCH=$(dpkg-deb -f "$package" Architecture)
+            echo "Architecture: $ARCH"
 
-            # Check auf m68k statt ppc64el
-            if [ "$(dpkg-deb -f "$package" Architecture)" != "m68k" ]; then
+            if [ "$ARCH" != "m68k" ]; then
               echo "ERROR: Package is not m68k!"
               exit 1
             fi
