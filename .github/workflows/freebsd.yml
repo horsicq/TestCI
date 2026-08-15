@@ -1,0 +1,64 @@
+name: FreeBSD Package CI
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-freebsd-pkg:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Build DiE FreeBSD Package
+        uses: cross-platform-actions/action@v0.25.0
+        with:
+          operating_system: freebsd
+          version: '14.0'
+          run: |
+            sudo pkg update
+            sudo pkg install -y git cmake qt5 pkgconf bash
+            git clone https://github.com/horsicq/DIE-engine.git --recursive
+            cd DIE-engine
+            mkdir build
+            cd build
+            cmake .. -DCMAKE_BUILD_TYPE=Release
+            cmake --build . --config Release -j $(sysctl -n hw.ncpu)
+            cd ..
+            mkdir -p stage/usr/local/bin
+            mkdir -p stage/usr/local/share/die
+            find build -type f -name "die" -exec cp {} stage/usr/local/bin/ \;
+            find build -type f -name "diec" -exec cp {} stage/usr/local/bin/ \;
+            cp -R dep/Detect-It-Easy/db stage/usr/local/share/die/ || true
+            cp -R dep/XInfoDB/info stage/usr/local/share/die/ || true
+            cat << 'EOF' > +MANIFEST
+            name: "detect-it-easy"
+            version: "4.0.0"
+            origin: "security/detect-it-easy"
+            comment: "Program for determining types of files"
+            desc: "Detect It Easy (DiE) is a program for determining types of files."
+            maintainer: "horsicq"
+            www: "https://github.com/horsicq/Detect-It-Easy"
+            prefix: "/usr/local"
+            EOF
+            mkdir ../release_pkg
+            sudo pkg create -M +MANIFEST -r stage -o ../release_pkg
+
+      - name: Upload FreeBSD Package Release
+        if: github.event_name != 'pull_request'
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: FreeBSD-Pkg-Beta
+          draft: false
+          prerelease: true
+          files: release_pkg/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
