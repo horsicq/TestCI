@@ -16,20 +16,30 @@ jobs:
           submodules: 'recursive'
 
       - name: Run OpenBSD Build & Package
-        uses: vmactions/openbsd-vm@v1
+        uses: cross-platform-actions/action@v0.25.0
         with:
-          prepare: |
-            pkg_add git gmake cmake qtbase qtsvg qtscript qttools
+          operating_system: openbsd
+          version: '7.5'
           run: |
-            mkdir -p build
+            pkg_add git cmake qt5-qtbase qt5-qtsvg qt5-qtscript qt5-qttools gmake
+            
+            mkdir build
             cd build
+            cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local
+            gmake -j$(sysctl -n hw.ncpu)
             
-            cmake ..
-            gmake -j$(nproc)
-            
+            DESTDIR=$(pwd)/../stage cmake --install .
             cd ..
+            
+            echo "Detect It Easy (DiE) - Program for determining types of files" > +COMMENT
+            echo "Detect It Easy (DiE) is a program for determining types of files." > +DESC
+            
+            cd stage/usr/local
+            find . -type f | sed 's|^\./||' > ../../+PLIST
+            cd ../..
+            
             mkdir -p release
-            tar -czf release/DetectItEasy-openbsd-amd64.tar.gz -C build .
+            pkg_create -p /usr/local -P stage/usr/local -c +COMMENT -d +DESC -f +PLIST release/detect-it-easy-openbsd.tgz
 
       - name: Upload OpenBSD Release
         if: github.event_name != 'pull_request'
@@ -40,5 +50,4 @@ jobs:
           tag_name: Beta
           draft: false
           prerelease: true
-          files: |
-            release/*.tar.gz
+          files: release/*.tgz
