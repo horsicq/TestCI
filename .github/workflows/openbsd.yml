@@ -17,7 +17,7 @@ jobs:
           operating_system: openbsd
           version: '7.5'
           run: |
-            sudo pkg_add git cmake qt5-base qt5-svg qt5-script qt5-tools gmake
+            sudo pkg_add git cmake qtbase qtsvg qtscript qttools gmake
             
             git clone https://github.com/horsicq/DIE-engine --recursive
             cd DIE-engine
