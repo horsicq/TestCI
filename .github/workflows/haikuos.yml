@@ -17,39 +17,31 @@ jobs:
           operating_system: haiku
           version: 'r1beta5'
           run: |
-            pkgman drop-repo Haiku || true
-            pkgman drop-repo HaikuPorts || true
+            echo "yes" | pkgman drop-repo Haiku || true
+            echo "yes" | pkgman drop-repo HaikuPorts || true
             pkgman add-repo https://eu.hpkg.haiku-os.org/haiku/master/x86_64/current
             pkgman add-repo https://eu.hpkg.haiku-os.org/haikuports/master/x86_64/current
             pkgman refresh
             pkgman full-sync
             pkgman install git cmake gcc make qt5_devel qt5_tools qt5_script_devel
-            
             git clone https://github.com/horsicq/DIE-engine --recursive
             cd DIE-engine
-            
             perl -pi -e 's/TARGET Qt6::Core/TARGET Qt6_Disabled::Core/g' src/CMakeLists.txt
             perl -pi -e 's/NAMES Qt6 Qt5/NAMES Qt5 Qt6/g' src/CMakeLists.txt
-            
             mkdir build
             cd build
             cmake .. \
               -DCMAKE_BUILD_TYPE=Release \
               -DCMAKE_INSTALL_PREFIX=/boot/system \
               -DCMAKE_PREFIX_PATH="/boot/system/develop/lib/cmake"
-            
             make -j$(sysctl -n hw.ncpu)
-            
             DESTDIR=$(pwd)/../stage cmake --install .
             cd ..
-            
             echo "Detect It Easy (DiE) - Program for determining types of files" > +COMMENT
             echo "Detect It Easy (DiE) is a program for determining types of files." > +DESC
-            
             cd stage/boot/system
             find . -type f | sed 's|^\./||' > ../../+PLIST
             cd ../..
-            
             mkdir -p release
             pkg_create -p /boot/system -P stage/boot/system -c +COMMENT -d +DESC -f +PLIST release/detect-it-easy-haiku.hpkg
 
