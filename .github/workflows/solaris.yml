@@ -1,0 +1,53 @@
+name: Build DIE-engine (Solaris)
+
+on:
+  workflow_dispatch:
+  release:
+    types: [created]
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  build-solaris:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run Solaris Build & Package
+        uses: cross-platform-actions/action@v0.25.0
+        with:
+          operating_system: solaris
+          version: 'hipstah'
+          run: |
+            sudo pkgin -y update
+            sudo pkgin -y install git cmake gmake qt5
+            export PATH=$PATH:/usr/lib/qt/5.15/bin
+            git clone https://github.com/horsicq/DIE-engine --recursive
+            cd DIE-engine
+            perl -pi -e 's/TARGET Qt6::Core/TARGET Qt6_Disabled::Core/g' src/CMakeLists.txt
+            perl -pi -e 's/NAMES Qt6 Qt5/NAMES Qt5 Qt6/g' src/CMakeLists.txt
+            mkdir build
+            cd build
+            cmake .. \
+              -DCMAKE_BUILD_TYPE=Release \
+              -DCMAKE_INSTALL_PREFIX=/usr/local \
+              -DCMAKE_PREFIX_PATH=/usr/lib/qt/5.15/lib/cmake
+            gmake -j$(sysctl -n hw.ncpu)
+            DESTDIR=$(pwd)/../stage cmake --install .
+            cd ..
+            echo "Detect It Easy (DiE) - Solaris Build" > +COMMENT
+            echo "Detect It Easy (DiE) - Solaris Build." > +DESC
+            cd stage/usr/local
+            find . -type f | sed 's|^\./||' > ../../+PLIST
+            cd ../..
+            mkdir -p release
+            pkg_create -p /usr/local -P stage/usr/local -c +COMMENT -d +DESC -f +PLIST release/detect-it-easy-solaris.tgz
+
+      - name: Upload Solaris Release
+        if: github.event_name != 'pull_request'
+        uses: softprops/action-gh-release@v3
+        env:
+          RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        with:
+          tag_name: Beta
+          draft: false
+          prerelease: true
+          files: release/*.tgz
