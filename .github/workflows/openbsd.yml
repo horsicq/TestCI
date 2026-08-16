@@ -24,7 +24,8 @@ jobs:
             git clone https://github.com/horsicq/DIE-engine --recursive
             cd DIE-engine
 
-            find . -type f \( -name "CMakeLists.txt" -o -name "*.cmake" \) -exec sed -i '' 's/Qt6/Qt5/g' {} +
+            sed -i '' 's/TARGET Qt6::Core/TARGET Qt6_Disabled::Core/g' src/CMakeLists.txt
+            sed -i '' 's/NAMES Qt6 Qt5/NAMES Qt5 Qt6/g' src/CMakeLists.txt
 
             mkdir build
             cd build
