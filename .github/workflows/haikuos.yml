@@ -17,7 +17,13 @@ jobs:
           operating_system: haiku
           version: 'r1beta5'
           run: |
-            pkgman install -y git cmake qt5_devel qt5_tools gmake
+            pkgman drop-repo Haiku || true
+            pkgman drop-repo HaikuPorts || true
+            pkgman add-repo https://eu.hpkg.haiku-os.org/haiku/master/x86_64/current
+            pkgman add-repo https://eu.hpkg.haiku-os.org/haikuports/master/x86_64/current
+            pkgman refresh
+            pkgman full-sync
+            pkgman install git cmake gcc make qt5_devel qt5_tools qt5_script_devel
             
             git clone https://github.com/horsicq/DIE-engine --recursive
             cd DIE-engine
@@ -37,8 +43,8 @@ jobs:
             DESTDIR=$(pwd)/../stage cmake --install .
             cd ..
             
-            echo "Detect It Easy (DiE) - Haiku Build" > +COMMENT
-            echo "Detect It Easy (DiE) - Haiku Build." > +DESC
+            echo "Detect It Easy (DiE) - Program for determining types of files" > +COMMENT
+            echo "Detect It Easy (DiE) is a program for determining types of files." > +DESC
             
             cd stage/boot/system
             find . -type f | sed 's|^\./||' > ../../+PLIST
