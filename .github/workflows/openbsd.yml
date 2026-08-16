@@ -19,13 +19,20 @@ jobs:
           run: |
             sudo pkg_add git cmake qtbase qtsvg qtscript qttools gmake
             
+            export PATH=$PATH:/usr/local/lib/qt5/bin
+            
             git clone https://github.com/horsicq/DIE-engine --recursive
             cd DIE-engine
-            find . -type f \( -name "CMakeLists.txt" -o -name "*.cmake" \) -exec sed -i 's/Qt6/Qt5/g' {} +
+
+            find . -type f \( -name "CMakeLists.txt" -o -name "*.cmake" \) -exec sed -i '' 's/Qt6/Qt5/g' {} +
 
             mkdir build
             cd build
-            cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_PREFIX_PATH=/usr/local/lib/qt5
+            cmake .. \
+              -DCMAKE_BUILD_TYPE=Release \
+              -DCMAKE_INSTALL_PREFIX=/usr/local \
+              -DCMAKE_PREFIX_PATH="/usr/local/lib/qt5/cmake;/usr/local/lib/qt5;/usr/local"
+            
             gmake -j$(sysctl -n hw.ncpu)
             
             DESTDIR=$(pwd)/../stage cmake --install .
