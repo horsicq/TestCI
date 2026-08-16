@@ -11,19 +11,15 @@ jobs:
   build-openbsd:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-        with:
-          submodules: 'recursive'
-
       - name: Run OpenBSD Build & Package
         uses: cross-platform-actions/action@v0.25.0
         with:
           operating_system: openbsd
           version: '7.5'
           run: |
-            sudo pkg_add git cmake qt5-qtbase qt5-qtsvg qt5-qtscript qt5-qttools gmake
+            sudo pkg_add git cmake qt5-base qt5-svg qt5-script qt5-tools gmake
             
-            git clone htps://github.com/horsicq/DIE-engine --recursive
+            git clone https://github.com/horsicq/DIE-engine --recursive
             cd DIE-engine
 
             mkdir build
