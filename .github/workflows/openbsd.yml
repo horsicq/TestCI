@@ -23,6 +23,9 @@ jobs:
           run: |
             sudo pkg_add git cmake qt5-qtbase qt5-qtsvg qt5-qtscript qt5-qttools gmake
             
+            git clone htps://github.com/horsicq/DIE-engine --recursive
+            cd DIE-engine
+
             mkdir build
             cd build
             cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local
