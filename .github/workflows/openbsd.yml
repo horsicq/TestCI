@@ -24,6 +24,7 @@ jobs:
 
             mkdir build
             cd build
+            find . -type f \( -name "CMakeLists.txt" -o -name "*.cmake" \) -exec sed -i 's/Qt6/Qt5/g' {} +
             cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_PREFIX_PATH=/usr/local/lib/qt5
             gmake -j$(sysctl -n hw.ncpu)
             
