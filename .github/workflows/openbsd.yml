@@ -18,34 +18,25 @@ jobs:
           version: '7.5'
           run: |
             sudo pkg_add git cmake qtbase qtsvg qtscript qttools gmake
-            
             export PATH=$PATH:/usr/local/lib/qt5/bin
-            
             git clone https://github.com/horsicq/DIE-engine --recursive
             cd DIE-engine
-
-            sed -i '' 's/TARGET Qt6::Core/TARGET Qt6_Disabled::Core/g' src/CMakeLists.txt
-            sed -i '' 's/NAMES Qt6 Qt5/NAMES Qt5 Qt6/g' src/CMakeLists.txt
-
+            perl -pi -e 's/TARGET Qt6::Core/TARGET Qt6_Disabled::Core/g' src/CMakeLists.txt
+            perl -pi -e 's/NAMES Qt6 Qt5/NAMES Qt5 Qt6/g' src/CMakeLists.txt
             mkdir build
             cd build
             cmake .. \
               -DCMAKE_BUILD_TYPE=Release \
               -DCMAKE_INSTALL_PREFIX=/usr/local \
               -DCMAKE_PREFIX_PATH="/usr/local/lib/qt5/cmake;/usr/local/lib/qt5;/usr/local"
-            
             gmake -j$(sysctl -n hw.ncpu)
-            
             DESTDIR=$(pwd)/../stage cmake --install .
             cd ..
-            
             echo "Detect It Easy (DiE) - Program for determining types of files" > +COMMENT
             echo "Detect It Easy (DiE) is a program for determining types of files." > +DESC
-            
             cd stage/usr/local
             find . -type f | sed 's|^\./||' > ../../+PLIST
             cd ../..
-            
             mkdir -p release
             pkg_create -p /usr/local -P stage/usr/local -c +COMMENT -d +DESC -f +PLIST release/detect-it-easy-openbsd.tgz
 
