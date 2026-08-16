@@ -21,7 +21,7 @@ jobs:
           operating_system: openbsd
           version: '7.5'
           run: |
-            pkg_add git cmake qt5-qtbase qt5-qtsvg qt5-qtscript qt5-qttools gmake
+            doas pkg_add git cmake qt5-qtbase qt5-qtsvg qt5-qtscript qt5-qttools gmake
             
             mkdir build
             cd build
