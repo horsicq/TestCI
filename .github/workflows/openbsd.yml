@@ -24,7 +24,7 @@ jobs:
 
             mkdir build
             cd build
-            cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local
+            cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_PREFIX_PATH=/usr/local/lib/qt5
             gmake -j$(sysctl -n hw.ncpu)
             
             DESTDIR=$(pwd)/../stage cmake --install .
