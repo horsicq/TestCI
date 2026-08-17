@@ -1,4 +1,4 @@
-name: Build Windows ARM64 (Qt 6.10.2) with CMake
+name: Build Windows ARM64 (Qt 6.8.2) with CMake
 
 on:
   push:
@@ -25,9 +25,18 @@ jobs:
         with:
           arch: arm64
 
-      - name: Install Qt (ARM64)
+      - name: Install Qt (Host x64)
         uses: jurplel/install-qt-action@v4
-        continue-on-error: true
+        with:
+          version: '6.8.2'
+          host: 'windows'
+          target: 'desktop'
+          arch: 'win64_msvc2022_64'
+          dir: ${{ github.workspace }}
+          modules: qt5compat
+
+      - name: Install Qt (Target ARM64)
+        uses: jurplel/install-qt-action@v4
         with:
           version: '6.8.2'
           host: 'windows'
@@ -37,24 +46,30 @@ jobs:
           modules: qt5compat
 
       - name: Build with CMake & Package
-        shell: cmd
+        shell: pwsh
         working-directory: ${{ env.SRC_PATH }}
         run: |
-          set QT_PREFIX_PATH=${{ github.workspace }}\Qt\6.8.2\msvc2022_arm64
-          if not exist "%QT_PREFIX_PATH%\bin\windeployqt.exe" exit /b 1
-          set SEVENZIP_PATH="C:\Program Files\7-Zip\7z.exe"
-          mkdir build
-          cd build
-          cmake .. -G "Visual Studio 17 2022" -A ARM64 -DCMAKE_PREFIX_PATH="%QT_PREFIX_PATH%" -DCMAKE_BUILD_TYPE=Release
-          cmake --build . --config Release -j %NUMBER_OF_PROCESSORS%
-          for %%f in (Release\*.exe) do (
-            "%QT_PREFIX_PATH%\bin\windeployqt.exe" --release "%%f"
-          )
-          cd ..
-          mkdir release
-          %SEVENZIP_PATH% a release\die_winarm64_qt6.zip .\build\Release\*
-          dir release\*.zip >nul 2>&1
-          if %ERRORLEVEL% neq 0 exit /b 1
+          $QT_HOST = "${{ github.workspace }}\Qt\6.8.2\msvc2022_64"
+          $QT_TARGET = "${{ github.workspace }}\Qt\6.8.2\msvc2022_arm64"
+          $7ZIP = "C:\Program Files\7-Zip\7z.exe"
+          New-Item -ItemType Directory -Force -Path build
+          Set-Location build
+          cmake .. -G "Visual Studio 17 2022" -A ARM64 -DCMAKE_PREFIX_PATH="$QT_TARGET" -DQT_HOST_PATH="$QT_HOST" -DCMAKE_BUILD_TYPE=Release
+          if ($LASTEXITCODE -ne 0) { throw "CMake Config fehlgeschlagen" }
+          cmake --build . --config Release -j $env:NUMBER_OF_PROCESSORS
+          if ($LASTEXITCODE -ne 0) { throw "CMake Build fehlgeschlagen" }
+          Set-Location ..
+          $OUT_DIR = "release_temp"
+          New-Item -ItemType Directory -Force -Path $OUT_DIR
+          Copy-Item -Path "build\Release\*" -Destination $OUT_DIR -Recurse -Force
+          Get-ChildItem -Path $OUT_DIR -Filter "*.exe" | ForEach-Object {
+              & "$QT_TARGET\bin\windeployqt.exe" --release $_.FullName
+          }
+          if (Test-Path "db") { Copy-Item -Path "db" -Destination "$OUT_DIR\db" -Recurse -Force }
+          if (Test-Path "info") { Copy-Item -Path "info" -Destination "$OUT_DIR\info" -Recurse -Force }
+          New-Item -ItemType Directory -Force -Path release
+          & $7ZIP a release\die_winarm64_qt6.zip .\$OUT_DIR\*
+          if ($LASTEXITCODE -ne 0) { throw "7-Zip fehlgeschlagen" }
 
       - name: Upload Release as Download
         if: github.event_name != 'pull_request'
