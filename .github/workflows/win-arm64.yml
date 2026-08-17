@@ -14,16 +14,11 @@ env:
 jobs:
   build-windows-arm64-cmake:
     name: Build Windows ARM64 (CMake)
-    runs-on: windows-2025
+    runs-on: windows-2022
     
     steps:
       - name: Clone DIE-engine Repository
         run: git clone https://github.com/horsicq/DIE-engine.git --recursive
-
-      - name: Setup MSVC
-        uses: ilammy/msvc-dev-cmd@v1
-        with:
-          arch: arm64
 
       - name: Install Qt (Host x64)
         uses: jurplel/install-qt-action@v4
