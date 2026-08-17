@@ -40,7 +40,7 @@ jobs:
         shell: cmd
         working-directory: ${{ env.SRC_PATH }}
         run: |
-          set QT_PREFIX_PATH=${{ github.workspace }}\Qt\6.10.2\msvc2022_arm64
+          set QT_PREFIX_PATH=${{ github.workspace }}\Qt\6.8.2\msvc2022_arm64
           if not exist "%QT_PREFIX_PATH%\bin\windeployqt.exe" exit /b 1
           set SEVENZIP_PATH="C:\Program Files\7-Zip\7z.exe"
           mkdir build
