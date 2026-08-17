@@ -27,10 +27,10 @@ jobs:
       - name: Clone upstream DIE-engine
         run: |
           git clone https://github.com/horsicq/DIE-engine.git --recursive
-          cd DIE-engine
 
       - name: Configure CMake for Nintendo Switch
         run: |
+          cd DIE-engine
           mkdir build && cd build
           cmake .. \
             -DCMAKE_TOOLCHAIN_FILE=${DEVKITPRO}/cmake/Switch.cmake \
@@ -38,13 +38,14 @@ jobs:
 
       - name: Build Project
         run: |
-          cmake --build build -j$(nproc)
+          cd DIE-engine/build
+          cmake --build . -j$(nproc)
 
       - name: Upload Switch Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: die-engine-switch-binaries
           path: |
-            build/**/*.nro
-            build/**/*.nacp
-            build/**/*.elf
+            DIE-engine/build/**/*.nro
+            DIE-engine/build/**/*.nacp
+            DIE-engine/build/**/*.elf
