@@ -20,7 +20,7 @@ jobs:
       - name: Clone DIE-engine Repository
         run: git clone https://github.com/horsicq/DIE-engine.git --recursive
 
-      - name: Patch source files for ARM64
+      - name: Patch xsimd for ARM64
         shell: pwsh
         working-directory: ${{ env.SRC_PATH }}
         run: |
@@ -63,7 +63,9 @@ jobs:
           Set-Location ..
           $OUT_DIR = "release_temp"
           New-Item -ItemType Directory -Force -Path $OUT_DIR
-          Copy-Item -Path "build\Release\*" -Destination $OUT_DIR -Recurse -Force
+          Get-ChildItem -Path "build" -Recurse -Filter "*.exe" | Where-Object { $_.FullName -match '\\Release\\' } | ForEach-Object {
+              Copy-Item -Path $_.FullName -Destination $OUT_DIR -Force
+          }
           Get-ChildItem -Path $OUT_DIR -Filter "*.exe" | ForEach-Object {
               & "$QT_TARGET\bin\windeployqt.exe" --release $_.FullName
           }
