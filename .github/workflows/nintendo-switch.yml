@@ -27,7 +27,7 @@ jobs:
       - name: Clone upstream DIE-engine
         run: |
           git clone https://github.com/horsicq/DIE-engine.git --recursive
-          cd DIe-engine
+          cd DIE-engine
 
       - name: Configure CMake for Nintendo Switch
         run: |
