@@ -1,0 +1,50 @@
+name: Nintendo Switch Full CI
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-switch:
+    runs-on: ubuntu-latest
+    container:
+      image: devkitpro/devkita64:latest
+
+    steps:
+      - name: Install Dependencies and Qt Packages via apt
+        run: |
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get update && apt-get install -y \
+            git \
+            cmake \
+            qtbase5-dev \
+            qtscript5-dev \
+            qttools5-dev \
+            qttools5-dev-tools \
+            libqt5svg5-dev \
+            qtchooser \
+            build-essential
+
+      - name: Clone upstream DIE-engine
+        run: |
+          git clone https://github.com/horsicq/DIE-engine.git . --recursive
+          cd DIe-engine
+
+      - name: Configure CMake for Nintendo Switch
+        run: |
+          mkdir build && cd build
+          cmake .. \
+            -DCMAKE_TOOLCHAIN_FILE=${DEVKITPRO}/cmake/Switch.cmake \
+            -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build Project
+        run: |
+          cmake --build build -j$(nproc)
+
+      - name: Upload Switch Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: die-engine-switch-binaries
+          path: |
+            build/**/*.nro
+            build/**/*.nacp
+            build/**/*.elf
