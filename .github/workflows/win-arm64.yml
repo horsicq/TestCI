@@ -20,6 +20,13 @@ jobs:
       - name: Clone DIE-engine Repository
         run: git clone https://github.com/horsicq/DIE-engine.git --recursive
 
+      - name: Patch source files for ARM64
+        shell: pwsh
+        working-directory: ${{ env.SRC_PATH }}
+        run: |
+          $file = "dep\Formats\xsimd\src\xsimd_sse2.c"
+          if (Test-Path $file) { Set-Content -Path $file -Value "" }
+
       - name: Install Qt (Host x64)
         uses: jurplel/install-qt-action@v4
         with:
