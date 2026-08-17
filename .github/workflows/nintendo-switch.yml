@@ -24,21 +24,15 @@ jobs:
             qtchooser \
             build-essential
 
-      - name: Clone upstream DIE-engine
+      - name: Clone, Configure, and Build DIE-engine
         run: |
           git clone https://github.com/horsicq/DIE-engine.git --recursive
-
-      - name: Configure CMake for Nintendo Switch
-        run: |
           cd DIE-engine
+          find . -type f \( -name "CMakeLists.txt" -o -name "*.cmake" \) -exec sed -i 's/Qt6/Qt5/g' {} +
           mkdir build && cd build
           cmake .. \
             -DCMAKE_TOOLCHAIN_FILE=${DEVKITPRO}/cmake/Switch.cmake \
             -DCMAKE_BUILD_TYPE=Release
-
-      - name: Build Project
-        run: |
-          cd DIE-engine/build
           cmake --build . -j$(nproc)
 
       - name: Upload Switch Artifacts
