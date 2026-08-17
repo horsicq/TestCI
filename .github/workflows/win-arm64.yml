@@ -1,0 +1,64 @@
+name: Build Windows ARM64 (Qt 6.10.2) from Source
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-windows-arm64-qt6:
+    name: Build Windows ARM64
+    runs-on: windows-2025
+    
+    steps:
+      - name: Clone DIE-engine Repository
+        run: git clone https://github.com/horsicq/DIE-engine.git --recursive
+
+      - name: Setup MSVC (Cross-Compile for ARM64)
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: arm64
+
+      - name: Install Qt (ARM64)
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.10.2'
+          host: 'windows'
+          target: 'desktop'
+          arch: 'win64_msvc2022_arm64'
+          dir: ${{ github.workspace }}
+          modules: qt5compat
+
+      - name: Build
+        shell: cmd
+        working-directory: DIE-engine
+        run: |
+          set VSVARS_PATH="C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsamd64_arm64.bat"
+          set QT_PREFIX_PATH=${{ github.workspace }}\Qt\6.10.2\msvc2022_arm64
+          
+          set SEVENZIP_PATH="C:\Program Files\7-Zip\7z.exe"
+          set INNOSETUP_PATH="C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
+
+          set X_BUILD_NAME=die
+          set X_BUILD_PREFIX=winarm64_qt6
+          set X_SOURCE_PATH=${{ github.workspace }}\DIE-engine
+          
+          for /f "delims=" %%x in ('type "%X_SOURCE_PATH%\release_version.txt"') do set X_RELEASE_VERSION=%%x
+
+          echo on
+          call "%X_SOURCE_PATH%\build_win_generic_qt6.cmd"
+
+          dir "%X_SOURCE_PATH%\release\*.zip" >nul 2>&1
+          if %ERRORLEVEL% neq 0 (
+            echo "Fehler: ZIP file does not exist"
+            exit /b 1
+          )
+
+      - name: Upload Release as Download
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: Beta
+          draft: false
+          prerelease: true
+          files: |
+            ${{ github.workspace }}\DIE-engine\release\*.zip
