@@ -27,6 +27,7 @@ jobs:
 
       - name: Install Qt (ARM64)
         uses: jurplel/install-qt-action@v4
+        continue-on-error: true
         with:
           version: '6.10.2'
           host: 'windows'
@@ -40,6 +41,7 @@ jobs:
         working-directory: ${{ env.SRC_PATH }}
         run: |
           set QT_PREFIX_PATH=${{ github.workspace }}\Qt\6.10.2\msvc2022_arm64
+          if not exist "%QT_PREFIX_PATH%\bin\windeployqt.exe" exit /b 1
           set SEVENZIP_PATH="C:\Program Files\7-Zip\7z.exe"
           mkdir build
           cd build
@@ -52,9 +54,7 @@ jobs:
           mkdir release
           %SEVENZIP_PATH% a release\die_winarm64_qt6.zip .\build\Release\*
           dir release\*.zip >nul 2>&1
-          if %ERRORLEVEL% neq 0 (
-            exit /b 1
-          )
+          if %ERRORLEVEL% neq 0 exit /b 1
 
       - name: Upload Release as Download
         if: github.event_name != 'pull_request'
