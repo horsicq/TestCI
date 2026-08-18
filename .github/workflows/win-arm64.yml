@@ -77,17 +77,13 @@ jobs:
           cmake --install "%X_BUILD_DIR%" --config Release --prefix "%X_INSTALL_DIR%"
           if errorlevel 1 exit /b 1
 
-          :: --- DER WINDEPLOYQT FIX ---
-          :: qtpaths vom Host in den Target-Ordner kopieren (nur fuer den Build-Prozess)
           copy /Y "%QT_HOST%\bin\qtpaths.exe" "%QT_TARGET%\bin\qtpaths.exe"
           if exist "%QT_HOST%\bin\qtpaths6.exe" copy /Y "%QT_HOST%\bin\qtpaths6.exe" "%QT_TARGET%\bin\qtpaths6.exe"
 
-          :: windeployqt vom Host starten, aber anweisen, die ARM64-Pfade zu nutzen
           for /R "%X_INSTALL_DIR%" %%f in (*.exe) do (
               "%QT_HOST%\bin\windeployqt.exe" --qtpaths "%QT_TARGET%\bin\qtpaths.exe" --release "%%f"
           )
 
-          :: Fallback: Falls windeployqt etwas uebersieht, ARM64 DLLs manuell kopieren
           for %%D in (Qt6Core.dll Qt6Gui.dll Qt6Widgets.dll Qt6Network.dll Qt6Core5Compat.dll Qt6Svg.dll Qt6OpenGL.dll Qt6OpenGLWidgets.dll) do (
               if not exist "%X_INSTALL_DIR%\%%D" (
                   if exist "%QT_TARGET%\bin\%%D" copy /Y "%QT_TARGET%\bin\%%D" "%X_INSTALL_DIR%\"
@@ -97,7 +93,6 @@ jobs:
           if not exist "%X_INSTALL_DIR%\platforms\qwindows.dll" (
               copy /Y "%QT_TARGET%\plugins\platforms\qwindows.dll" "%X_INSTALL_DIR%\platforms\"
           )
-          :: --- WINDEPLOYQT FIX ENDE ---
 
           xcopy "%X_SOURCE_PATH%\Detect-It-Easy\db"        "%X_INSTALL_DIR%\db\"          /E /I /Y
           xcopy "%X_SOURCE_PATH%\Detect-It-Easy\db_extra"  "%X_INSTALL_DIR%\db_extra\"    /E /I /Y
@@ -124,7 +119,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: winArm
+          tag_name: Beta
           draft: false
           prerelease: true
           files: |
