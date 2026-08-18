@@ -15,7 +15,7 @@ jobs:
   build-windows-arm64-cmake:
     name: Build Windows ARM64 (CMake)
     runs-on: windows-2022
-    
+
     steps:
       - name: Clone DIE-engine Repository
         run: git clone https://github.com/horsicq/DIE-engine.git --recursive
@@ -54,23 +54,40 @@ jobs:
           $QT_HOST = "${{ github.workspace }}\Qt\6.8.2\msvc2022_64"
           $QT_TARGET = "${{ github.workspace }}\Qt\6.8.2\msvc2022_arm64"
           $7ZIP = "C:\Program Files\7-Zip\7z.exe"
+          
           New-Item -ItemType Directory -Force -Path build
           Set-Location build
           cmake .. -G "Visual Studio 17 2022" -A ARM64 -DCMAKE_PREFIX_PATH="$QT_TARGET" -DQT_HOST_PATH="$QT_HOST" -DCMAKE_BUILD_TYPE=Release
           if ($LASTEXITCODE -ne 0) { throw "CMake Config fehlgeschlagen" }
+          
           cmake --build . --config Release -j $env:NUMBER_OF_PROCESSORS
           if ($LASTEXITCODE -ne 0) { throw "CMake Build fehlgeschlagen" }
+          
           Set-Location ..
           $OUT_DIR = "release_temp"
           New-Item -ItemType Directory -Force -Path $OUT_DIR
+          
           Get-ChildItem -Path "build" -Recurse -Filter "*.exe" | Where-Object { $_.FullName -match '\\Release\\' } | ForEach-Object {
               Copy-Item -Path $_.FullName -Destination $OUT_DIR -Force
           }
+          
+          # HIER IST DER FIX: windeployqt.exe vom Host (x64) ausführen und mit --qtpaths auf ARM64 umleiten
           Get-ChildItem -Path $OUT_DIR -Filter "*.exe" | ForEach-Object {
-              & "$QT_TARGET\bin\windeployqt.exe" --release $_.FullName
+              & "$QT_HOST\bin\windeployqt.exe" --qtpaths "$QT_TARGET\bin\qtpaths.exe" --release $_.FullName
           }
-          if (Test-Path "db") { Copy-Item -Path "db" -Destination "$OUT_DIR\db" -Recurse -Force }
-          if (Test-Path "info") { Copy-Item -Path "info" -Destination "$OUT_DIR\info" -Recurse -Force }
+          
+          # Alle wichtigen DIE-Ordner in das Release kopieren
+          if (Test-Path "Detect-It-Easy\db") { Copy-Item -Path "Detect-It-Easy\db" -Destination "$OUT_DIR\db" -Recurse -Force }
+          if (Test-Path "Detect-It-Easy\db_extra") { Copy-Item -Path "Detect-It-Easy\db_extra" -Destination "$OUT_DIR\db_extra" -Recurse -Force }
+          if (Test-Path "XStyles\qss") { Copy-Item -Path "XStyles\qss" -Destination "$OUT_DIR\qss" -Recurse -Force }
+          if (Test-Path "XInfoDB\info") { Copy-Item -Path "XInfoDB\info" -Destination "$OUT_DIR\info" -Recurse -Force }
+          if (Test-Path "XYara\yara_rules") { Copy-Item -Path "XYara\yara_rules" -Destination "$OUT_DIR\yara_rules" -Recurse -Force }
+          if (Test-Path "images") { Copy-Item -Path "images" -Destination "$OUT_DIR\images" -Recurse -Force }
+          if (Test-Path "signatures\crypto.db") {
+              New-Item -ItemType Directory -Force -Path "$OUT_DIR\signatures"
+              Copy-Item -Path "signatures\crypto.db" -Destination "$OUT_DIR\signatures\crypto.db" -Force
+          }
+          
           New-Item -ItemType Directory -Force -Path release
           & $7ZIP a release\die_winarm64_qt6.zip .\$OUT_DIR\*
           if ($LASTEXITCODE -ne 0) { throw "7-Zip fehlgeschlagen" }
