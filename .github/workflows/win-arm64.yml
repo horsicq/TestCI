@@ -15,17 +15,18 @@ jobs:
   build-windows-arm64-cmake:
     name: Build Windows ARM64 (CMake)
     runs-on: windows-2022
-
+    
     steps:
       - name: Clone DIE-engine Repository
         run: git clone https://github.com/horsicq/DIE-engine.git --recursive
 
       - name: Patch xsimd for ARM64
-        shell: pwsh
+        shell: cmd
         working-directory: ${{ env.SRC_PATH }}
         run: |
-          $file = "dep\Formats\xsimd\src\xsimd_sse2.c"
-          if (Test-Path $file) { Set-Content -Path $file -Value "" }
+          if exist "dep\Formats\xsimd\src\xsimd_sse2.c" (
+            type nul > "dep\Formats\xsimd\src\xsimd_sse2.c"
+          )
 
       - name: Install Qt (Host x64)
         uses: jurplel/install-qt-action@v4
@@ -48,49 +49,74 @@ jobs:
           modules: qt5compat
 
       - name: Build with CMake & Package
-        shell: pwsh
+        shell: cmd
         working-directory: ${{ env.SRC_PATH }}
         run: |
-          $QT_HOST = "${{ github.workspace }}\Qt\6.8.2\msvc2022_64"
-          $QT_TARGET = "${{ github.workspace }}\Qt\6.8.2\msvc2022_arm64"
-          $7ZIP = "C:\Program Files\7-Zip\7z.exe"
+          set "QT_HOST=${{ github.workspace }}\Qt\6.8.2\msvc2022_64"
+          set "QT_TARGET=${{ github.workspace }}\Qt\6.8.2\msvc2022_arm64"
+          set "SEVENZIP_PATH=C:\Program Files\7-Zip\7z.exe"
+
+          set "X_BUILD_NAME=die"
+          set "X_BUILD_PREFIX=winarm64_qt6"
+          set "X_SOURCE_PATH=${{ github.workspace }}\DIE-engine"
+
+          for /f "delims=" %%x in ('type "%X_SOURCE_PATH%\release_version.txt"') do set "X_RELEASE_VERSION=%%x"
+
+          set "X_BUILD_DIR=%X_SOURCE_PATH%\build"
+          set "X_INSTALL_DIR=%X_SOURCE_PATH%\release\%X_BUILD_NAME%_%X_BUILD_PREFIX%"
+
+          if exist "%X_INSTALL_DIR%" rmdir /s /q "%X_INSTALL_DIR%"
+          if exist "%X_BUILD_DIR%" rmdir /s /q "%X_BUILD_DIR%"
+
+          cmake -S "%X_SOURCE_PATH%" -B "%X_BUILD_DIR%" -G "Visual Studio 17 2022" -A ARM64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="%QT_TARGET%" -DQT_HOST_PATH="%QT_HOST%"
+          if errorlevel 1 exit /b 1
+
+          cmake --build "%X_BUILD_DIR%" --config Release -j %NUMBER_OF_PROCESSORS%
+          if errorlevel 1 exit /b 1
+
+          cmake --install "%X_BUILD_DIR%" --config Release --prefix "%X_INSTALL_DIR%"
+          if errorlevel 1 exit /b 1
+
+          :: --- DER WINDEPLOYQT FIX ---
+          :: qtpaths vom Host in den Target-Ordner kopieren (nur fuer den Build-Prozess)
+          copy /Y "%QT_HOST%\bin\qtpaths.exe" "%QT_TARGET%\bin\qtpaths.exe"
+          if exist "%QT_HOST%\bin\qtpaths6.exe" copy /Y "%QT_HOST%\bin\qtpaths6.exe" "%QT_TARGET%\bin\qtpaths6.exe"
+
+          :: windeployqt vom Host starten, aber anweisen, die ARM64-Pfade zu nutzen
+          for /R "%X_INSTALL_DIR%" %%f in (*.exe) do (
+              "%QT_HOST%\bin\windeployqt.exe" --qtpaths "%QT_TARGET%\bin\qtpaths.exe" --release "%%f"
+          )
+
+          :: Fallback: Falls windeployqt etwas uebersieht, ARM64 DLLs manuell kopieren
+          for %%D in (Qt6Core.dll Qt6Gui.dll Qt6Widgets.dll Qt6Network.dll Qt6Core5Compat.dll Qt6Svg.dll Qt6OpenGL.dll Qt6OpenGLWidgets.dll) do (
+              if not exist "%X_INSTALL_DIR%\%%D" (
+                  if exist "%QT_TARGET%\bin\%%D" copy /Y "%QT_TARGET%\bin\%%D" "%X_INSTALL_DIR%\"
+              )
+          )
+          if not exist "%X_INSTALL_DIR%\platforms" mkdir "%X_INSTALL_DIR%\platforms"
+          if not exist "%X_INSTALL_DIR%\platforms\qwindows.dll" (
+              copy /Y "%QT_TARGET%\plugins\platforms\qwindows.dll" "%X_INSTALL_DIR%\platforms\"
+          )
+          :: --- WINDEPLOYQT FIX ENDE ---
+
+          xcopy "%X_SOURCE_PATH%\Detect-It-Easy\db"        "%X_INSTALL_DIR%\db\"          /E /I /Y
+          xcopy "%X_SOURCE_PATH%\Detect-It-Easy\db_extra"  "%X_INSTALL_DIR%\db_extra\"    /E /I /Y
+          xcopy "%X_SOURCE_PATH%\XStyles\qss"              "%X_INSTALL_DIR%\qss\"         /E /I /Y
+          xcopy "%X_SOURCE_PATH%\XInfoDB\info"             "%X_INSTALL_DIR%\info\"        /E /I /Y
+          xcopy "%X_SOURCE_PATH%\XYara\yara_rules"         "%X_INSTALL_DIR%\yara_rules\"  /E /I /Y
+          xcopy "%X_SOURCE_PATH%\images"                   "%X_INSTALL_DIR%\images\"      /E /I /Y
           
-          New-Item -ItemType Directory -Force -Path build
-          Set-Location build
-          cmake .. -G "Visual Studio 17 2022" -A ARM64 -DCMAKE_PREFIX_PATH="$QT_TARGET" -DQT_HOST_PATH="$QT_HOST" -DCMAKE_BUILD_TYPE=Release
-          if ($LASTEXITCODE -ne 0) { throw "CMake Config fehlgeschlagen" }
-          
-          cmake --build . --config Release -j $env:NUMBER_OF_PROCESSORS
-          if ($LASTEXITCODE -ne 0) { throw "CMake Build fehlgeschlagen" }
-          
-          Set-Location ..
-          $OUT_DIR = "release_temp"
-          New-Item -ItemType Directory -Force -Path $OUT_DIR
-          
-          Get-ChildItem -Path "build" -Recurse -Filter "*.exe" | Where-Object { $_.FullName -match '\\Release\\' } | ForEach-Object {
-              Copy-Item -Path $_.FullName -Destination $OUT_DIR -Force
-          }
-          
-          # HIER IST DER FIX: windeployqt.exe vom Host (x64) ausführen und mit --qtpaths auf ARM64 umleiten
-          Get-ChildItem -Path $OUT_DIR -Filter "*.exe" | ForEach-Object {
-              & "$QT_HOST\bin\windeployqt.exe" --qtpaths "$QT_TARGET\bin\qtpaths.exe" --release $_.FullName
-          }
-          
-          # Alle wichtigen DIE-Ordner in das Release kopieren
-          if (Test-Path "Detect-It-Easy\db") { Copy-Item -Path "Detect-It-Easy\db" -Destination "$OUT_DIR\db" -Recurse -Force }
-          if (Test-Path "Detect-It-Easy\db_extra") { Copy-Item -Path "Detect-It-Easy\db_extra" -Destination "$OUT_DIR\db_extra" -Recurse -Force }
-          if (Test-Path "XStyles\qss") { Copy-Item -Path "XStyles\qss" -Destination "$OUT_DIR\qss" -Recurse -Force }
-          if (Test-Path "XInfoDB\info") { Copy-Item -Path "XInfoDB\info" -Destination "$OUT_DIR\info" -Recurse -Force }
-          if (Test-Path "XYara\yara_rules") { Copy-Item -Path "XYara\yara_rules" -Destination "$OUT_DIR\yara_rules" -Recurse -Force }
-          if (Test-Path "images") { Copy-Item -Path "images" -Destination "$OUT_DIR\images" -Recurse -Force }
-          if (Test-Path "signatures\crypto.db") {
-              New-Item -ItemType Directory -Force -Path "$OUT_DIR\signatures"
-              Copy-Item -Path "signatures\crypto.db" -Destination "$OUT_DIR\signatures\crypto.db" -Force
-          }
-          
-          New-Item -ItemType Directory -Force -Path release
-          & $7ZIP a release\die_winarm64_qt6.zip .\$OUT_DIR\*
-          if ($LASTEXITCODE -ne 0) { throw "7-Zip fehlgeschlagen" }
+          if exist "%X_SOURCE_PATH%\signatures\crypto.db" (
+              mkdir "%X_INSTALL_DIR%\signatures" 2>nul
+              copy  "%X_SOURCE_PATH%\signatures\crypto.db" "%X_INSTALL_DIR%\signatures\"
+          )
+
+          if exist "%SEVENZIP_PATH%" (
+              if exist "%X_SOURCE_PATH%\release\%X_BUILD_NAME%_%X_BUILD_PREFIX%_%X_RELEASE_VERSION%.zip" (
+                  del /f /q "%X_SOURCE_PATH%\release\%X_BUILD_NAME%_%X_BUILD_PREFIX%_%X_RELEASE_VERSION%.zip"
+              )
+              "%SEVENZIP_PATH%" a -tzip "%X_SOURCE_PATH%\release\%X_BUILD_NAME%_%X_BUILD_PREFIX%_%X_RELEASE_VERSION%.zip" "%X_INSTALL_DIR%\*"
+          )
 
       - name: Upload Release as Download
         if: github.event_name != 'pull_request'
