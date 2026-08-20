@@ -1,62 +1,51 @@
 name: macOS CI
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  build-osx:
+  build-macos:
     runs-on: macos-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
         with:
-          submodules: recursive
+          version: '6.7.2'
+          host: 'mac'
+          target: 'desktop'
+          arch: 'clang_64'
+          cache: true
 
-      - name: Install Qt via Homebrew
-        run: |
-          brew update
-          brew install qt@5
+      - name: Clone Repository
+        run: git clone https://github.com/horsicq/DIE-engine.git --recursive
 
-      - name: Clone DIE-engine
-        run: |
-          git clone https://github.com/horsicq/DIE-engine.git --recursive
+      - name: Configure (CMake)
+        working-directory: ${{ github.workspace }}/DIE-engine
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 
-      - name: Patch CMake Scope Errors
-        run: |
-          sed -i '' '/macdeployqt\.cmake/s/^/#/' DIE-engine/src/lite/CMakeLists.txt || true
-          sed -i '' '/macdeployqt\.cmake/s/^/#/' DIE-engine/src/console/CMakeLists.txt || true
+      - name: Build
+        working-directory: ${{ github.workspace }}/DIE-engine
+        run: cmake --build build --config Release --parallel $(sysctl -n hw.ncpu)
 
-      - name: Build DiE macOS
+      - name: Create DMG (macdeployqt)
+        working-directory: ${{ github.workspace }}/DIE-engine
         run: |
-          export QT_DIR="$(brew --prefix qt@5)"
-          export PATH="$QT_DIR/bin:$PATH"
-          export CMAKE_PREFIX_PATH="$QT_DIR"
-          export QT_PREFIX_PATH="$QT_DIR"
+          APP_BUNDLE=$(find build -name "*.app" -maxdepth 2 | head -n 1)
           
-          export CMAKE_OSX_ARCHITECTURES="arm64"
+          echo "App Bundle found: $APP_BUNDLE"
           
-          export CFLAGS="-Wno-error=implicit-function-declaration -Wno-error=incompatible-pointer-types -Wno-error=implicit-int -Wno-implicit-function-declaration"
-          export CXXFLAGS="$CFLAGS"
-          
-          cd DIE-engine
-          chmod a+x build_mac.sh
-          ./build_mac.sh
+          macdeployqt "$APP_BUNDLE" -dmg
 
-      - name: Upload macOS Release
-        if: github.event_name != 'pull_request'
-        uses: softprops/action-gh-release@v3
-        with:
-          tag_name: macOS-Beta
-          draft: false
-          prerelease: true
-          files: |
-            DIE-engine/release/*.zip
+      - name: Upload Release
+        uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: Beta
+          draft: false
+          prerelease: true
+          files: ${{ github.workspace }}/DIE-engine/build/*.dmg
