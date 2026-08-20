@@ -8,7 +8,7 @@ permissions:
 
 jobs:
   build-macos:
-    runs-on: macos-latest
+    runs-on: macos-13
 
     steps:
       - name: Install Qt
@@ -35,15 +35,6 @@ jobs:
           find dep/XArchive/Algos -type f \( -name "*.cpp" -o -name "*.h" \) -exec sed -i '' 's/^local /static /g' {} +
           find dep/XArchive/Algos -type f \( -name "*.cpp" -o -name "*.h" \) -exec sed -i '' 's/ local / static /g' {} +
 
-          find . -type f \( -name "CMakeLists.txt" -o -name "*.cmake" \) -exec sed -i '' 's/-framework AGL//g' {} +
-          find . -type f \( -name "CMakeLists.txt" -o -name "*.cmake" \) -exec sed -i '' 's/"-framework AGL"//g' {} +
-          find . -type f \( -name "CMakeLists.txt" -o -name "*.cmake" \) -exec sed -i '' 's/[[:<:]]AGL[[:>:]]//g' {} +
-
-          if [ -d ~/Qt ]; then
-            find ~/Qt -name "Qt6GuiTargets.cmake" -exec sed -i '' 's/-framework AGL//g' {} + || true
-            find ~/Qt -name "WrapOpenGL" -o -name "*.cmake" -exec sed -i '' 's/-framework AGL//g' {} + || true
-          fi
-
       - name: Configure
         working-directory: ${{ github.workspace }}/DIE-engine
         run: >
@@ -52,18 +43,12 @@ jobs:
           -DCMAKE_C_FLAGS="-w" 
           -DCMAKE_CXX_FLAGS="-w"
 
-      - name: Kill AGL references in generated Build files
-        working-directory: ${{ github.workspace }}/DIE-engine/build
-        run: |
-          find . -type f \( -name "link.txt" -name "*.make" -o -name "Makefile*" \) -exec sed -i '' 's/-framework AGL//g' {} +
-          find . -type f \( -name "link.txt" -name "*.make" -o -name "Makefile*" \) -exec sed -i '' 's/AGL//g' {} +
-
       - name: Build
         working-directory: ${{ github.workspace }}/DIE-engine
         run: cmake --build build --config Release --parallel $(sysctl -n hw.ncpu)
 
       - name: Create DMG
-        working-directory: ${{ github.workspace }}/DIE-engine
+        working-directory: ${{ github.workspace]]/DIE-engine
         run: |
           APP_BUNDLE=$(find build -name "*.app" -maxdepth 2 | head -n 1)
           macdeployqt "$APP_BUNDLE" -dmg
