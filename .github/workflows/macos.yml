@@ -26,9 +26,14 @@ jobs:
       - name: Patch upstream bugs
         working-directory: ${{ github.workspace }}/DIE-engine
         run: |
-          sed -i '' '/define fdopen(fd,mode) NULL/d' dep/XArchive/Algos/zlibutil.cpp
-          
           find dep/XArchive/Algos -name "*.cpp" -exec sed -i '' 's/register //g' {} +
+          
+          sed -i '' '/define fdopen(fd,mode) NULL/d' dep/XArchive/Algos/zlibutil.cpp
+          sed -i '' '/define fdopen(fd, mode) NULL/d' dep/XArchive/Algos/xdeflatedecoder.cpp
+          
+          sed -i '' '/#define local static/d' dep/XArchive/Algos/xdeflatedecoder.cpp
+          sed -i '' 's/^local /static /g' dep/XArchive/Algos/xdeflatedecoder.cpp
+          sed -i '' 's/ local / static /g' dep/XArchive/Algos/xdeflatedecoder.cpp
 
       - name: Configure
         working-directory: ${{ github.workspace }}/DIE-engine
