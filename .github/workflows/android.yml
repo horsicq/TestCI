@@ -42,8 +42,13 @@ jobs:
           target: android
           arch: android_arm64_v8a
 
+      - name: Clone DIE-engine
+        run: |
+          git clone https://github.com/horsicq/DIE-engine.git --recursive
+
       - name: Configure
         run: |
+          cd DIE-engine \
           cmake \
             -B build \
             -G Ninja \
