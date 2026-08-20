@@ -23,10 +23,6 @@ jobs:
       - name: Clone Repository
         run: git clone https://github.com/horsicq/DIE-engine.git --recursive
 
-      - name: Patch upstream CMake bug
-        working-directory: ${{ github.workspace }}/DIE-engine
-        run: echo "" > dep/build_tools/cmake/macdeployqt.cmake
-
       - name: Configure
         working-directory: ${{ github.workspace }}/DIE-engine
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
