@@ -23,8 +23,8 @@ jobs:
 
       - name: Checkout Repository
         run:
-          git clone https://github.com/horsicq/DIE-engine --recursive
-          cd build
+          git clone https://github.com/horsicq/DIE-engine --recursive &&
+          cd DIE-engine
 
       - name: Build
         working-directory: ${{ github.workspace }}
