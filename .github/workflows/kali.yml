@@ -18,16 +18,14 @@ jobs:
       - name: Install dependencies
         run: |
           apt-get update -y
-          
           apt-get install -y git qtbase5-dev qtscript5-dev qttools5-dev qttools5-dev-tools libqt5svg5-dev build-essential cmake
 
-      - name: Checkout Repository
-        run:
-          git clone https://github.com/horsicq/DIE-engine --recursive &&
-          cd DIE-engine
+      - name: Clone Repository
+        run: |
+          git clone https://github.com/horsicq/DIE-engine.git --recursive
 
       - name: Build
-        working-directory: ${{ github.workspace }}
+        working-directory: ${{ github.workspace }}/DIE-engine
         shell: bash
         run: |
           bash -ex build_dpkg.sh
@@ -48,4 +46,4 @@ jobs:
           draft: false
           prerelease: true
           files: |
-            ${{ github.workspace }}/release/*.deb
+            ${{ github.workspace }}/DIE-engine/release/*.deb
