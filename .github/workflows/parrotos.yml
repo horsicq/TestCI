@@ -1,0 +1,42 @@
+name: ParrotOS CI
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+build-parrotos:
+    runs-on: ubuntu-latest
+    container:
+      image: parrotsec/core:rolling
+    steps:
+      - name:
+        run: |
+          git clone https://github.com/horsicq/DIE-engine.git --recursive
+          cd DIE-engine
+
+      - name: Install dependencies
+        run: |
+          apt-get update
+          sudo apt-get install qtbase5-dev qtscript5-dev qttools5-dev-tools libqt5svg5-dev git build-essential cmake -y
+
+      - name: Build
+        working-directory: ${{ env.SRC_PATH }}
+        run: |
+          bash -ex build_dpkg.sh
+
+      - name: Upload Release as Download
+        if: github.event_name != 'pull_request'
+        uses: softprops/action-gh-release@v3
+        env:
+          RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        with:
+          tag_name: Beta
+          draft: false
+          prerelease: true
+          files: |
+            ${{ env.RELEASE_PATH }}/*.deb
