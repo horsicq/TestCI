@@ -39,6 +39,11 @@ jobs:
           find . -type f \( -name "CMakeLists.txt" -o -name "*.cmake" \) -exec sed -i '' 's/"-framework AGL"//g' {} +
           find . -type f \( -name "CMakeLists.txt" -o -name "*.cmake" \) -exec sed -i '' 's/[[:<:]]AGL[[:>:]]//g' {} +
 
+          if [ -d ~/Qt ]; then
+            find ~/Qt -name "Qt6GuiTargets.cmake" -exec sed -i '' 's/-framework AGL//g' {} + || true
+            find ~/Qt -name "WrapOpenGL" -o -name "*.cmake" -exec sed -i '' 's/-framework AGL//g' {} + || true
+          fi
+
       - name: Configure
         working-directory: ${{ github.workspace }}/DIE-engine
         run: >
