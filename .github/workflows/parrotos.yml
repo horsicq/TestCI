@@ -15,9 +15,12 @@ jobs:
     container:
       image: parrotsec/core:rolling
     steps:
-      - name: Install dependencies and Git
+      - name: Install dependencies
         run: |
-          apt-get update
+          echo "deb https://deb.parrot.sh/parrot parrot main contrib non-free" > /etc/apt/sources.list.d/parrot.list
+          
+          apt-get update -y
+          
           apt-get install git qtbase5-dev qtscript5-dev qttools5-dev-tools libqt5svg5-dev build-essential cmake -y
 
       - name: Clone Repository
