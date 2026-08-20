@@ -26,18 +26,14 @@ jobs:
       - name: Patch upstream bugs
         working-directory: ${{ github.workspace }}/DIE-engine
         run: |
-          find dep/XArchive/Algos -name "*.cpp" -exec sed -i '' 's/register //g' {} +
+          find dep/XArchive/Algos -type f \( -name "*.cpp" -o -name "*.h" \) -exec sed -i '' 's/register //g' {} +
           
           sed -i '' '/define fdopen(fd,mode) NULL/d' dep/XArchive/Algos/zlibutil.cpp
           sed -i '' '/define fdopen(fd, mode) NULL/d' dep/XArchive/Algos/xdeflatedecoder.cpp
           
-          sed -i '' '/define local static/d' dep/XArchive/Algos/xdeflatedecoder.cpp
-          sed -i '' 's/^local /static /g' dep/XArchive/Algos/xdeflatedecoder.cpp
-          sed -i '' 's/ local / static /g' dep/XArchive/Algos/xdeflatedecoder.cpp
-          
-          sed -i '' '/define local static/d' dep/XArchive/Algos/include/gzguts.h
-          sed -i '' 's/^local /static /g' dep/XArchive/Algos/include/gzguts.h
-          sed -i '' 's/ local / static /g' dep/XArchive/Algos/include/gzguts.h
+          find dep/XArchive/Algos -type f \( -name "*.cpp" -o -name "*.h" \) -exec sed -i '' '/define local static/d' {} +
+          find dep/XArchive/Algos -type f \( -name "*.cpp" -o -name "*.h" \) -exec sed -i '' 's/^local /static /g' {} +
+          find dep/XArchive/Algos -type f \( -name "*.cpp" -o -name "*.h" \) -exec sed -i '' 's/ local / static /g' {} +
 
       - name: Configure
         working-directory: ${{ github.workspace }}/DIE-engine
