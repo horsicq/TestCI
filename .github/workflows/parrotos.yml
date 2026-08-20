@@ -9,34 +9,34 @@ on:
 permissions:
   contents: write
 
-build-parrotos:
+jobs:
+  build-parrotos:
     runs-on: ubuntu-latest
     container:
       image: parrotsec/core:rolling
     steps:
-      - name:
-        run: |
-          git clone https://github.com/horsicq/DIE-engine.git --recursive
-          cd DIE-engine
-
-      - name: Install dependencies
+      - name: Install dependencies and Git
         run: |
           apt-get update
-          sudo apt-get install qtbase5-dev qtscript5-dev qttools5-dev-tools libqt5svg5-dev git build-essential cmake -y
+          apt-get install git qtbase5-dev qtscript5-dev qttools5-dev-tools libqt5svg5-dev build-essential cmake -y
+
+      - name: Clone Repository
+        run: |
+          git clone https://github.com/horsicq/DIE-engine.git --recursive
 
       - name: Build
-        working-directory: ${{ env.SRC_PATH }}
+        working-directory: ${{ github.workspace }}/DIE-engine
         run: |
           bash -ex build_dpkg.sh
 
       - name: Upload Release as Download
         if: github.event_name != 'pull_request'
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@v2
         env:
-          RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: Beta
           draft: false
           prerelease: true
           files: |
-            ${{ env.RELEASE_PATH }}/*.deb
+            ${{ github.workspace }}/DIE-engine/release/*.deb
