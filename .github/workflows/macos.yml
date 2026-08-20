@@ -23,7 +23,11 @@ jobs:
       - name: Clone Repository
         run: git clone https://github.com/horsicq/DIE-engine.git --recursive
 
-      - name: Configure (CMake)
+      - name: Patch upstream CMake bug
+        working-directory: ${{ github.workspace }}/DIE-engine
+        run: echo "" > dep/build_tools/cmake/macdeployqt.cmake
+
+      - name: Configure
         working-directory: ${{ github.workspace }}/DIE-engine
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 
@@ -31,13 +35,10 @@ jobs:
         working-directory: ${{ github.workspace }}/DIE-engine
         run: cmake --build build --config Release --parallel $(sysctl -n hw.ncpu)
 
-      - name: Create DMG (macdeployqt)
+      - name: Create DMG
         working-directory: ${{ github.workspace }}/DIE-engine
         run: |
           APP_BUNDLE=$(find build -name "*.app" -maxdepth 2 | head -n 1)
-          
-          echo "App Bundle found: $APP_BUNDLE"
-          
           macdeployqt "$APP_BUNDLE" -dmg
 
       - name: Upload Release
