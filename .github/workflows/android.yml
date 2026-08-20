@@ -3,25 +3,18 @@ name: Build DIE-engine Android APK
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build-android:
-
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout source
-        uses: actions/checkout@v6
-        with:
-          submodules: recursive
-
       - name: Install Android tools
         run: |
           sudo apt update
-
-          sudo apt install -y \
-            openjdk-17-jdk \
-            cmake \
-            ninja-build
+          sudo apt install -y openjdk-17-jdk cmake ninja-build
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
@@ -47,8 +40,8 @@ jobs:
           git clone https://github.com/horsicq/DIE-engine.git --recursive
 
       - name: Configure
+        working-directory: ${{ github.workspace }}/DIE-engine
         run: |
-          cd DIE-engine \
           cmake \
             -B build \
             -G Ninja \
@@ -58,35 +51,35 @@ jobs:
             -DANDROID_PLATFORM=android-35
 
       - name: Build
+        working-directory: ${{ github.workspace }}/DIE-engine
         run: |
           cmake --build build --parallel $(nproc)
 
       - name: Build APK
+        working-directory: ${{ github.workspace }}/DIE-engine/build
         run: |
-          cd build
-
           $Qt6_DIR/bin/androiddeployqt \
             --input android-libDIE-engine-deployment-settings.json \
             --output android-build \
             --android-platform android-35 \
             --gradle
 
-
       - name: Collect APK
+        working-directory: ${{ github.workspace }}/DIE-engine
         run: |
-          mkdir release
-
+          mkdir -p release
           find build \
             -name "*.apk" \
             -exec cp {} release/DIE-engine-android.apk \;
-
           ls -lah release
 
       - name: Upload APK
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: Beta
           draft: false
           prerelease: true
           files: |
-            release/*.apk
+            ${{ github.workspace }}/DIE-engine/release/*.apk
