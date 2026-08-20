@@ -23,6 +23,10 @@ jobs:
       - name: Clone Repository
         run: git clone https://github.com/horsicq/DIE-engine.git --recursive
 
+      - name: Patch upstream bugs
+        working-directory: ${{ github.workspace }}/DIE-engine
+        run: sed -i '' 's/register //g' dep/XArchive/Algos/zlibutil.cpp
+
       - name: Configure
         working-directory: ${{ github.workspace }}/DIE-engine
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
