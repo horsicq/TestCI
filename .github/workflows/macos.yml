@@ -35,6 +35,10 @@ jobs:
           find dep/XArchive/Algos -type f \( -name "*.cpp" -o -name "*.h" \) -exec sed -i '' 's/^local /static /g' {} +
           find dep/XArchive/Algos -type f \( -name "*.cpp" -o -name "*.h" \) -exec sed -i '' 's/ local / static /g' {} +
 
+          find . -type f \( -name "CMakeLists.txt" -o -name "*.cmake" \) -exec sed -i '' 's/-framework AGL//g' {} +
+          find . -type f \( -name "CMakeLists.txt" -o -name "*.cmake" \) -exec sed -i '' 's/"-framework AGL"//g' {} +
+          find . -type f \( -name "CMakeLists.txt" -o -name "*.cmake" \) -exec sed -i '' 's/[[:<:]]AGL[[:>:]]//g' {} +
+
       - name: Configure
         working-directory: ${{ github.workspace }}/DIE-engine
         run: >
