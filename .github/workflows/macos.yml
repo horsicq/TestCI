@@ -31,9 +31,13 @@ jobs:
           sed -i '' '/define fdopen(fd,mode) NULL/d' dep/XArchive/Algos/zlibutil.cpp
           sed -i '' '/define fdopen(fd, mode) NULL/d' dep/XArchive/Algos/xdeflatedecoder.cpp
           
-          sed -i '' '/#define local static/d' dep/XArchive/Algos/xdeflatedecoder.cpp
+          sed -i '' '/define local static/d' dep/XArchive/Algos/xdeflatedecoder.cpp
           sed -i '' 's/^local /static /g' dep/XArchive/Algos/xdeflatedecoder.cpp
           sed -i '' 's/ local / static /g' dep/XArchive/Algos/xdeflatedecoder.cpp
+          
+          sed -i '' '/define local static/d' dep/XArchive/Algos/include/gzguts.h
+          sed -i '' 's/^local /static /g' dep/XArchive/Algos/include/gzguts.h
+          sed -i '' 's/ local / static /g' dep/XArchive/Algos/include/gzguts.h
 
       - name: Configure
         working-directory: ${{ github.workspace }}/DIE-engine
