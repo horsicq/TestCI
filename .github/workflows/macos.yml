@@ -8,7 +8,7 @@ permissions:
 
 jobs:
   build-macos:
-    runs-on: macos-13
+    runs-on: macos-latest
 
     steps:
       - name: Install Qt
@@ -35,6 +35,16 @@ jobs:
           find dep/XArchive/Algos -type f \( -name "*.cpp" -o -name "*.h" \) -exec sed -i '' 's/^local /static /g' {} +
           find dep/XArchive/Algos -type f \( -name "*.cpp" -o -name "*.h" \) -exec sed -i '' 's/ local / static /g' {} +
 
+          find . -type f \( -name "CMakeLists.txt" -o -name "*.cmake" \) -exec sed -i '' 's/-framework AGL//g' {} +
+          find . -type f \( -name "CMakeLists.txt" -o -name "*.cmake" \) -exec sed -i '' 's/"-framework AGL"//g' {} +
+          find . -type f \( -name "CMakeLists.txt" -o -name "*.cmake" \) -exec sed -i '' 's/[[:<:]]AGL[[:>:]]//g' {} +
+
+      - name: Create Fake AGL Framework
+        working-directory: ${{ github.workspace }}/DIE-engine
+        run: |
+          mkdir -p build/FakeAGL/AGL.framework
+          touch build/FakeAGL/AGL.framework/AGL
+
       - name: Configure
         working-directory: ${{ github.workspace }}/DIE-engine
         run: >
@@ -42,13 +52,20 @@ jobs:
           -DCMAKE_BUILD_TYPE=Release 
           -DCMAKE_C_FLAGS="-w" 
           -DCMAKE_CXX_FLAGS="-w"
+          -DCMAKE_EXE_LINKER_FLAGS="-FFakeAGL"
+          -DCMAKE_SHARED_LINKER_FLAGS="-FFakeAGL"
+
+      - name: AGL removal
+        working-directory: ${{ github.workspace }}/DIE-engine/build
+        run: |
+          find . -type f \( -name "*.txt" -name "*.make" -o -name "*.cmake" -o -name "Makefile" \) -exec sed -i '' 's/AGL//g' {} + || true
 
       - name: Build
         working-directory: ${{ github.workspace }}/DIE-engine
         run: cmake --build build --config Release --parallel $(sysctl -n hw.ncpu)
 
       - name: Create DMG
-        working-directory: ${{ github.workspace]]/DIE-engine
+        working-directory: ${{ github.workspace }}/DIE-engine
         run: |
           APP_BUNDLE=$(find build -name "*.app" -maxdepth 2 | head -n 1)
           macdeployqt "$APP_BUNDLE" -dmg
