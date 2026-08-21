@@ -20,6 +20,10 @@ jobs:
           arch: 'clang_64'
           cache: true
 
+      - name: Fix Qt SQL Bug for macdeployqt
+        run: |
+          find $HOME /Users/runner -type f \( -name "*qsqlodbc*" -o -name "*qsqlpsql*" \) -delete || true
+
       - name: Clone Repository
         run: git clone https://github.com/horsicq/DIE-engine.git --recursive
 
@@ -64,16 +68,30 @@ jobs:
         working-directory: ${{ github.workspace }}/DIE-engine
         run: cmake --build build --config Release --parallel $(sysctl -n hw.ncpu)
 
-      - name: Create DMG
+      - name: Create DMG with die and diel
         working-directory: ${{ github.workspace }}/DIE-engine
         run: |
-          APP_BUNDLE=$(find build -maxdepth 4 -name "*.app" -type d | head -n 1)
+          APP_DIE=$(find build -name "die.app" -type d | head -n 1)
+          APP_DIEL=$(find build -name "diel.app" -type d | head -n 1)
           
-          if [ -n "$APP_BUNDLE" ]; then
-            hdiutil create -volname "DetectItEasy" -srcfolder "$APP_BUNDLE" -ov -format UDZO DetectItEasy.dmg
+          if [ -n "$APP_DIE" ] && [ -n "$APP_DIEL" ]; then
+            
+            macdeployqt "$APP_DIE" -always-overwrite || true
+            
+            macdeployqt "$APP_DIEL" -always-overwrite || true
+            
+            mkdir -p dmg_staging
+            
+            cp -a "$APP_DIE" dmg_staging/
+            cp -a "$APP_DIEL" dmg_staging/
+            
+            ln -s /Applications dmg_staging/Applications
+            
+            hdiutil create -volname "DetectItEasy" -srcfolder dmg_staging -ov -format UDZO DetectItEasy.dmg
+            
             mv DetectItEasy.dmg build/DetectItEasy.dmg
           else
-            echo "Fehler: App-Bundle nicht gefunden!"
+            echo "Fehler: Mindestens eine der Apps (die.app oder diel.app) wurde nicht gefunden!"
             exit 1
           fi
 
