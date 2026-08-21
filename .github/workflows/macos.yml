@@ -58,7 +58,7 @@ jobs:
       - name: AGL removal
         working-directory: ${{ github.workspace }}/DIE-engine/build
         run: |
-          find . -type f \( -name "*.txt" -name "*.make" -o -name "*.cmake" -o -name "Makefile" \) -exec sed -i '' 's/AGL//g' {} + || true
+          find . -type f \( -name "*.txt" -o -name "*.make" -o -name "*.cmake" -o -name "Makefile" \) -exec sed -i '' 's/AGL//g' {} + || true
 
       - name: Build
         working-directory: ${{ github.workspace }}/DIE-engine
@@ -67,12 +67,15 @@ jobs:
       - name: Create DMG
         working-directory: ${{ github.workspace }}/DIE-engine
         run: |
-          APP_BUNDLE=$(find build -name "*.app" -maxdepth 2 | head -n 1)
-          APP_NAME=$(basename "$APP_BUNDLE")
+          APP_BUNDLE=$(find build -maxdepth 4 -name "*.app" -type d | head -n 1)
           
-          hdiutil create -volname "DetectItEasy" -srcfolder "$APP_BUNDLE" -ov -format UDZO DetectItEasy.dmg
-          
-          mv DetectItEasy.dmg build/DetectItEasy.dmg
+          if [ -n "$APP_BUNDLE" ]; then
+            hdiutil create -volname "DetectItEasy" -srcfolder "$APP_BUNDLE" -ov -format UDZO DetectItEasy.dmg
+            mv DetectItEasy.dmg build/DetectItEasy.dmg
+          else
+            echo "Fehler: App-Bundle nicht gefunden!"
+            exit 1
+          fi
 
       - name: Upload Release
         uses: softprops/action-gh-release@v2
