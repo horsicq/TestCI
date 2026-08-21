@@ -68,7 +68,11 @@ jobs:
         working-directory: ${{ github.workspace }}/DIE-engine
         run: |
           APP_BUNDLE=$(find build -name "*.app" -maxdepth 2 | head -n 1)
-          macdeployqt "$APP_BUNDLE" -dmg
+          APP_NAME=$(basename "$APP_BUNDLE")
+          
+          hdiutil create -volname "DetectItEasy" -srcfolder "$APP_BUNDLE" -ov -format UDZO DetectItEasy.dmg
+          
+          mv DetectItEasy.dmg build/DetectItEasy.dmg
 
       - name: Upload Release
         uses: softprops/action-gh-release@v2
