@@ -38,8 +38,6 @@ jobs:
           find . -type f \( -name "CMakeLists.txt" -o -name "*.cmake" \) -exec sed -i '' 's/-framework AGL//g' {} +
           find . -type f \( -name "CMakeLists.txt" -o -name "*.cmake" \) -exec sed -i '' 's/"-framework AGL"//g' {} +
           find . -type f \( -name "CMakeLists.txt" -o -name "*.cmake" \) -exec sed -i '' 's/[[:<:]]AGL[[:>:]]//g' {} +
-          
-          find . -type f \( -name "CMakeLists.txt" -o -name "*.cmake" \) -exec sed -i '' 's/macdeployqt/echo_disabled_macdeployqt/g' {} +
 
       - name: Create Fake AGL Framework
         working-directory: ${{ github.workspace }}/DIE-engine
@@ -60,30 +58,21 @@ jobs:
       - name: AGL removal
         working-directory: ${{ github.workspace }}/DIE-engine/build
         run: |
-          find . -type f \( -name "*.txt" -o -name "*.make" -o -name "*.cmake" -o -name "Makefile" \) -exec sed -i '' 's/AGL//g' {} + || true
+          find . -type f \( -name "*.txt" -name "*.make" -o -name "*.cmake" -o -name "Makefile" \) -exec sed -i '' 's/AGL//g' {} + || true
 
       - name: Build
         working-directory: ${{ github.workspace }}/DIE-engine
         run: cmake --build build --config Release --parallel $(sysctl -n hw.ncpu)
 
-      - name: Deploy Qt & Create DMG
+      - name: Create DMG
         working-directory: ${{ github.workspace }}/DIE-engine
         run: |
-          APP_BUNDLE="build/src/gui/die.app"
+          APP_BUNDLE=$(find build -name "*.app" -maxdepth 2 | head -n 1)
+          APP_NAME=$(basename "$APP_BUNDLE")
           
-          if [ -d "$APP_BUNDLE" ]; then
-            echo "App gefunden. Kopiere Qt-Frameworks in die App..."
-            macdeployqt "$APP_BUNDLE" || true
-            
-            echo "Erstelle DMG..."
-            hdiutil create -volname "DetectItEasy" -srcfolder "$APP_BUNDLE" -ov -format UDZO DetectItEasy.dmg
-            
-            mkdir -p build
-            mv DetectItEasy.dmg build/DetectItEasy.dmg
-          else
-            echo "Fehler: App-Bundle nicht gefunden unter $APP_BUNDLE!"
-            exit 1
-          fi
+          hdiutil create -volname "DetectItEasy" -srcfolder "$APP_BUNDLE" -ov -format UDZO DetectItEasy.dmg
+          
+          mv DetectItEasy.dmg build/DetectItEasy.dmg
 
       - name: Upload Release
         uses: softprops/action-gh-release@v2
