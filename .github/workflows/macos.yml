@@ -20,10 +20,6 @@ jobs:
           arch: 'clang_64'
           cache: true
 
-      - name: Fix Qt SQL Bug for macdeployqt
-        run: |
-          find $HOME /Users/runner -type f \( -name "*qsqlodbc*" -o -name "*qsqlpsql*" \) -delete || true
-
       - name: Clone Repository
         run: git clone https://github.com/horsicq/DIE-engine.git --recursive
 
@@ -68,6 +64,12 @@ jobs:
         working-directory: ${{ github.workspace }}/DIE-engine
         run: cmake --build build --config Release --parallel $(sysctl -n hw.ncpu)
 
+      - name: Fix Qt SQL Bug for macdeployqt
+        run: |
+          echo "Lösche fehlerhafte Qt-SQL-Plugins NACH dem Build..."
+          # So ist CMake zufrieden gewesen, aber macdeployqt crasht jetzt nicht mehr!
+          find /Users/runner/work -type f \( -name "*qsqlodbc*.dylib" -o -name "*qsqlpsql*.dylib" \) -delete || true
+
       - name: Create DMG with die and diel
         working-directory: ${{ github.workspace }}/DIE-engine
         run: |
@@ -75,9 +77,12 @@ jobs:
           APP_DIEL=$(find build -name "diel.app" -type d | head -n 1)
           
           if [ -n "$APP_DIE" ] && [ -n "$APP_DIEL" ]; then
+            echo "Apps gefunden: $APP_DIE und $APP_DIEL"
             
+            echo "Kopiere Qt-Frameworks in die.app..."
             macdeployqt "$APP_DIE" -always-overwrite || true
             
+            echo "Kopiere Qt-Frameworks in diel.app..."
             macdeployqt "$APP_DIEL" -always-overwrite || true
             
             mkdir -p dmg_staging
@@ -87,6 +92,7 @@ jobs:
             
             ln -s /Applications dmg_staging/Applications
             
+            echo "Packe DMG..."
             hdiutil create -volname "DetectItEasy" -srcfolder dmg_staging -ov -format UDZO DetectItEasy.dmg
             
             mv DetectItEasy.dmg build/DetectItEasy.dmg
