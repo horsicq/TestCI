@@ -8,12 +8,9 @@ permissions:
 
 jobs:
   build-termux-arm64:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
 
     steps:
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
       - name: Create Output Directory on Host
         run: |
           mkdir -p output_termux
@@ -21,7 +18,7 @@ jobs:
 
       - name: Build inside Termux Docker (aarch64)
         run: |
-          docker run --rm --platform linux/arm64 -v ${{ github.workspace }}/output_termux:/output termux/termux-docker:aarch64 bash -c "
+          docker run --rm -v ${{ github.workspace }}/output_termux:/output termux/termux-docker:aarch64 bash -c "
             pkg update -y
             pkg install -y x11-repo
             pkg install -y clang cmake make git tar qt6-qtbase qt6-qtsvg qt6-qtdeclarative qt6-qt5compat qt6-qttools
