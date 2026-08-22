@@ -1,0 +1,54 @@
+name: Termux CI (CLI)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-termux:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        run: git clone https://github.com/horsicq/DIE-engine.git --recursive .
+
+      - name: Build inside Termux Docker
+        run: |
+          docker run --rm -v ${{ github.workspace }}:/workspace termux/termux-docker:latest bash -c "
+            pkg update -y
+            pkg install -y x11-repo
+            pkg install -y clang cmake make qt6-qtbase git tar
+            
+            cd /workspace
+            
+            cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+            
+            cmake --build build --target diec --parallel \$(nproc)
+            
+            mkdir -p release_termux
+            
+            cp build/src/console/diec release_termux/ 2>/dev/null || true
+            
+            cp -r db release_termux/ 2>/dev/null || true
+            cp -r info release_termux/ 2>/dev/null || true
+            
+            tar -czvf DetectItEasy_Termux_CLI.tar.gz -C release_termux .
+          "
+
+      - name: Upload Artifact (Backup)
+        uses: actions/upload-artifact@v4
+        with:
+          name: DetectItEasy-Termux-CLI
+          path: DetectItEasy_Termux_CLI.tar.gz
+
+      - name: Upload Release
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: Beta
+          draft: false
+          prerelease: true
+          files: DetectItEasy_Termux_CLI.tar.gz
