@@ -33,13 +33,15 @@ jobs:
             cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
             cmake --build build --target diec --parallel \$(nproc)
             
-            mkdir -p release_termux
+            mkdir -p release_termux/diec
             
-            cp build/src/console/diec release_termux/ 2>/dev/null || true
-            cp -r db release_termux/ 2>/dev/null || true
-            cp -r info release_termux/ 2>/dev/null || true
+            cp build/src/console/diec release_termux/diec/ 2>/dev/null || true
+            cp -r dep/Detect-It-Easy/db release_termux/diec/ 2>/dev/null || true
+            cp -r dep/Detect-It-Easy/db_custom release_termux/diec/ 2>/dev/null || true
+            cp -r dep/Detect-It-Easy/db_extra release_termux/diec/ 2>/dev/null || true
+            cp -r dep/Detect-It-Easy/info release_termux/diec/ 2>/dev/null || true
             
-            tar -czvf /output/DetectItEasy_Termux_CLI_aarch64.tar.gz -C release_termux .
+            tar -czvf /output/DetectItEasy_Termux_CLI_aarch64.tar.gz -C release_termux diec
           "
 
       - name: Upload Artifact
