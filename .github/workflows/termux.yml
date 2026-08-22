@@ -23,8 +23,11 @@ jobs:
             pkg install -y x11-repo
             pkg install -y clang cmake make qt6-qtbase git tar
             
+            mkdir -p /data/data/com.termux/files/usr/lib/qt6/plugins/platformthemes
+            touch /data/data/com.termux/files/usr/lib/qt6/plugins/platformthemes/libqgtk3.so
+            
             cd ~
-            git clone https://github.com/horsicq/DIE-engine.git --recursive
+            git clone https://github.com/horsicq/DIE-engine.git --recursive DIE-engine
             cd DIE-engine
             
             cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
