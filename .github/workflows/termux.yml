@@ -11,37 +11,39 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
-        run: git clone https://github.com/horsicq/DIE-engine.git --recursive .
+      - name: Create Output Directory on Host
+        run: |
+          mkdir -p output_termux
+          chmod 777 output_termux
 
       - name: Build inside Termux Docker
         run: |
-          docker run --rm -v ${{ github.workspace }}:/workspace termux/termux-docker:latest bash -c "
+          docker run --rm -v ${{ github.workspace }}/output_termux:/output termux/termux-docker:latest bash -c "
             pkg update -y
             pkg install -y x11-repo
             pkg install -y clang cmake make qt6-qtbase git tar
             
-            cd /workspace
+            cd ~
+            git clone https://github.com/horsicq/DIE-engine.git --recursive
+            cd DIE-engine
             
             cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-            
             cmake --build build --target diec --parallel \$(nproc)
             
             mkdir -p release_termux
             
             cp build/src/console/diec release_termux/ 2>/dev/null || true
-            
             cp -r db release_termux/ 2>/dev/null || true
             cp -r info release_termux/ 2>/dev/null || true
             
-            tar -czvf DetectItEasy_Termux_CLI.tar.gz -C release_termux .
+            tar -czvf /output/DetectItEasy_Termux_CLI.tar.gz -C release_termux .
           "
 
-      - name: Upload Artifact (Backup)
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: DetectItEasy-Termux-CLI
-          path: DetectItEasy_Termux_CLI.tar.gz
+          path: output_termux/DetectItEasy_Termux_CLI.tar.gz
 
       - name: Upload Release
         uses: softprops/action-gh-release@v2
@@ -51,4 +53,4 @@ jobs:
           tag_name: Beta
           draft: false
           prerelease: true
-          files: DetectItEasy_Termux_CLI.tar.gz
+          files: output_termux/DetectItEasy_Termux_CLI.tar.gz
