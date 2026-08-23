@@ -25,7 +25,7 @@ jobs:
       - name: Install Qt (Host Linux Desktop)
         uses: jurplel/install-qt-action@v4
         with:
-          version: '6.8.2'
+          version: '6.10.2'
           host: 'linux'
           target: 'desktop'
           arch: 'gcc_64'
@@ -35,7 +35,7 @@ jobs:
       - name: Install Qt (Target Android)
         uses: jurplel/install-qt-action@v4
         with:
-          version: '6.8.2'
+          version: '6.10.2'
           host: 'linux'
           target: 'android'
           arch: 'android_arm64_v8a'
@@ -51,8 +51,8 @@ jobs:
           set -ex
           
           export ANDROID_NDK_ROOT=$ANDROID_NDK_HOME
-          export QT_ANDROID_PATH=${{ github.workspace }}/Qt/6.8.2/android_arm64_v8a
-          export QT_HOST_PATH=${{ github.workspace }}/Qt/6.8.2/gcc_64
+          export QT_ANDROID_PATH=${{ github.workspace }}/Qt/6.10.2/android_arm64_v8a
+          export QT_HOST_PATH=${{ github.workspace }}/Qt/6.10.2/gcc_64
           
           cd DIE-engine
           mkdir build
