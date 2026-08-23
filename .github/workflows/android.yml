@@ -11,11 +11,16 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - name: Setup Java (Benötigt für Android Build-Tools)
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
+
+      - name: Install dependencies (Ninja Build)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build
 
       - name: Install Qt for Android
         uses: jurplel/install-qt-action@v4
@@ -26,7 +31,7 @@ jobs:
           arch: 'android_arm64_v8a'
           modules: 'qt5compat'
 
-      - name: Clone DIE-engine (aus dem offiziellen Repo)
+      - name: Clone DIE-engine
         run: |
           git clone --recursive https://github.com/horsicq/DIE-engine.git DIE-engine
 
@@ -34,29 +39,24 @@ jobs:
         run: |
           set -ex
           
-          # Wir nutzen das NDK, das auf den GitHub-Servern bereits vorinstalliert ist
-          export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/25.2.9519653
+          export ANDROID_NDK_ROOT=$ANDROID_NDK_HOME
           
           cd DIE-engine
           mkdir build
           cd build
           
-          # CMake für Android ARM64 (Handys) konfigurieren
-          cmake .. \
+          cmake -G Ninja .. \
             -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_ROOT/build/cmake/android.toolchain.cmake \
             -DANDROID_ABI=arm64-v8a \
             -DANDROID_PLATFORM=android-28 \
             -DCMAKE_BUILD_TYPE=Release
             
-          # Kompilieren (nutzt alle verfügbaren Kerne)
           cmake --build . -j$(nproc)
           
-          # Qt6-Befehle, um aus den kompilierten C++ Dateien die Java-Hülle (.apk) zu schnüren
           cmake --build . --target die_make_apk || cmake --build . --target apk || echo "Generiere APK Fallback..."
           
           mkdir -p ../release
           
-          # Suche die generierte APK-Datei im Build-Verzeichnis
           APK_FILE=$(find . -name "*.apk" | head -n 1)
           
           if [ -n "$APK_FILE" ]; then
