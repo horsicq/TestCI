@@ -1,4 +1,4 @@
-name: Build DIE-engine Android APK
+name: TestCI Android APK Build
 
 on:
   workflow_dispatch:
@@ -7,79 +7,78 @@ permissions:
   contents: write
 
 jobs:
-  build-android:
-    runs-on: ubuntu-latest
+  build-android-apk:
+    runs-on: ubuntu-24.04
 
     steps:
-      - name: Install Android tools
-        run: |
-          sudo apt update
-          sudo apt install -y openjdk-17-jdk cmake ninja-build
+      - name: Setup Java (Benötigt für Android Build-Tools)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Install NDK
-        run: |
-          sdkmanager \
-            "platform-tools" \
-            "platforms;android-35" \
-            "build-tools;35.0.0" \
-            "ndk;27.0.12077973"
-
-      - name: Install Qt
+      - name: Install Qt for Android
         uses: jurplel/install-qt-action@v4
         with:
-          version: 6.7.3
-          host: linux
-          target: android
-          arch: android_arm64_v8a
+          version: '6.8.2'
+          host: 'linux'
+          target: 'android'
+          arch: 'android_arm64_v8a'
+          modules: 'qt5compat'
 
-      - name: Clone DIE-engine
+      - name: Clone DIE-engine (aus dem offiziellen Repo)
         run: |
-          git clone https://github.com/horsicq/DIE-engine.git --recursive
+          git clone --recursive https://github.com/horsicq/DIE-engine.git DIE-engine
 
-      - name: Configure
-        working-directory: ${{ github.workspace }}/DIE-engine
+      - name: Build Android APK
         run: |
-          $Qt6_DIR/bin/qt-cmake \
-            -B build \
-            -G Ninja \
-            -DCMAKE_BUILD_TYPE=Release \
+          set -ex
+          
+          # Wir nutzen das NDK, das auf den GitHub-Servern bereits vorinstalliert ist
+          export ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/25.2.9519653
+          
+          cd DIE-engine
+          mkdir build
+          cd build
+          
+          # CMake für Android ARM64 (Handys) konfigurieren
+          cmake .. \
+            -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_ROOT/build/cmake/android.toolchain.cmake \
             -DANDROID_ABI=arm64-v8a \
-            -DANDROID_PLATFORM=android-35 \
-            -DANDROID_NDK_ROOT=$ANDROID_NDK_HOME
+            -DANDROID_PLATFORM=android-28 \
+            -DCMAKE_BUILD_TYPE=Release
+            
+          # Kompilieren (nutzt alle verfügbaren Kerne)
+          cmake --build . -j$(nproc)
+          
+          # Qt6-Befehle, um aus den kompilierten C++ Dateien die Java-Hülle (.apk) zu schnüren
+          cmake --build . --target die_make_apk || cmake --build . --target apk || echo "Generiere APK Fallback..."
+          
+          mkdir -p ../release
+          
+          # Suche die generierte APK-Datei im Build-Verzeichnis
+          APK_FILE=$(find . -name "*.apk" | head -n 1)
+          
+          if [ -n "$APK_FILE" ]; then
+            cp "$APK_FILE" ../release/DetectItEasy-GUI-Android-arm64.apk
+            echo "APK erfolgreich gefunden und nach release/ kopiert!"
+          else
+            echo "FEHLER: CMake hat keine .apk ausgespuckt."
+            exit 1
+          fi
 
-      - name: Build
-        working-directory: ${{ github.workspace }}/DIE-engine
-        run: |
-          cmake --build build --parallel $(nproc)
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: DetectItEasy-Android-APK
+          path: DIE-engine/release/*.apk
 
-      - name: Build APK
-        working-directory: ${{ github.workspace }}/DIE-engine/build
-        run: |
-          $Qt6_DIR/bin/androiddeployqt \
-            --input android-libDIE-engine-deployment-settings.json \
-            --output android-build \
-            --android-platform android-35 \
-            --gradle
-
-      - name: Collect APK
-        working-directory: ${{ github.workspace }}/DIE-engine
-        run: |
-          mkdir -p release
-          find build \
-            -name "*.apk" \
-            -exec cp {} release/DIE-engine-android.apk \;
-          ls -lah release
-
-      - name: Upload APK
+      - name: Upload Release
         uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: Beta
+          tag_name: Android-Beta
           draft: false
           prerelease: true
-          files: |
-            ${{ github.workspace }}/DIE-engine/release/*.apk
+          files: DIE-engine/release/*.apk
