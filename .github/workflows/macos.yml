@@ -28,13 +28,6 @@ jobs:
         run: |
           find dep/XArchive/Algos -type f \( -name "*.cpp" -o -name "*.h" \) -exec sed -i '' 's/register //g' {} +
           
-          sed -i '' '/define fdopen(fd,mode) NULL/d' dep/XArchive/Algos/zlibutil.cpp
-          sed -i '' '/define fdopen(fd, mode) NULL/d' dep/XArchive/Algos/xdeflatedecoder.cpp
-          
-          find dep/XArchive/Algos -type f \( -name "*.cpp" -o -name "*.h" \) -exec sed -i '' '/define local static/d' {} +
-          find dep/XArchive/Algos -type f \( -name "*.cpp" -o -name "*.h" \) -exec sed -i '' 's/^local /static /g' {} +
-          find dep/XArchive/Algos -type f \( -name "*.cpp" -o -name "*.h" \) -exec sed -i '' 's/ local / static /g' {} +
-
           find . -type f \( -name "CMakeLists.txt" -o -name "*.cmake" \) -exec sed -i '' 's/-framework AGL//g' {} +
           find . -type f \( -name "CMakeLists.txt" -o -name "*.cmake" \) -exec sed -i '' 's/"-framework AGL"//g' {} +
           find . -type f \( -name "CMakeLists.txt" -o -name "*.cmake" \) -exec sed -i '' 's/[[:<:]]AGL[[:>:]]//g' {} +
