@@ -21,20 +21,34 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo dpkg --add-architecture ppc64el
+          
+          sudo sed -i 's/^Types: deb/Types: deb\nArchitectures: amd64/' /etc/apt/sources.list.d/ubuntu.sources
+          
+          sudo find /etc/apt/sources.list* -type f -name "*.list" -exec sed -i -E 's/^deb ([^\[])/deb [arch=amd64] \1/g' {} +
+          
+          cat <<EOF | sudo tee /etc/apt/sources.list.d/ubuntu-ports.sources
+          Types: deb
+          URIs: http://ports.ubuntu.com/ubuntu-ports/
+          Suites: noble noble-updates noble-backports noble-security
+          Components: main restricted universe multiverse
+          Architectures: ppc64el
+          Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+          EOF
+          
           sudo apt-get update
-
+          
           sudo apt-get install -y \
             build-essential \
             crossbuild-essential-ppc64el \
             git \
             cmake \
             dpkg-dev
-
+            
           sudo apt-get install -y \
             qtbase5-dev-tools \
             qttools5-dev-tools \
             qtchooser
-
+            
           sudo apt-get install -y \
             qtbase5-dev:ppc64el \
             qtscript5-dev:ppc64el \
@@ -71,16 +85,11 @@ jobs:
           packages=("${{ env.RELEASE_PATH }}"/*.deb)
 
           if [ ${#packages[@]} -eq 0 ]; then
-            echo "No .deb package was produced."
             exit 1
           fi
 
           for package in "${packages[@]}"; do
-            echo "Package: $package"
-            echo "Architecture: $(dpkg-deb -f "$package" Architecture)"
-
             if [ "$(dpkg-deb -f "$package" Architecture)" != "ppc64el" ]; then
-              echo "ERROR: Package is not ppc64el!"
               exit 1
             fi
           done
