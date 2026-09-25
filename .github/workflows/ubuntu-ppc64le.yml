@@ -63,10 +63,9 @@ jobs:
           export CC=powerpc64le-linux-gnu-gcc
           export CXX=powerpc64le-linux-gnu-g++
           export PKG_CONFIG_PATH=/usr/lib/powerpc64le-linux-gnu/pkgconfig
+          export CMAKE_PREFIX_PATH=/usr/lib/powerpc64le-linux-gnu
           
           sed -i '1i set(CMAKE_SYSTEM_NAME Linux)\nset(CMAKE_SYSTEM_PROCESSOR ppc64le)\nset(X_PROJECT_ARCH ppc64le)\nset(CPACK_DEBIAN_PACKAGE_ARCHITECTURE ppc64el)\n' CMakeLists.txt
-
-          sed -i 's|cmake |cmake -DCMAKE_PREFIX_PATH=/usr/lib/powerpc64le-linux-gnu |g' build_dpkg.sh || true
           
           chmod a+x build_dpkg.sh
           ./build_dpkg.sh
