@@ -66,6 +66,8 @@ jobs:
           export DEB_BUILD_OPTIONS=nocheck
 
           sed -i 's/dpkg-buildpackage/dpkg-buildpackage -a ppc64el/g' build_dpkg.sh || true
+          
+          printf "\noverride_dh_auto_configure:\n\tdh_auto_configure -- -DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_PROCESSOR=ppc64le -DX_PROJECT_ARCH=ppc64le\n" >> debian/rules
 
           chmod a+x build_dpkg.sh
           ./build_dpkg.sh
