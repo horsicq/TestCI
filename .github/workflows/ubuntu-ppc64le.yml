@@ -15,44 +15,46 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout Repository
+        uses: actions/checkout@v6
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v4
-        with:
-          platforms: ppc64le
-
-      - name: Build
+      - name: Install Dependencies
         run: |
-          docker run --rm \
-            --platform linux/ppc64le \
-            -v "${{ github.workspace }}:/workspace" \
-            -w /workspace \
-            ubuntu:24.04 \
-            bash -ex -c '
-              apt-get update
+          sudo dpkg --add-architecture ppc64el
+          sudo apt-get update
 
-              apt-get install -y \
-                git \
-                qtbase5-dev \
-                qtscript5-dev \
-                qttools5-dev \
-                qttools5-dev-tools \
-                libqt5svg5-dev \
-                qtchooser \
-                build-essential \
-                cmake
+          sudo apt-get install -y \
+            build-essential \
+            crossbuild-essential-ppc64el \
+            git \
+            cmake \
+            dpkg-dev
 
-              git clone --recursive https://github.com/horsicq/DIE-engine.git
+          sudo apt-get install -y \
+            qtbase5-dev-tools \
+            qttools5-dev-tools \
+            qtchooser
 
-              cd DIE-engine
+          sudo apt-get install -y \
+            qtbase5-dev:ppc64el \
+            qtscript5-dev:ppc64el \
+            qttools5-dev:ppc64el \
+            libqt5svg5-dev:ppc64el
 
-              pwd
+      - name: Build DIE-engine
+        run: |
+          git clone --recursive https://github.com/horsicq/DIE-engine.git
+          cd DIE-engine
 
-              chmod a+x build_dpkg.sh
+          export CC=powerpc64le-linux-gnu-gcc
+          export CXX=powerpc64le-linux-gnu-g++
+          export PKG_CONFIG_PATH=/usr/lib/powerpc64le-linux-gnu/pkgconfig
+          export DEB_BUILD_OPTIONS=nocheck
 
-              ./build_dpkg.sh
-            '
+          sed -i 's/dpkg-buildpackage/dpkg-buildpackage -a ppc64el/g' build_dpkg.sh || true
+
+          chmod a+x build_dpkg.sh
+          ./build_dpkg.sh
 
       - name: Collect packages
         run: |
