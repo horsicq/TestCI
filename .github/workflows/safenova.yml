@@ -1,9 +1,9 @@
 name: Build SafeNova Beta (Daily)
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: 
   schedule:
-    - cron: '0 3 * * *'
+    - cron: '0 3 * * *' 
 
 permissions:
   contents: write
@@ -23,8 +23,11 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '21'
+          
+      - name: Checkout your repository
+        uses: actions/checkout@v4
 
-      - name: Clone Repository
+      - name: Clone SafeNova Repository
         run: git clone https://github.com/DosX-dev/SafeNova.git SafeNova
 
       - name: Prepare Capacitor
@@ -55,11 +58,18 @@ jobs:
       - name: Generate Date Tag
         id: date_tag
         run: |
-          echo "BETA_TAG=Beta-$(date +'%Y-%m-%d')" >> $GITHUB_ENV
+          echo "BETA_TAG=Beta-$(date +'%Y-%m-%d-%H%M')" >> $GITHUB_ENV
 
       - name: Rename APK
         run: |
           mv android/app/build/outputs/apk/debug/app-debug.apk SafeNova-${{ env.BETA_TAG }}.apk
+
+      - name: Create Git Tag
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git tag ${{ env.BETA_TAG }}
+          git push origin ${{ env.BETA_TAG }}
 
       - name: Create Release and Upload APK
         uses: softprops/action-gh-release@v2
@@ -67,3 +77,5 @@ jobs:
           tag_name: ${{ env.BETA_TAG }}
           name: SafeNova Daily Build (${{ env.BETA_TAG }})
           files: SafeNova-${{ env.BETA_TAG }}.apk
+          draft: false
+          prerelease: true
