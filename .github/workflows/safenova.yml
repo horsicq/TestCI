@@ -13,40 +13,29 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Set up Java (required for Android build)
+      - name: Set up Java
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
 
-      - name: Manually clone the SafeNova repository
-        run: |
-          git clone https://github.com/DosX-dev/SafeNova.git SafeNova
+      - name: Clone Repository
+        run: git clone https://github.com/DosX-dev/SafeNova.git SafeNova
 
-      - name: Prepare Capacitor project
+      - name: Prepare Capacitor
         run: |
-          # Create a default package.json
           npm init -y
-          
-          # Install Capacitor dependencies
           npm install @capacitor/core @capacitor/cli @capacitor/android
-          
-          mv SafeNova www
-          rm -rf www/.git
-          
-          npx cap init "SafeNova" "com.dosx.safenova" --web-dir www
-          
+          npx cap init "SafeNova" "com.dosx.safenova" --web-dir "SafeNova/src"
           npx cap add android
 
-      - name: Build the APK
+      - name: Build APK
         run: |
           cd android
-          # Grant execution permissions to the Gradle wrapper
           chmod +x gradlew
-          # Compile the debug APK
           ./gradlew assembleDebug
 
-      - name: Upload the compiled APK as an artifact
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: SafeNova-App
