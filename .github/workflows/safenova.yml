@@ -1,7 +1,12 @@
-name: Build SafeNova APK
+name: Build SafeNova Beta (Daily)
 
 on:
-  workflow_dispatch: 
+  workflow_dispatch:
+  schedule:
+    - cron: '0 3 * * *'
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -47,8 +52,18 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug
 
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
+      - name: Generate Date Tag
+        id: date_tag
+        run: |
+          echo "BETA_TAG=Beta-$(date +'%Y-%m-%d')" >> $GITHUB_ENV
+
+      - name: Rename APK
+        run: |
+          mv android/app/build/outputs/apk/debug/app-debug.apk SafeNova-${{ env.BETA_TAG }}.apk
+
+      - name: Create Release and Upload APK
+        uses: softprops/action-gh-release@v2
         with:
-          name: SafeNova-App
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          tag_name: ${{ env.BETA_TAG }}
+          name: SafeNova Daily Build (${{ env.BETA_TAG }})
+          files: SafeNova-${{ env.BETA_TAG }}.apk
