@@ -121,7 +121,8 @@ jobs:
           target: 'desktop'
           arch: 'win64_msvc2022_64'
           dir: ${{ github.workspace }}
-          modules: qt5compat
+          modules: 'qt5compat'
+          aqtsource: 'git+https://github.com/miurahr/aqtinstall.git'
           
       - name: Create Qt symlink for DiE script 
         shell: cmd
