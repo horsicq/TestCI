@@ -54,8 +54,8 @@ jobs:
         shell: cmd
         working-directory: ${{ env.SRC_PATH }}
         run: |
-          set "QT_HOST=${{ github.workspace }}\Qt\6.8.2\msvc2022_64"
-          set "QT_TARGET=${{ github.workspace }}\Qt\6.8.2\msvc2022_arm64"
+          set "QT_HOST=${{ github.workspace }}\Qt\6.12.0\msvc2022_64"
+          set "QT_TARGET=${{ github.workspace }}\Qt\6.12.0\msvc2022_arm64"
           set "SEVENZIP_PATH=C:\Program Files\7-Zip\7z.exe"
 
           set "X_BUILD_NAME=die"
