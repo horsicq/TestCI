@@ -60,16 +60,26 @@ jobs:
           find dep/ -type f \( -name "*.cpp" -o -name "*.h" -o -name "*.c" \) -exec sed -i 's/\<PAGE_SIZE\>/XZTC_PAGE_SIZE/g' {} +
           find dep/ -type f \( -name "*.cpp" -o -name "*.h" -o -name "*.c" \) -exec sed -i 's/\<Byte\>/z_Byte/g' {} +
           
-          # Fix XSingleApplication / QSharedMemory for Android
-          sed -i 's/class XSingleApplication : public QApplication/class XSingleApplication : public QObject/g' dep/XSingleApplication/xsingleapplication.h
-          sed -i 's/#include <QSharedMemory>//g' dep/XSingleApplication/xsingleapplication.h
-          sed -i 's/QSharedMemory \*g_pSharedMemory;/void *g_pSharedMemory;/g' dep/XSingleApplication/xsingleapplication.h
-          sed -i 's/g_pSharedMemory = new QSharedMemory(sAppKey);/g_pSharedMemory = nullptr;/g' dep/XSingleApplication/xsingleapplication.cpp
-          sed -i 's/delete g_pSharedMemory;//g' dep/XSingleApplication/xsingleapplication.cpp
-          sed -i 's/return g_pSharedMemory->create(1, QSharedMemory::ReadWrite);/return true;/g' dep/XSingleApplication/xsingleapplication.cpp
-          
           # Fix QProcess::UnixProcessFlag::CreateNewSession on Android
           sed -i 's/unixParameters.flags = QProcess::UnixProcessFlag::CreateNewSession | QProcess::UnixProcessFlag::CloseFileDescriptors | QProcess::UnixProcessFlag::ResetSignalHandlers;/unixParameters.flags = QProcess::UnixProcessFlag::CloseFileDescriptors | QProcess::UnixProcessFlag::ResetSignalHandlers;/g' dep/XArchive/core/xexternalarchive.cpp
+          
+          # Completely stub out XSingleApplication for Android to bypass QSharedMemory errors
+          cat << 'EOF' > dep/XSingleApplication/xsingleapplication.h
+          #ifndef XSINGLEAPPLICATION_H
+          #define XSINGLEAPPLICATION_H
+          #include <QApplication>
+          class XSingleApplication : public QApplication {
+              Q_OBJECT
+          public:
+              XSingleApplication(int &argc, char *argv[]) : QApplication(argc, argv) {}
+              bool process() { return true; }
+          };
+          #endif
+          EOF
+          
+          cat << 'EOF' > dep/XSingleApplication/xsingleapplication.cpp
+          #include "xsingleapplication.h"
+          EOF
           
           mkdir build
           cd build
