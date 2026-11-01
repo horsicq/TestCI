@@ -65,7 +65,9 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_PREFIX_PATH=$QT_ANDROID_PATH \
             -DCMAKE_FIND_ROOT_PATH=$QT_ANDROID_PATH \
-            -DQT_HOST_PATH=$QT_HOST_PATH
+            -DQT_HOST_PATH=$QT_HOST_PATH \
+            -DCMAKE_C_FLAGS="-DBUCKETS_128=1 -DCHECKSUM_1B=1" \
+            -DCMAKE_CXX_FLAGS="-DBUCKETS_128=1 -DCHECKSUM_1B=1"
             
           cmake --build . -j$(nproc)
           
