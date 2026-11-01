@@ -73,6 +73,8 @@ jobs:
           public:
               XSingleApplication(int &argc, char *argv[]) : QApplication(argc, argv) {}
               bool process() { return true; }
+              void enableSingleInstance() {}
+              bool isPrimary() { return true; }
           };
           #endif
           EOF
