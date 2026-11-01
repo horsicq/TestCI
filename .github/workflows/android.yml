@@ -55,6 +55,9 @@ jobs:
           export QT_HOST_PATH=${{ github.workspace }}/Qt/6.6.3/gcc_64
           
           cd DIE-engine
+          
+          find dep/XArchive/ -type f \( -name "*.cpp" -o -name "*.h" \) -exec sed -i 's/PAGE_SIZE/XZTC_PAGE_SIZE/g' {} +
+          
           mkdir build
           cd build
           
@@ -67,7 +70,7 @@ jobs:
             -DCMAKE_FIND_ROOT_PATH=$QT_ANDROID_PATH \
             -DQT_HOST_PATH=$QT_HOST_PATH \
             -DCMAKE_C_FLAGS="-DBUCKETS_128=1 -DCHECKSUM_1B=1 -w" \
-            -DCMAKE_CXX_FLAGS="-DBUCKETS_128=1 -DCHECKSUM_1B=1 -w -Wno-register"
+            -DCMAKE_CXX_FLAGS="-DBUCKETS_128=1 -DCHECKSUM_1B=1 -w -Wno-register -Wno-deprecated-register"
             
           cmake --build . -j$(nproc)
           
