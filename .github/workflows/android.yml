@@ -64,6 +64,7 @@ jobs:
             -DANDROID_PLATFORM=android-28 \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_PREFIX_PATH=$QT_ANDROID_PATH \
+            -DCMAKE_FIND_ROOT_PATH=$QT_ANDROID_PATH \
             -DQT_HOST_PATH=$QT_HOST_PATH
             
           cmake --build . -j$(nproc)
@@ -77,6 +78,7 @@ jobs:
           if [ -n "$APK_FILE" ]; then
             cp "$APK_FILE" ../release/DetectItEasy-GUI-Android-arm64.apk
           else
+            echo "Error: No APK file found in build directory."
             exit 1
           fi
 
