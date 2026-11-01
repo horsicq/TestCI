@@ -99,7 +99,9 @@ jobs:
             
           cmake --build . -j$(nproc)
           
-          cmake --build . --target DetectItEasy_make_apk
+          ls
+          pwd
+          cmake --build . --target DetectItEasy
           
           mkdir -p ../release
           
