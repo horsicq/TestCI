@@ -56,9 +56,18 @@ jobs:
           
           cd DIE-engine
           
+          # Fix Android NDK macro collisions (PAGE_SIZE and JNI Byte collision)
           find dep/XArchive/ -type f \( -name "*.cpp" -o -name "*.h" \) -exec sed -i 's/PAGE_SIZE/XZTC_PAGE_SIZE/g' {} +
           find dep/Formats/Algos/ -type f \( -name "*.cpp" -o -name "*.h" \) -exec sed -i 's/\<Byte\>/z_Byte/g' {} +
           find dep/XArchive/ -type f \( -name "*.cpp" -o -name "*.h" \) -exec sed -i 's/\<Byte\>/z_Byte/g' {} +
+          
+          # Fix XSingleApplication / QSharedMemory for Android
+          sed -i 's/class XSingleApplication : public QApplication/class XSingleApplication : public QObject/g' dep/XSingleApplication/xsingleapplication.h
+          sed -i 's/#include <QSharedMemory>//g' dep/XSingleApplication/xsingleapplication.h
+          sed -i 's/QSharedMemory \*g_pSharedMemory;/void *g_pSharedMemory;/g' dep/XSingleApplication/xsingleapplication.h
+          sed -i 's/g_pSharedMemory = new QSharedMemory(sAppKey);/g_pSharedMemory = nullptr;/g' dep/XSingleApplication/xsingleapplication.cpp
+          sed -i 's/delete g_pSharedMemory;//g' dep/XSingleApplication/xsingleapplication.cpp
+          sed -i 's/return g_pSharedMemory->create(1, QSharedMemory::ReadWrite);/return true;/g' dep/XSingleApplication/xsingleapplication.cpp
           
           mkdir build
           cd build
