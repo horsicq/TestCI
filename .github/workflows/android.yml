@@ -69,6 +69,9 @@ jobs:
           sed -i 's/delete g_pSharedMemory;//g' dep/XSingleApplication/xsingleapplication.cpp
           sed -i 's/return g_pSharedMemory->create(1, QSharedMemory::ReadWrite);/return true;/g' dep/XSingleApplication/xsingleapplication.cpp
           
+          # Fix QProcess::UnixProcessFlag::CreateNewSession on Android
+          sed -i 's/unixParameters.flags = QProcess::UnixProcessFlag::CreateNewSession | QProcess::UnixProcessFlag::CloseFileDescriptors | QProcess::UnixProcessFlag::ResetSignalHandlers;/unixParameters.flags = QProcess::UnixProcessFlag::CloseFileDescriptors | QProcess::UnixProcessFlag::ResetSignalHandlers;/g' dep/XArchive/core/xexternalarchive.cpp
+          
           mkdir build
           cd build
           
