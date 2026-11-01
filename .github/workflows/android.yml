@@ -99,7 +99,7 @@ jobs:
             
           cmake --build . -j$(nproc)
           
-          cmake --build . --target die_make_apk || cmake --build . --target apk || true
+          cmake --build . --target DetectItEasy_make_apk
           
           mkdir -p ../release
           
