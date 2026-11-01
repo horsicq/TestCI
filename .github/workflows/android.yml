@@ -57,6 +57,8 @@ jobs:
           cd DIE-engine
           
           find dep/XArchive/ -type f \( -name "*.cpp" -o -name "*.h" \) -exec sed -i 's/PAGE_SIZE/XZTC_PAGE_SIZE/g' {} +
+          find dep/Formats/Algos/ -type f \( -name "*.cpp" -o -name "*.h" \) -exec sed -i 's/\<Byte\>/z_Byte/g' {} +
+          find dep/XArchive/ -type f \( -name "*.cpp" -o -name "*.h" \) -exec sed -i 's/\<Byte\>/z_Byte/g' {} +
           
           mkdir build
           cd build
