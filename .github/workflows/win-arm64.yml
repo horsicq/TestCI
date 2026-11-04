@@ -37,7 +37,6 @@ jobs:
           arch: 'win64_msvc2022_64'
           dir: ${{ github.workspace }}
           modules: 'qt5compat'
-          aqtsource: 'git+https://github.com/miurahr/aqtinstall.git'
 
       - name: Install Qt (Target ARM64 Cross-Compiled)
         uses: jurplel/install-qt-action@v4
@@ -48,8 +47,7 @@ jobs:
           arch: 'win64_msvc2022_arm64_cross_compiled'
           dir: ${{ github.workspace }}
           modules: 'qt5compat'
-          aqtsource: 'git+https://github.com/miurahr/aqtinstall.git'
-
+          
       - name: Build with CMake & Package
         shell: cmd
         working-directory: ${{ env.SRC_PATH }}
