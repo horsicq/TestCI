@@ -1,4 +1,4 @@
-name: Build Debian m68k
+name: Build Debian x64
 
 on:
   workflow_dispatch:
@@ -11,33 +11,30 @@ env:
   RELEASE_PATH: release
 
 jobs:
-  build-debian-m68k:
+  build-debian-amd64:
     runs-on: ubuntu-24.04
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install QEMU and Bootstrap Tools
+      - name: Install Bootstrap Tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y qemu-user-static binfmt-support mmdebstrap debian-ports-archive-keyring
+          sudo apt-get install -y mmdebstrap
 
-      - name: Bootstrap m68k Environment
+      - name: Bootstrap amd64 Environment
         run: |
           sudo mmdebstrap \
-            --architectures=m68k \
+            --architectures=amd64 \
             --variant=buildd \
-            --aptopt='Acquire::Check-Valid-Until "false"' \
-            --include="git,qtbase5-dev,qtscript5-dev,qttools5-dev,qttools5-dev-tools,libqt5svg5-dev,qtchooser,build-essential,cmake,debian-ports-archive-keyring" \
-            unstable ./m68k-chroot \
-            "deb [trusted=yes] http://snapshot.debian.org/archive/debian-ports/20240315T000000Z/ unstable main" \
-            "deb [trusted=yes] http://snapshot.debian.org/archive/debian-ports/20240315T000000Z/ unreleased main"
+            --include="git,qtbase5-dev,qtscript5-dev,qttools5-dev,qttools5-dev-tools,libqt5svg5-dev,qtchooser,build-essential,cmake" \
+            unstable ./amd64-chroot
 
-      - name: Build DIE-engine inside m68k chroot
+      - name: Build DIE-engine inside amd64 chroot
         run: |
-          sudo cp -a "${{ github.workspace }}" ./m68k-chroot/workspace
+          sudo cp -a "${{ github.workspace }}" ./amd64-chroot/workspace
           
-          sudo chroot ./m68k-chroot /bin/bash -ex -c '
+          sudo chroot ./amd64-chroot /bin/bash -ex -c '
             cd /workspace
             git clone --recursive https://github.com/horsicq/DIE-engine.git
             cd DIE-engine
@@ -48,7 +45,7 @@ jobs:
       - name: Collect packages
         run: |
           mkdir -p "${{ env.RELEASE_PATH }}"
-          sudo find ./m68k-chroot/workspace/DIE-engine -type f -name "*.deb" -exec cp {} "${{ env.RELEASE_PATH }}/" \;
+          sudo find ./amd64-chroot/workspace/DIE-engine -type f -name "*.deb" -exec cp {} "${{ env.RELEASE_PATH }}/" \;
           sudo chown -R $USER:$USER "${{ env.RELEASE_PATH }}"
 
       - name: Verify package architecture
@@ -66,8 +63,8 @@ jobs:
             ARCH=$(dpkg-deb -f "$package" Architecture)
             echo "Architecture: $ARCH"
 
-            if [ "$ARCH" != "m68k" ]; then
-              echo "ERROR: Package is not m68k!"
+            if [ "$ARCH" != "amd64" ]; then
+              echo "ERROR: Package is not amd64!"
               exit 1
             fi
           done
