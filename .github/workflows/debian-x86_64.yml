@@ -28,13 +28,15 @@ jobs:
             --architectures=amd64 \
             --variant=buildd \
             --include="git,qtbase5-dev,qtscript5-dev,qttools5-dev,qttools5-dev-tools,libqt5svg5-dev,qtchooser,build-essential,cmake" \
-            unstable ./amd64-chroot
+            unstable /tmp/amd64-chroot
 
       - name: Build DIE-engine inside amd64 chroot
         run: |
-          sudo cp -a "${{ github.workspace }}" ./amd64-chroot/workspace
+          sudo mkdir -p /tmp/amd64-chroot/workspace
           
-          sudo chroot ./amd64-chroot /bin/bash -ex -c '
+          sudo cp -a ${{ github.workspace }}/. /tmp/amd64-chroot/workspace/
+          
+          sudo chroot /tmp/amd64-chroot /bin/bash -ex -c '
             cd /workspace
             git clone --recursive https://github.com/horsicq/DIE-engine.git
             cd DIE-engine
@@ -45,7 +47,7 @@ jobs:
       - name: Collect packages
         run: |
           mkdir -p "${{ env.RELEASE_PATH }}"
-          sudo find ./amd64-chroot/workspace/DIE-engine -type f -name "*.deb" -exec cp {} "${{ env.RELEASE_PATH }}/" \;
+          sudo find /tmp/amd64-chroot/workspace/DIE-engine -type f -name "*.deb" -exec cp {} "${{ env.RELEASE_PATH }}/" \;
           sudo chown -R $USER:$USER "${{ env.RELEASE_PATH }}"
 
       - name: Verify package architecture
