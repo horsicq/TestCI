@@ -27,14 +27,17 @@ jobs:
           sudo mmdebstrap \
             --architectures=amd64 \
             --variant=buildd \
-            --include="ca-certificates,git,qtbase5-dev,qtscript5-dev,qttools5-dev,qttools5-dev-tools,libqt5svg5-dev,qtchooser,build-essential,cmake" \
+            --include="ca-certificates,git,qtbase5-dev,qtscript5-dev,qttools5-dev,qttools5-dev-tools,libqt5svg5-dev,libqt5opengl5-dev,qtchooser,build-essential,cmake" \
             unstable /tmp/amd64-chroot
 
       - name: Build DIE-engine inside amd64 chroot
         run: |
           sudo mkdir -p /tmp/amd64-chroot/workspace
-          
           sudo cp -a ${{ github.workspace }}/. /tmp/amd64-chroot/workspace/
+          
+          sudo mount -t proc proc /tmp/amd64-chroot/proc
+          sudo mount -t sysfs sys /tmp/amd64-chroot/sys
+          sudo mount -o bind /dev /tmp/amd64-chroot/dev
           
           sudo chroot /tmp/amd64-chroot /bin/bash -ex -c '
             cd /workspace
@@ -43,6 +46,10 @@ jobs:
             chmod a+x build_dpkg.sh
             ./build_dpkg.sh
           '
+          
+          sudo umount /tmp/amd64-chroot/dev
+          sudo umount /tmp/amd64-chroot/sys
+          sudo umount /tmp/amd64-chroot/proc
 
       - name: Collect packages
         run: |
