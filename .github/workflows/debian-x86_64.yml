@@ -27,7 +27,7 @@ jobs:
           sudo mmdebstrap \
             --architectures=amd64 \
             --variant=buildd \
-            --include="git,qtbase5-dev,qtscript5-dev,qttools5-dev,qttools5-dev-tools,libqt5svg5-dev,qtchooser,build-essential,cmake" \
+            --include="ca-certificates,git,qtbase5-dev,qtscript5-dev,qttools5-dev,qttools5-dev-tools,libqt5svg5-dev,qtchooser,build-essential,cmake" \
             unstable /tmp/amd64-chroot
 
       - name: Build DIE-engine inside amd64 chroot
